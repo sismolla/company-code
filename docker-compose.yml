@@ -1,0 +1,87 @@
+version: "3.9"
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: compose/production/django/Dockerfile
+    command: /app/compose/production/entrypoint/entrypoint.sh gunicorn Pharmacy.wsgi:application --bind 0.0.0.0:8000
+    env_file: .env
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - .:/app
+      - static_data:/app/static
+      - media_data:/app/media
+    restart: unless-stopped
+
+  worker:
+    build:
+      context: .
+      dockerfile: compose/production/django/Dockerfile
+    command: celery -A Pharmacy worker -l info
+    env_file: .env
+    depends_on:
+      - redis
+      - db
+    volumes:
+      - .:/app
+    restart: unless-stopped
+
+  beat:
+    build:
+      context: .
+      dockerfile: compose/production/django/Dockerfile
+    command: celery -A Pharmacy beat -l info
+    env_file: .env
+    depends_on:
+      - redis
+      - db
+    volumes:
+      - .:/app
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  nginx:
+    build:
+      context: .
+      dockerfile: compose/production/nginx/Dockerfile
+    depends_on:
+      - web
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./compose/production/nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - static_data:/app/static
+      - media_data:/app/media
+      - certbot-webroot:/var/www/certbot
+      - letsencrypt:/etc/letsencrypt
+    restart: unless-stopped
+
+  certbot:
+    image: certbot/certbot:latest
+    volumes:
+      - certbot-webroot:/var/www/certbot
+      - letsencrypt:/etc/letsencrypt
+
+volumes:
+  pgdata:
+  certbot-webroot:
+  letsencrypt:
+  static_data:
+  media_data:

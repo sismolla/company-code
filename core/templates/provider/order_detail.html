@@ -1,0 +1,770 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block style %}
+<style>
+    :root {
+        --primary: #4361ee;
+        --primary-dark: #3a56d4;
+        --primary-light: #e6e9ff;
+        --success: #06d6a0;
+        --warning: #ffd166;
+        --danger: #ef476f;
+        --info: #118ab2;
+        --background: #f8f9fa;
+        --card-bg: #ffffff;
+        --text-color: #2b2d42;
+        --secondary-text: #6c757d;
+        --border-color: #e9ecef;
+        --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+        --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+        --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
+        --radius-sm: 6px;
+        --radius-md: 12px;
+        --radius-lg: 16px;
+        --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        background-color: var(--background);
+        color: var(--text-color);
+        line-height: 1.6;
+        margin: 0;
+        padding: 0;
+    }
+
+    .order-detail-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 500;
+        margin-bottom: 1.5rem;
+        transition: var(--transition);
+    }
+
+    .back-link:hover {
+        color: var(--primary-dark);
+    }
+
+    .order-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .order-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin: 0;
+        color: var(--text-color);
+    }
+    .items-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1.5rem 0;
+    }
+
+    .items-table th {
+        background-color: var(--primary-light);
+        color: var(--primary);
+        padding: 0.75rem 1rem;
+        text-align: left;
+        font-weight: 600;
+    }
+
+    .items-table td {
+        padding: 1rem;
+        border-bottom: 1px solid var(--border-color);
+        vertical-align: top;
+    }
+
+    .items-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .item-name {
+        font-weight: 500;
+    }
+
+    .item-dosage {
+        font-size: 0.85rem;
+        color: var(--secondary-text);
+        margin-top: 0.25rem;
+    }
+
+    .item-price {
+        white-space: nowrap;
+    }
+
+    .item-qty {
+        text-align: center;
+    }
+
+    /* New responsive table styles */
+    .table-container {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+        margin: 1.5rem 0;
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-sm);
+    }
+
+    /* Responsive table adjustments */
+    @media (max-width: 768px) {
+        .items-table {
+            min-width: 600px; /* Forces table to be scrollable on small screens */
+        }
+        
+        .items-table th,
+        .items-table td {
+            padding: 0.75rem 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .item-dosage {
+            font-size: 0.8rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .items-table {
+            min-width: 100%; /* Adjust for very small screens */
+        }
+        
+        .order-summary {
+            justify-content: flex-start;
+        }
+        
+        .summary-table {
+            width: 100%;
+        }
+    }
+
+    .order-status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: white;
+    }
+
+    .status-confirmed {
+        background-color: var(--success);
+    }
+
+    .status-pending {
+        background-color: var(--warning);
+    }
+
+    .status-canceled {
+        background-color: var(--danger);
+    }
+
+    .order-card {
+        background-color: var(--card-bg);
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-md);
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin: 0 0 1.5rem 0;
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .section-title i {
+        color: var(--primary);
+    }
+
+    .customer-info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .info-item {
+        margin-bottom: 1rem;
+    }
+
+    .info-label {
+        font-size: 0.85rem;
+        color: var(--secondary-text);
+        margin-bottom: 0.25rem;
+        font-weight: 500;
+    }
+
+    .info-value {
+        font-size: 1rem;
+        font-weight: 500;
+    }
+
+    .info-value a {
+        color: var(--primary);
+        text-decoration: none;
+    }
+
+    .info-value a:hover {
+        text-decoration: underline;
+    }
+
+    .items-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1.5rem 0;
+    }
+
+    .items-table th {
+        background-color: var(--primary-light);
+        color: var(--primary);
+        padding: 0.75rem 1rem;
+        text-align: left;
+        font-weight: 600;
+    }
+
+    .items-table td {
+        padding: 1rem;
+        border-bottom: 1px solid var(--border-color);
+        vertical-align: top;
+    }
+
+    .items-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .item-name {
+        font-weight: 500;
+    }
+
+    .item-dosage {
+        font-size: 0.85rem;
+        color: var(--secondary-text);
+        margin-top: 0.25rem;
+    }
+
+    .item-price {
+        white-space: nowrap;
+    }
+
+    .item-qty {
+        text-align: center;
+    }
+
+    .order-summary {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 1.5rem;
+    }
+
+    .summary-table {
+        width: 300px;
+        border-collapse: collapse;
+    }
+
+    .summary-table td {
+        padding: 0.75rem 0;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .summary-table tr:last-child td {
+        border-bottom: none;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+
+    .summary-label {
+        color: var(--secondary-text);
+    }
+
+    .summary-value {
+        text-align: right;
+    }
+
+    .order-total {
+        color: var(--primary);
+    }
+
+    .order-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        margin-top: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: var(--radius-sm);
+        font-size: 0.95rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: var(--transition);
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-primary {
+        background-color: var(--primary);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: var(--primary-dark);
+    }
+
+    .btn-outline {
+        background-color: transparent;
+        border: 1px solid var(--border-color);
+        color: var(--text-color);
+    }
+
+    .btn-outline:hover {
+        background-color: var(--background);
+    }
+
+    .btn-danger {
+        background-color: var(--danger);
+        color: white;
+    }
+
+    .btn-danger:hover {
+        background-color: #d2335c;
+    }
+
+    /* Loading State */
+    .loader-container {
+        text-align: center;
+        padding: 3rem;
+    }
+
+    .loader {
+        display: inline-block;
+        width: 40px;
+        height: 40px;
+        border: 4px solid var(--primary-light);
+        border-radius: 50%;
+        border-top-color: var(--primary);
+        animation: spin 1s ease-in-out infinite;
+        margin: 0 auto 1rem;
+    }
+
+    .loader-text {
+        color: var(--secondary-text);
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Toast Notification */
+    .toast {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        padding: 1rem 1.5rem;
+        border-radius: var(--radius-md);
+        background-color: var(--text-color);
+        color: white;
+        box-shadow: var(--shadow-lg);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        z-index: 1000;
+        transform: translateY(20px);
+        opacity: 0;
+        transition: var(--transition);
+    }
+
+    .toast.show {
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+    .toast-success {
+        background-color: var(--success);
+    }
+
+    .toast-error {
+        background-color: var(--danger);
+    }
+
+    .toast-info {
+        background-color: var(--info);
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .order-detail-container {
+            padding: 1.5rem;
+        }
+        
+        .order-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .customer-info-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .order-actions {
+            justify-content: flex-start;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .order-detail-container {
+            padding: 1rem;
+        }
+        
+        .order-title {
+            font-size: 1.5rem;
+        }
+        
+        .items-table th,
+        .items-table td {
+            padding: 0.75rem 0.5rem;
+        }
+    }
+</style>
+{% endblock style %}
+
+{% block content %}
+<div class="order-detail-container">
+    <a href="{% url 'landing:order-view' %}" class="back-link">
+        <i class="fas fa-arrow-left"></i>
+        Back to Orders
+    </a>
+
+    <div id="loading-state" class="loader-container">
+        <div class="loader"></div>
+        <p class="loader-text">Loading order details...</p>
+    </div>
+
+    <div id="order-content" style="display: none;">
+        <div class="order-header">
+            <h1 class="order-title">Order <span id="order-id">#</span></h1>
+            <span id="order-status" class="order-status-badge"></span>
+        </div>
+
+        <div class="order-card">
+            <h2 class="section-title">
+                <i class="fas fa-user"></i>
+                Customer Information
+            </h2>
+            
+            <div class="customer-info-grid">
+                <div class="info-item">
+                    <div class="info-label">Full Name</div>
+                    <div id="customer-name" class="info-value"></div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Email</div>
+                    <div id="customer-email" class="info-value"></div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Phone</div>
+                    <div id="customer-phone" class="info-value"></div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Pharmacy Name</div>
+                    <div id="pharmacy-name" class="info-value"></div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Delivery Address</div>
+                    <div id="delivery-address" class="info-value"></div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Order Date</div>
+                    <div id="order-date" class="info-value"></div>
+                </div>
+            </div>
+
+            <h2 class="section-title">
+                <i class="fas fa-list"></i>
+                Order Items
+            </h2>
+            
+            <div class="table-container">  <!-- Wrapped the table in this container -->
+                <table class="items-table" id="order-items">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Dosage</th>
+                            <th>Price</th>
+                            <th>Quantity</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="items-list">
+                        <!-- Items will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="order-summary">
+                <table class="summary-table">
+                    <tr>
+                        <td class="summary-label">Total:</td>
+                        <td id="total" class="summary-value order-total">$0.00</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="order-actions" id="order-actions">
+            <!-- Action buttons will be inserted here based on status -->
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="toast-notification">
+    <i class="fas fa-check-circle"></i>
+    <span id="toast-message"></span>
+</div>
+{% endblock content %}
+
+{% block script %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const loadingState = document.getElementById('loading-state');
+        const orderContent = document.getElementById('order-content');
+        const toast = document.getElementById('toast-notification');
+        const toastMessage = document.getElementById('toast-message');
+        
+        // Extract order ID from URL
+        const pathParts = window.location.pathname.split('/').filter(Boolean);
+        const orderId = pathParts[pathParts.length - 1];
+        
+        // Format date
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+            return new Date(dateString).toLocaleDateString('en-US', options);
+        }
+        
+        // Format currency
+        function formatCurrency(amount) {
+            return '$' + parseFloat(amount);
+        }
+        
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            toast.className = `toast toast-${type} show`;
+            toastMessage.textContent = message;
+            
+            // Update icon based on type
+            const icon = toast.querySelector('i');
+            if (type === 'success') {
+                icon.className = 'fas fa-check-circle';
+            } else if (type === 'error') {
+                icon.className = 'fas fa-exclamation-circle';
+            } else {
+                icon.className = 'fas fa-info-circle';
+            }
+            
+            // Hide after 3 seconds
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Update order status
+        async function updateOrderStatus(newStatus) {
+            try {
+                const response = await fetch(`/pharmacy/orders/${orderId}/`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken'),
+                    },
+                    body: JSON.stringify({ status: newStatus })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to update order status');
+                }
+                
+                const updatedOrder = await response.json();
+                return updatedOrder;
+            } catch (error) {
+                console.error('Error updating order status:', error);
+                throw error;
+            }
+        }
+        
+        // Get CSRF token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let cookie of cookies) {
+                    cookie = cookie.trim();
+                    if (cookie.startsWith(name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
+        // Render order details
+        function renderOrderDetails(order) {
+            // Basic order info
+            document.getElementById('order-id').textContent = order.id.substring(0, 8) + '...';
+            document.getElementById('order-status').textContent = order.status.charAt(0).toUpperCase() + order.status.slice(1);
+            document.getElementById('order-status').className = `order-status-badge status-${order.status}`;
+            document.getElementById('customer-name').textContent = order.customer_full_name;
+            document.getElementById('customer-email').textContent = order.customer_email_address;
+            document.getElementById('customer-phone').textContent = order.customer_phone;
+            document.getElementById('pharmacy-name').textContent = order.customer_pharmacy_name;
+            document.getElementById('delivery-address').textContent = order.customer_delivery_address;
+            document.getElementById('order-date').textContent = formatDate(order.created_at);
+            
+            // Order items and total calculation
+            const itemsList = document.getElementById('items-list');
+            itemsList.innerHTML = '';
+            
+            let totalAmount = 0;
+            order.items.forEach(item => {
+                const itemTotal = parseFloat(item.product_price) * parseInt(item.quantity);
+                totalAmount += itemTotal;
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>
+                        <div class="item-name">${item.product_name}</div>
+                        <div class="item-dosage">${item.product_dosage}</div>
+                    </td>
+                    <td class="item-qty">${item.product_dosage}</td>
+                    <td class="item-price">${formatCurrency(item.product_price)}</td>
+                    <td class="item-qty">${item.quantity}</td>
+                    <td class="item-price">${formatCurrency(itemTotal)}</td>
+                `;
+                itemsList.appendChild(row);
+            });
+            
+            // Only show the total price
+            document.getElementById('total').textContent = formatCurrency(totalAmount);
+            
+            // Action buttons based on status
+            const orderActions = document.getElementById('order-actions');
+            orderActions.innerHTML = '';
+            
+            if (order.status === 'pending') {
+                orderActions.innerHTML = `
+                    <button class="btn btn-primary" onclick="confirmOrder()">
+                        <i class="fas fa-check"></i> Confirm Order
+                    </button>
+                    <button class="btn btn-danger" onclick="cancelOrder()">
+                        <i class="fas fa-times"></i> Cancel Order
+                    </button>
+                `;
+            }
+        }
+        
+        // Fetch order details
+        async function fetchOrderDetails() {
+            try {
+                const response = await fetch(`/pharmacy/orders/${orderId}/`);
+                
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        throw new Error('Order not found');
+                    } else {
+                        throw new Error('Failed to fetch order details');
+                    }
+                }
+                
+                const order = await response.json();
+                return order;
+            } catch (error) {
+                console.error('Error fetching order details:', error);
+                throw error;
+            }
+        }
+        
+        // Initialize the page
+        async function initialize() {
+            try {
+                const order = await fetchOrderDetails();
+                renderOrderDetails(order);
+                
+                loadingState.style.display = 'none';
+                orderContent.style.display = 'block';
+            } catch (error) {
+                loadingState.innerHTML = `
+                    <div class="error-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h2>Error Loading Order</h2>
+                        <p>${error.message}</p>
+                        <button class="btn btn-primary" onclick="window.location.reload()">
+                            <i class="fas fa-sync-alt"></i> Try Again
+                        </button>
+                    </div>
+                `;
+                console.error('Initialization error:', error);
+            }
+        }
+        
+        // Global functions for buttons
+        window.confirmOrder = async function() {
+            try {
+                const updatedOrder = await updateOrderStatus('confirmed');
+                showToast('Order confirmed successfully', 'success');
+                renderOrderDetails(updatedOrder);
+            } catch (error) {
+                showToast('Failed to confirm order', 'error');
+            }
+        };
+        
+        window.cancelOrder = async function() {
+            if (!confirm('Are you sure you want to cancel this order?')) return;
+            
+            try {
+                const updatedOrder = await updateOrderStatus('cancelled');
+                showToast('Order cancelled', 'success');
+                renderOrderDetails(updatedOrder);
+            } catch (error) {
+                showToast('Failed to cancel order', 'error');
+            }
+        };
+        
+        window.markAsShipped = async function() {
+            try {
+                const updatedOrder = await updateOrderStatus('shipped');
+                showToast('Order marked as shipped and the stock quantity updated until you upload another the users see the updated one only', 'success');
+                renderOrderDetails(updatedOrder);
+            } catch (error) {
+                showToast('Failed to update order status', 'error');
+            }
+        };
+        
+        // Start the page
+        initialize();
+    });
+</script>
+{% endblock script %}

@@ -1,0 +1,953 @@
+{% extends 'base2.html' %}
+{% load static %}
+{% block style %}
+    <style>
+        /* Custom styles for minor adjustments and fonts */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .tab-btn.active {
+            color: #2a7fba;
+            border-bottom-color: #2a7fba;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        .btn-message, .btn-danger {
+            flex: 1;
+            padding: 0.8rem;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        .btn-message {
+            background-color: var(--primary-color);
+            color: #2a7fba;
+            border: 1px solid #2a7fba;
+        }
+        .btn-message:hover {
+            background-color: #1e6ea0;
+        }
+        .btn-danger {
+            background-color: #fff;
+            border: 1px solid #e74c3c;
+            color: #e74c3c;
+        }
+        .btn-danger:hover {
+            background-color: #e74c3c;
+            color: white;
+        }
+        .btn-message i, .btn-danger i {
+            font-size: 0.9em;
+        }
+        .tab-btn:hover {
+            color: #2a7fba;
+        }
+        .main-image {
+            height: 400px;
+        }
+        .seller-info {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .product-tabs {
+            margin: 3rem auto;
+            max-width: 1200px;
+            padding: 0 1rem;
+        }
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        }
+        .star-rating .star {
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        /* Modal specific styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        .close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #aaa;
+        }
+        
+        /* Responsive additions */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0.5rem;
+            }
+            .main-image {
+                height: 300px;
+            }
+            .tabs-header {
+                overflow-x: auto;
+                white-space: nowrap;
+                display: flex;
+                -webkit-overflow-scrolling: touch;
+            }
+            .tab-btn {
+                padding: 0.75rem 1rem;
+                font-size: 0.9rem;
+            }
+            .seller-stats {
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
+            .stat-item {
+                flex: 1 0 40%;
+            }
+            .action-buttons {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            .btn-message, .btn-danger {
+                width: 100%;
+            }
+            .contact-details {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            #showContactBtn {
+                padding: 0.75rem;
+                font-size: 0.9rem;
+            }
+            .thumbnail-container {
+                flex-wrap: wrap;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .main-image {
+                height: 250px;
+            }
+            .product-tabs {
+                margin: 1.5rem auto;
+                padding: 0 0.5rem;
+            }
+            .tab-content {
+                padding: 0.5rem;
+            }
+            .stat-item {
+                flex: 1 0 100%;
+                text-align: center;
+            }
+            #productPrice {
+                font-size: 1.75rem;
+            }
+            .specs-table tr {
+                display: flex;
+                flex-direction: column;
+                padding: 0.5rem 0;
+            }
+            .specs-table td {
+                padding: 0.25rem 0;
+            }
+        }
+    </style>
+{% endblock style %}
+
+
+{% block content %}
+    <div class="container mx-auto p-4 md:p-8">
+        <div class="text-sm text-gray-500 mb-4">
+            <a href="{%url 'landing:landing-page'%}" class="hover:underline">Home</a> > <span id="breadcrumbProduct">Product</span>
+        </div>
+        <main class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 my-4 md:my-8">
+            <div class="bg-white p-4 md:p-6 rounded-lg shadow-md">
+                <div class="main-image flex items-center justify-center bg-gray-200 rounded-lg mb-4 relative h-64 md:h-96">
+                    <i class="fas fa-pills text-gray-400 text-6xl" id="productImage"></i>
+                </div>
+                <div class="thumbnail-container flex gap-2 md:gap-4 mt-4 justify-center" id="thumbnailContainer">
+                </div>
+            </div>
+            <div class="bg-white p-4 md:p-6 rounded-lg shadow-md">
+                <div class="border-b pb-4 mb-4">
+                    <div class="text-sm text-gray-500 uppercase mb-1" id="productCategory">Loading...</div>
+                    <h1 class="text-xl md:text-2xl font-semibold mb-2" id="productName">Loading...</h1>
+                    <div class="flex items-center text-gray-500 text-sm">
+                        <span class="mr-2">Rating:</span>
+                        <span id="productRatingStars" class="text-yellow-400"></span>
+                        <span id="productAverageRating" class="ml-1 text-xs">(0.0)</span>
+                    </div>
+                    <div class="text-2xl md:text-3xl font-bold text-blue-600 my-4" id="productPrice">$XX.XX <span class="text-sm md:text-base text-gray-500 font-normal">per unit</span></div>
+                    <div class="availability text-sm text-gray-600">
+                        <i class="fas fa-check-circle text-green-500 mr-1"></i>
+                        <span id="productStock">In Stock: --</span>
+                    </div>
+                </div>
+                <div class="seller-info bg-gray-50 p-3 md:p-4 rounded-lg mb-4">
+                    <div class="flex items-center mb-2">
+                        <div class="w-10 h-10 md:w-12 md:h-12 bg-gray-200 rounded-full flex items-center justify-center mr-3 md:mr-4">
+                            <i class="fas fa-building text-gray-400 text-lg md:text-xl"></i>
+                        </div>
+                        <div>
+                            <div class="font-semibold text-sm md:text-base" id="sellerName">Loading...</div>
+                        </div>
+                    </div>
+                    <div class="seller-stats flex justify-between text-center mt-4 border-t pt-4">
+                        <div class="stat-item">
+                            <div class="stat-value font-bold text-base md:text-lg" id="responseTime">{{product.supplier.response_time}}</div>
+                            <div class="text-xs text-gray-500"> Response Time</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <div class="action-buttons">
+                    <button style="color:white" id="contactSupplierBtn"
+                            data-supplier-id="{{ product.supplier.id }}"
+                            data-logged-in-user-id="{{ request.user.id }}"
+                            class="btn-message">
+                        Message Supplier
+                    </button>
+                    </div>
+                    <button id="reportAbuseBtn" class="btn-danger">
+                        <i class="fas fa-exclamation-triangle"></i> Report Abuse
+                    </button>
+                </div>
+                <button id="showContactBtn" class="w-full py-2 md:py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition flex items-center justify-center">
+                    <i class="fas fa-comment-dots mr-2"></i> Contact Supplier
+                </button>
+                <div id="contactDetails" class="hidden mt-4 bg-gray-100 p-3 md:p-4 rounded-lg">
+                    <p class="text-base md:text-lg font-bold text-gray-700 mb-2">Seller Contact:</p>
+                    <div class="contact-details flex flex-col md:flex-row items-start md:items-center space-y-2 md:space-y-0 md:space-x-4">
+                        <p class="text-lg md:text-xl font-bold text-blue-600">
+                            <i class="fas fa-phone-alt text-base md:text-lg mr-2"></i><span id="phoneNumber"></span>
+                        </p>
+                        <a id="whatsappLink" href="#" target="_blank" class="flex items-center text-green-500 hover:text-green-600 transition">
+                            <i class="fab fa-whatsapp text-xl md:text-2xl mr-1"></i>
+                            <span class="font-semibold text-sm md:text-base">WhatsApp</span>
+                        </a>
+                        <a id="TelegramLink" href="#" target="_blank" class="flex items-center text-blue-500 hover:text-blue-600 transition">
+                            <i class="fab fa-telegram text-xl md:text-2xl mr-1"></i>
+                            <span class="font-semibold text-sm md:text-base">Telegram</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <section class="bg-white p-4 md:p-6 rounded-lg shadow-md mb-6 md:mb-8">
+            <a id="supplier-link" style="width:150px; margin: 10px; display: none; padding: 10px 20px; font-size: 16px; color: white; background-color: #007bff; border: 1px solid #007bff; border-radius: 5px; text-align: center; text-decoration: none; cursor: pointer;">
+                View Supplier
+            </a>
+            <h3 class="text-lg md:text-xl font-semibold mb-4">Key Specifications</h3>
+            <table class="specs-table w-full text-left border-collapse" id="specsTable">
+            </table>
+        </section>
+        <section class="bg-white p-4 md:p-6 rounded-lg shadow-md product-tabs">
+            <div class="tabs-header flex border-b border-gray-200">
+                <button class="tab-btn active px-4 py-3 md:px-8 md:py-4 font-semibold text-gray-500 border-b-2 border-blue-600" data-tab="description">Description</button>
+                <button class="tab-btn px-4 py-3 md:px-8 md:py-4 font-semibold text-gray-500 border-b-2 border-transparent" data-tab="specs">Specifications</button>
+                <button class="tab-btn px-4 py-3 md:px-8 md:py-4 font-semibold text-gray-500 border-b-2 border-transparent" data-tab="reviews">Reviews</button>
+            </div>
+            
+            <div class="tab-content mt-4">
+                <div class="tab-pane active" id="description">
+                    <h3 class="text-lg md:text-xl font-semibold mb-4">Product Description</h3>
+                    <p class="text-gray-600 text-sm md:text-base" id="productDescription">Loading product details...</p>
+                </div>
+                <div class="tab-pane hidden" id="specs">
+                    <h3 class="text-lg md:text-xl font-semibold mb-4">Detailed Specifications</h3>
+                    <table class="specs-table w-full text-left border-collapse">
+                        <tr class="border-b">
+                            <td class="py-2 text-gray-500 font-medium">Generic Name</td>
+                            <td class="py-2" id="specGenericName">{{product.name}}</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="py-2 text-gray-500 font-medium">Dosage Form</td>
+                            <td class="py-2" id="specDosageForm">{{product.dosage_form.name}}</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="py-2 text-gray-500 font-medium">Strength</td>
+                            <td class="py-2" id="specStrength">{{product.strength}}</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="py-2 text-gray-500 font-medium">Expire Date</td>
+                            <td class="py-2" id="specPackSize">{{product.expire_date}}</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="tab-pane hidden" id="indications">
+                    <h3 class="text-lg md:text-xl font-semibold mb-4">Indications for Use</h3>
+                    <ul class="list-disc list-inside space-y-2 text-gray-600 text-sm md:text-base" id="indicationsList">
+                        <li>Loading indications...</li>
+                    </ul>
+                </div>
+                <div class="tab-pane hidden" id="documents">
+                    <h3 class="text-lg md:text-xl font-semibold mb-4">Available Documents</h3>
+                    <div class="document-list space-y-2" id="documentList">
+                        <p class="text-gray-500 text-sm md:text-base">Loading documents...</p>
+                    </div>
+                </div>
+                <div class="tab-pane hidden" id="reviews">
+                    <h3 class="text-lg md:text-xl font-semibold mb-4">Customer Reviews & Feedback</h3>
+                    <div class="bg-gray-100 p-4 md:p-6 rounded-lg shadow-sm mb-4 md:mb-6">
+                        <h4 class="font-bold text-base md:text-lg mb-4">Write a Review</h4>
+                        <form id="reviewForm" class="space-y-4">
+                            <div>
+                                <label for="reviewerName" class="block text-sm font-medium text-gray-700">Your Name</label>
+                                <input type="text" id="reviewerName" name="reviewerName" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="Your name" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Rating</label>
+                                <div class="star-rating flex items-center text-yellow-400">
+                                    <i class="far fa-star text-xl md:text-2xl star" data-rating="1"></i>
+                                    <i class="far fa-star text-xl md:text-2xl star" data-rating="2"></i>
+                                    <i class="far fa-star text-xl md:text-2xl star" data-rating="3"></i>
+                                    <i class="far fa-star text-xl md:text-2xl star" data-rating="4"></i>
+                                    <i class="far fa-star text-xl md:text-2xl star" data-rating="5"></i>
+                                    <input type="hidden" id="reviewRating" name="reviewRating" value="0" required>
+                                </div>
+                            </div>
+                            <div>
+                                <label for="reviewComment" class="block text-sm font-medium text-gray-700">Your Review</label>
+                                <textarea id="reviewComment" name="reviewComment" rows="4" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="Tell us what you think..." required></textarea>
+                            </div>
+                            <button type="submit" class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                Submit Review
+                            </button>
+                        </form>
+                    </div>
+                    <div id="reviews-list" class="space-y-4">
+                        <p id="loadingReviews" class="text-gray-500 text-sm md:text-base">Loading reviews...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+    <div id="reportAbuseModal" class="modal hidden">
+        <div class="modal-content">
+            <span id="closeModalBtn" class="close-btn">&times;</span>
+            <h2 class="text-xl md:text-2xl font-semibold mb-4" id="reportAbuseTitle">Report Abuse</h2>
+            <p id="abuseMessage" class="mb-4 text-xs md:text-sm hidden"></p>
+            <form id="abuseForm" class="space-y-4">
+                <input type="hidden" id="abuseProductId" value="{{ product.id }}">
+                
+                <input type="hidden" id="loggedInUserId" value="{% if request.user.is_authenticated %}{{ request.user.id }}{% endif %}">
+                <input type="hidden" id="productOwnerId" value="{{ product.supplier.id }}">
+                <div>
+                    <label for="reporterEmail" class="block text-sm font-medium text-gray-700">Reporter email</label>
+                    <input
+                        type="email" 
+                        id="reporterEmail" 
+                        name="reporterEmail" 
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
+                        {% if request.user.is_authenticated %}
+                            value="{{ request.user.email }}"
+                            readonly
+                        {% endif %}
+                        required>
+                </div>
+                <div>
+                    <label for="abuseReason" class="block text-sm font-medium text-gray-700">Reason</label>
+                    <select id="abuseReason" name="abuseReason" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm" required>
+                        <option value="" disabled selected>Select a reason...</option>
+                        <option value="illegal_fraudulent">This is illegal/fraudulent</option>
+                        <option value="spam">This product is spam</option>
+                        <option value="wrong_price">The price is wrong</option>
+                        <option value="wrong_category">Wrong category</option>
+                        <option value="prepayment">Seller asked for prepayment</option>
+                        <option value="sold">It is sold</option>
+                        <option value="unreachable_user">User is unreachable</option>
+                        <option value="counterfeit">This product is counterfeit/fake</option>
+                        <option value="offensive_content">Contains offensive or inappropriate content</option>
+                        <option value="misleading">Misleading or false information</option>
+                        <option value="duplicate">Duplicate listing</option>
+                        <option value="expired">Product expired or outdated</option>
+                        <option value="prohibited_item">Prohibited item for sale</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div id="descriptionGroup" class="hidden">
+                    <label for="abuseDescription" class="block text-sm font-medium text-gray-700">Description</label>
+                    <textarea id="abuseDescription" name="abuseDescription" rows="4" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm" placeholder="Provide details if reason is 'Other'"></textarea>
+                </div>
+                <button type="submit" class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                    Submit Report
+                </button>
+            </form>
+        </div>
+    </div>
+{% endblock content %}
+
+
+{% block script %}
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const productId = {{product.id}}; // You can change this to load different products
+        let productData = null; // Store product data to use for the report modal
+
+        // DOM elements
+        const productNameEl = document.getElementById('productName');
+        const productDosage = document.getElementById('productCategory');
+        const productRatingStarsEl = document.getElementById('productRatingStars');
+        const productAverageRatingEl = document.getElementById('productAverageRating');
+        const productPriceEl = document.getElementById('productPrice');
+        const productStockEl = document.getElementById('productStock');
+        const sellerNameEl = document.getElementById('sellerName');
+        const phoneNumberEl = document.getElementById('phoneNumber');
+        const whatsappLinkEl = document.getElementById('whatsappLink');
+        const TelegramLinkEl = document.getElementById('TelegramLink');
+        const productDescriptionEl = document.getElementById('productDescription');
+        const reviewsListEl = document.getElementById('reviews-list');
+        const loadingReviewsEl = document.getElementById('loadingReviews');
+        const reviewForm = document.getElementById('reviewForm');
+        const starElements = document.querySelectorAll('.star-rating .star');
+        const reviewRatingInput = document.getElementById('reviewRating');
+        const showContactBtn = document.getElementById('showContactBtn');
+        const contactDetailsEl = document.getElementById('contactDetails');
+        const contactSupplierBtn = document.getElementById('contactSupplierBtn');
+        const responseTimeEl = document.getElementById('responseTime');
+
+        // State for the form's star rating
+        let selectedRating = 0;
+
+        /**
+         * A helper function to check if a string is a valid URL.
+         * @param {string} str The string to validate.
+         * @returns {boolean} True if the string is a valid URL, false otherwise.
+         */
+        function isValidUrl(str) {
+            if (typeof str !== 'string' || str.trim() === '') {
+                return false;
+            }
+            try {
+                // The URL constructor will throw an error for invalid URLs
+                new URL(str);
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        /**
+         * Sets the href and styling for a link element based on its URL.
+         * @param {HTMLElement} linkEl The anchor element to modify.
+         * @param {string} url The URL to set.
+         * @param {string} defaultText The text to display if the link is not valid.
+         */
+        function setLinkAttributes(linkEl, url, defaultText) {
+            if (isValidUrl(url)) {
+                linkEl.href = url;
+                linkEl.textContent = defaultText;
+                linkEl.classList.remove('disabled-link');
+                linkEl.style.pointerEvents = 'auto';
+                linkEl.style.opacity = '1';
+            } else {
+                linkEl.href = '#';
+                linkEl.textContent = 'Not Available';
+                linkEl.classList.add('disabled-link');
+                linkEl.style.pointerEvents = 'none';
+                linkEl.style.opacity = '0.5';
+            }
+        }
+
+        if (contactSupplierBtn) {
+            contactSupplierBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                const supplierId = contactSupplierBtn.getAttribute('data-supplier-id');
+                const loggedInUserId = contactSupplierBtn.getAttribute('data-logged-in-user-id');
+
+                if (!loggedInUserId || loggedInUserId === 'None') {
+                    window.location.href = '{% url "landing:user-login" %}';
+                    return;
+                }
+
+                if (supplierId === loggedInUserId) {
+                    alert("You cannot message yourself.");
+                    return;
+                }
+
+                if (!supplierId) {
+                    console.error("Supplier ID not found.");
+                    return;
+                }
+
+                // Add a loading state to the button
+                const originalText = contactSupplierBtn.textContent;
+                contactSupplierBtn.textContent = 'Starting chat...';
+                contactSupplierBtn.disabled = true;
+
+                try {
+                    const csrftoken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+                    const response = await fetch('/pharmacy/threads/create/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrftoken
+                        },
+                        body: JSON.stringify({
+                            user_2: supplierId
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const threadData = await response.json();
+                    window.location.href = `{% url 'landing:message-view' %}`;
+
+                } catch (error) {
+                    console.error('Error creating or retrieving chat thread:', error);
+                    alert('Failed to start a chat. Please try again.');
+                } finally {
+                    contactSupplierBtn.textContent = originalText;
+                    contactSupplierBtn.disabled = false;
+                }
+            });
+        }
+
+        // Helper function to generate star HTML based on a rating
+        const generateStarHtml = (rating) => {
+            let stars = '';
+            for (let i = 1; i <= 5; i++) {
+                if (i <= rating) {
+                    stars += '<i class="fas fa-star"></i>'; // Filled star
+                } else {
+                    stars += '<i class="far fa-star"></i>'; // Empty star
+                }
+            }
+            return stars;
+        };
+
+        // Function to display the reviews on the page
+        const displayReviews = (reviews) => {
+            if (!reviewsListEl) return;
+
+            reviewsListEl.innerHTML = ''; // Clear existing reviews
+            if (reviews.length === 0) {
+                reviewsListEl.innerHTML = '<p class="text-gray-500">No reviews yet. Be the first to leave one!</p>';
+                return;
+            }
+            reviews.forEach(review => {
+                const reviewHtml = `
+                    <div class="bg-gray-50 p-4 rounded-lg shadow-sm">
+                        <div class="flex items-center mb-2">
+                            <div class="font-bold mr-2">${review.reviewer_name}</div>
+                            <div class="text-yellow-400 star-display">
+                                ${generateStarHtml(review.rating)}
+                            </div>
+                        </div>
+                        <p class="text-sm text-gray-700">"${review.comment}"</p>
+                    </div>
+                `;
+                reviewsListEl.insertAdjacentHTML('beforeend', reviewHtml);
+            });
+        };
+
+        // Function to fetch product details from the API
+        const fetchProductDetails = async () => {
+            try {
+                const response = await fetch(`/pharmacy/product/api/${productId}/`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+
+                const data = await response.json();
+                productData = data;
+
+                // Populate product details
+                if (productDosage) productDosage.textContent = `${data.dosage_form}`;
+                if (productNameEl) productNameEl.textContent = `${data.name} (${data.strength})`;
+
+                // Handle Delivery and Bulk Discount Notes
+                let notesHtml = '';
+                if (data.offer_delivery) {
+                    notesHtml += '<span class="delivery-badge">✅ Delivery Available</span>';
+                }
+                if (data.bulk_discount_available) {
+                    notesHtml += '<span class="discount-badge">💰 Bulk Discount Available</span>';
+                }
+
+                // Calculate and Display Average Rating and Review Count
+                let averageRating = 0;
+                let reviewCount = 0;
+                if (data.reviews && data.reviews.length > 0) {
+                    const totalRatings = data.reviews.reduce((sum, review) => sum + review.rating, 0);
+                    averageRating = (totalRatings / data.reviews.length).toFixed(1);
+                    reviewCount = data.reviews.length;
+                }
+                if (productAverageRatingEl) productAverageRatingEl.textContent = `(${reviewCount} reviews)`;
+                if (productRatingStarsEl) productRatingStarsEl.innerHTML = generateStarHtml(Math.round(averageRating));
+
+                if (productPriceEl) productPriceEl.innerHTML = `$${data.price} <span class="text-base text-gray-500 font-normal">per unit</span>`;
+
+                if (productStockEl) {
+                    productStockEl.textContent = `In Stock: ${data.stock_quantity}`;
+                    if (data.stock_quantity <= 0) {
+                        productStockEl.textContent = `Out of Stock`;
+                        productStockEl.classList.add('text-red-500');
+                    } else {
+                        productStockEl.classList.remove('text-red-500');
+                    }
+                }
+
+                const userProductId = data.userproduct_id;
+                if (userProductId) {
+                    // Construct the URL and update the link on the page
+                    const link = document.getElementById('supplier-link');
+                    link.href = `http://127.0.0.1:8000/pharmacy/supplier-detail/${userProductId}/`;
+                    link.style.display = 'block'; // Make the link visible
+                } else {
+                    // Hide the link if userproduct_id is null
+                    document.getElementById('supplier-link').style.display = 'none';
+                }
+
+                if (productDescriptionEl) productDescriptionEl.textContent = `This product is ${data.name} with a strength of ${data.strength} and a pack size of ${data.pack_size}. It's a high-quality product from a trusted supplier.`;
+
+                // Populate seller details
+                if (sellerNameEl) sellerNameEl.textContent = data.supplier.name;
+                if (phoneNumberEl) phoneNumberEl.textContent = data.supplier.phone;
+                if (responseTimeEl) responseTimeEl.textContent = data.supplier.response_time;
+
+                if (whatsappLinkEl) {
+                    if (data.supplier.whatsapp_link && data.supplier.whatsapp_link !== '#') {
+                        whatsappLinkEl.href = data.supplier.whatsapp_link;
+                        whatsappLinkEl.style.pointerEvents = 'auto';
+                        whatsappLinkEl.style.opacity = '1';
+                    } else {
+                        whatsappLinkEl.href = '#';
+                        whatsappLinkEl.style.pointerEvents = 'none';
+                        whatsappLinkEl.style.opacity = '0.5';
+                    }
+                }
+
+                const mainImageContainer = document.querySelector('.main-image');
+                const productImageEl = document.getElementById('productImage');
+
+                if (data.image) {
+                    // If an image URL exists, replace the icon with an <img> tag
+                    if (productImageEl) {
+                        mainImageContainer.removeChild(productImageEl); // Remove the icon
+                    }
+                    const imgElement = document.createElement('img');
+                    imgElement.src = data.image;
+                    imgElement.alt = `Image of ${data.name}`;
+                    imgElement.classList.add('object-contain', 'w-full', 'h-full', 'rounded-lg');
+                    mainImageContainer.appendChild(imgElement);
+                } else {
+                    // If no image, ensure the icon is visible (it's the default in your HTML)
+                    if (!productImageEl) {
+                        const iconElement = document.createElement('i');
+                        iconElement.id = 'productImage';
+                        iconElement.classList.add('fas', 'fa-pills', 'text-gray-400', 'text-6xl');
+                        mainImageContainer.appendChild(iconElement);
+                    }
+                }
+
+                if (TelegramLinkEl) {
+                    if (data.supplier.telegram_link && data.supplier.telegram_link !== '#') {
+                        TelegramLinkEl.href = data.supplier.telegram_link;
+                        TelegramLinkEl.style.pointerEvents = 'auto';
+                        TelegramLinkEl.style.opacity = '1';
+                    } else {
+                        TelegramLinkEl.href = '#';
+                        TelegramLinkEl.style.pointerEvents = 'none';
+                        TelegramLinkEl.style.opacity = '0.5';
+                    }
+                }
+
+                // Display reviews
+                displayReviews(data.reviews);
+
+            } catch (error) {
+                console.error('Error fetching product details:', error);
+                if (productNameEl) productNameEl.textContent = 'Failed to load product details.';
+                if (reviewsListEl) reviewsListEl.innerHTML = '<p class="text-red-500">Failed to load reviews.</p>';
+            }
+        };
+
+        // Tab functionality
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        if (tabButtons.length > 0) {
+            tabButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.tab-btn').forEach(b => {
+                        b.classList.remove('active', 'border-b-2');
+                        b.classList.add('border-b-2', 'border-transparent');
+                    });
+                    document.querySelectorAll('.tab-pane').forEach(p => p.classList.add('hidden'));
+                    btn.classList.add('active', 'border-b-2');
+                    btn.classList.remove('border-transparent');
+                    const tabId = btn.getAttribute('data-tab');
+                    const tabPane = document.getElementById(tabId);
+                    if (tabPane) tabPane.classList.remove('hidden');
+                });
+            });
+        }
+
+        // Show/Hide contact details
+        if (showContactBtn && contactDetailsEl) {
+            showContactBtn.addEventListener('click', () => {
+                contactDetailsEl.classList.toggle('hidden');
+            });
+        }
+
+        // Star Rating functionality for the form
+        if (starElements.length > 0 && reviewRatingInput) {
+            starElements.forEach(star => {
+                star.addEventListener('click', () => {
+                    selectedRating = parseInt(star.dataset.rating);
+                    updateStars(selectedRating);
+                    reviewRatingInput.value = selectedRating;
+                });
+                star.addEventListener('mouseover', () => {
+                    const rating = parseInt(star.dataset.rating);
+                    updateStars(rating);
+                });
+                star.addEventListener('mouseout', () => {
+                    updateStars(selectedRating);
+                });
+            });
+
+            const updateStars = (rating) => {
+                starElements.forEach(star => {
+                    const starRating = parseInt(star.dataset.rating);
+                    if (starRating <= rating) {
+                        star.classList.add('fas');
+                        star.classList.remove('far');
+                    } else {
+                        star.classList.add('far');
+                        star.classList.remove('fas');
+                    }
+                });
+            };
+        }
+
+        // Get CSRF token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        const csrftoken = getCookie('csrftoken') || document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+        // Form submission handler for new reviews
+        if (reviewForm) {
+            reviewForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const reviewerName = document.getElementById('reviewerName')?.value;
+                const reviewComment = document.getElementById('reviewComment')?.value;
+                const reviewRating = reviewRatingInput?.value;
+
+                if (!reviewerName || !reviewComment || !reviewRating || reviewRating === '0') {
+                    console.error('Please fill out all fields and provide a rating.');
+                    return;
+                }
+
+                const payload = {
+                    product: productId,
+                    reviewer_name: reviewerName,
+                    rating: parseInt(reviewRating),
+                    comment: reviewComment,
+                };
+
+                try {
+                    const response = await fetch(`/pharmacy/reviews/create/`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrftoken
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const newReview = await response.json();
+
+                    if (reviewsListEl) {
+                        const newReviewHtml = `
+                            <div class="bg-gray-50 p-4 rounded-lg shadow-sm">
+                                <div class="flex items-center mb-2">
+                                    <div class="font-bold mr-2">${newReview.reviewer_name}</div>
+                                    <div class="text-yellow-400 star-display">
+                                        ${generateStarHtml(newReview.rating)}
+                                    </div>
+                                </div>
+                                <p class="text-sm text-gray-700">"${newReview.comment}"</p>
+                            </div>
+                        `;
+                        reviewsListEl.insertAdjacentHTML('afterbegin', newReviewHtml);
+                    }
+
+                    if (reviewForm) reviewForm.reset();
+                    selectedRating = 0;
+                    if (starElements.length > 0) updateStars(0);
+                } catch (error) {
+                    console.error('Error submitting review:', error);
+                }
+            });
+        }
+
+        // Report Abuse Modal and Form Logic
+        const reportAbuseBtn = document.getElementById('reportAbuseBtn');
+        const reportAbuseModal = document.getElementById('reportAbuseModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const abuseForm = document.getElementById('abuseForm');
+        const reportAbuseTitle = document.getElementById('reportAbuseTitle');
+        const abuseProductIdInput = document.getElementById('abuseProductId');
+        const abuseReasonSelect = document.getElementById('abuseReason');
+        const descriptionGroup = document.getElementById('descriptionGroup');
+        const abuseDescriptionTextarea = document.getElementById('abuseDescription');
+        const abuseMessageEl = document.getElementById('abuseMessage');
+
+        // Show the report modal with product details
+        if (reportAbuseBtn && reportAbuseModal && reportAbuseTitle && abuseProductIdInput) {
+            reportAbuseBtn.addEventListener('click', () => {
+                if (productData) {
+                    reportAbuseTitle.textContent = `Report Abuse for ${productData.name}`;
+                    abuseProductIdInput.value = productData.id;
+                    reportAbuseModal.classList.remove('hidden');
+                }
+            });
+        }
+
+        // Close the modal
+        if (closeModalBtn && reportAbuseModal) {
+            closeModalBtn.addEventListener('click', () => {
+                reportAbuseModal.classList.add('hidden');
+                if (abuseMessageEl) abuseMessageEl.classList.add('hidden');
+                if (abuseForm) abuseForm.reset(); // Reset form on close
+            });
+        }
+
+        // Show/hide the description field if "Other" is selected
+        if (abuseReasonSelect && descriptionGroup && abuseDescriptionTextarea) {
+            abuseReasonSelect.addEventListener('change', (e) => {
+                if (e.target.value === 'other') {
+                    descriptionGroup.classList.remove('hidden');
+                    abuseDescriptionTextarea.setAttribute('required', 'required');
+                } else {
+                    descriptionGroup.classList.add('hidden');
+                    abuseDescriptionTextarea.removeAttribute('required');
+                }
+            });
+        }
+
+        // Handle report abuse form submission
+        if (abuseForm && abuseMessageEl) {
+            abuseForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const loggedInUserId = document.getElementById('loggedInUserId')?.value;
+                const productOwnerId = document.getElementById('productOwnerId')?.value;
+
+                if (loggedInUserId && productOwnerId && loggedInUserId === productOwnerId) {
+                    abuseMessageEl.textContent = 'You cannot report your own product.';
+                    abuseMessageEl.classList.remove('hidden');
+                    abuseMessageEl.classList.remove('text-green-500');
+                    abuseMessageEl.classList.add('text-red-500');
+                    return;
+                }
+
+                const reporterEmail = document.getElementById('reporterEmail')?.value;
+                const abuseProduct = document.getElementById('abuseProductId')?.value;
+                const abuseReason = document.getElementById('abuseReason')?.value;
+                const abuseDescription = document.getElementById('abuseDescription')?.value;
+
+                if (!reporterEmail || !abuseProduct || !abuseReason) {
+                    abuseMessageEl.textContent = 'Please fill out all required fields.';
+                    abuseMessageEl.classList.remove('hidden');
+                    abuseMessageEl.classList.remove('text-green-500');
+                    abuseMessageEl.classList.add('text-red-500');
+                    return;
+                }
+
+                const payload = {
+                    product: abuseProduct,
+                    reporter_email: reporterEmail,
+                    reason: abuseReason,
+                    description: abuseDescription || null
+                };
+
+                try {
+                    const response = await fetch('/pharmacy/report-abuse/', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrftoken,
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (response.status === 201) {
+                        abuseMessageEl.textContent = 'Your report has been submitted successfully.';
+                        abuseMessageEl.classList.remove('text-red-500');
+                        abuseMessageEl.classList.add('text-green-500');
+                        abuseMessageEl.classList.remove('hidden');
+                        if (abuseForm) abuseForm.reset();
+
+                        setTimeout(() => {
+                            if (reportAbuseModal) reportAbuseModal.classList.add('hidden');
+                            if (abuseMessageEl) abuseMessageEl.classList.add('hidden');
+                        }, 3000);
+                    } else {
+                        const errorData = await response.json();
+                        abuseMessageEl.textContent = `Error: ${errorData.message || JSON.stringify(errorData)}`;
+                        abuseMessageEl.classList.remove('hidden');
+                        abuseMessageEl.classList.remove('text-green-500');
+                        abuseMessageEl.classList.add('text-red-500');
+                    }
+                } catch (error) {
+                    abuseMessageEl.textContent = 'An error occurred. Please try again.';
+                    abuseMessageEl.classList.remove('hidden');
+                    abuseMessageEl.classList.remove('text-green-500');
+                    abuseMessageEl.classList.add('text-red-500');
+                    console.error('Error submitting abuse report:', error);
+                }
+            });
+        }
+
+        // Initial data fetch when the page loads
+        fetchProductDetails();
+    });
+</script>
+
+{% endblock script %}

@@ -1,0 +1,1455 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block style %}
+<style>
+
+    .styled-modal {
+        max-width: 600px;
+        width: 90%;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        overflow: hidden;
+        animation: modalFadeIn 0.3s ease-out;
+    }
+
+    .modal-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+
+    .modal-header {
+        padding: 16px 24px;
+        background: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-title {
+        margin: 0;
+        font-size: 1.25rem;
+        color: #333;
+    }
+
+    .close-modal-btn {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #6c757d;
+        padding: 0;
+        line-height: 1;
+    }
+
+    .close-modal-btn:hover {
+        color: #495057;
+    }
+
+    .modal-body {
+        padding: 24px;
+    }
+
+    .product-form {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .form-group label {
+        font-weight: 500;
+        color: #495057;
+    }
+
+    .form-group input,
+    .form-group select {
+        padding: 8px 12px;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        font-size: 1rem;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+        outline: none;
+        border-color: #80bdff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+
+    .form-hint {
+        font-size: 0.8rem;
+        color: #6c757d;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-top: 16px;
+    }
+
+    .btn {
+        padding: 8px 16px;
+        border-radius: 4px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        color: white;
+        border: 1px solid #007bff;
+    }
+
+    .btn-primary:hover {
+        background-color: #0069d9;
+        border-color: #0062cc;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+        border: 1px solid #6c757d;
+    }
+
+    .btn-secondary:hover {
+        background-color: #5a6268;
+        border-color: #545b62;
+    }
+
+    .message-box {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 12px 16px;
+        border-radius: 4px;
+        color: white;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        z-index: 1100;
+        animation: slideIn 0.3s ease-out;
+    }
+
+    .message-box.success {
+        background-color: #28a745;
+    }
+
+    .message-box.error {
+        background-color: #dc3545;
+    }
+
+    .message-box.info {
+        background-color: #17a2b8;
+    }
+
+    .message-box.fade-out {
+        animation: fadeOut 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+
+    @keyframes fadeOut {
+        from { opacity: 1; }
+        to { opacity: 0; }
+    }
+
+    @keyframes modalFadeIn {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Mobile Header */
+    .mobile-header {
+        display: none;
+        background: var(--white);
+        padding: 1rem;
+        box-shadow: var(--shadow);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+    
+    .mobile-menu-btn {
+        background: none;
+        border: none;
+        font-size: 1.2rem;
+        color: var(--primary-color);
+        cursor: pointer;
+    }
+    
+    /* Main Content */
+    .products-main {
+        background: var(--white);
+        padding: 1.5rem;
+        overflow-x: auto;
+    }
+    
+    .products-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    .products-title {
+        font-size: 1.3rem;
+        color: var(--primary-color);
+    }
+    
+    .products-actions {
+        display: flex;
+        gap: 0.8rem;
+        flex-wrap: wrap;
+    }
+    
+    .btn {
+        padding: 0.7rem 1rem;
+        border-radius: var(--border-radius);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .btn-primary {
+        background: var(--primary-color);
+        color: var(--white);
+        border: none;
+    }
+    
+    .btn-outline {
+        background: transparent;
+        border: 1px solid var(--primary-color);
+        color: var(--primary-color);
+    }
+    
+    /* Products Table */
+    .products-table {
+        margin: auto;
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 600px;
+    }
+    
+    .products-table th {
+        text-align: left;
+        padding: 0.8rem;
+        background: #f5f9fc;
+        color: var(--light-text);
+        font-weight: 600;
+        font-size: 0.8rem;
+    }
+    
+    .products-table td {
+        padding: 0.8rem;
+        border-bottom: 1px solid #eee;
+        vertical-align: middle;
+        font-size: 0.9rem;
+    }
+    
+    .product-info {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+    }
+    
+    .product-image {
+        width: 40px;
+        height: 40px;
+        background: #f0f0f0;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--light-text);
+        flex-shrink: 0;
+    }
+    
+    .product-name {
+        font-weight: 600;
+        margin-bottom: 0.2rem;
+        font-size: 0.9rem;
+    }
+    
+    .product-category {
+        font-size: 0.75rem;
+        color: var(--light-text);
+    }
+    
+    .stock-status {
+        display: inline-block;
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .in-stock {
+        background: #e8f5e9;
+        color: #2e7d32;
+    }
+    
+    .low-stock {
+        background: #fff8e1;
+        color: #ff8f00;
+    }
+    
+    .out-of-stock {
+        background: #ffebee;
+        color: #c62828;
+    }
+    
+    .action-btn {
+        background: none;
+        border: none;
+        color: var(--light-text);
+        cursor: pointer;
+        font-size: 0.9rem;
+        margin: 0 0.3rem;
+        transition: color 0.3s;
+    }
+    
+    .action-btn:hover {
+        color: var(--primary-color);
+    }
+    
+    /* Mobile Cards (Alternative View) */
+    .mobile-products {
+        display: none;
+    }
+    
+    .product-card {
+        background: var(--white);
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+        /* Modal Backdrop */
+    .modal-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+
+    /* Modal Content */
+    .modal-content {
+        background-color: #fff;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        max-width: 500px;
+        width: 90%;
+        max-height: 80%;
+        overflow-y: auto;
+        position: relative;
+    }
+
+    /* Modal Header and Close Button */
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .close-modal-btn {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #888;
+    }
+
+    /* Reviews List and Items (The message panel) */
+    .reviews-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .review-item {
+        padding: 1rem;
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+        margin-bottom: 1rem;
+    }
+
+    .review-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .star-rating {
+        color: gold;
+    }
+
+    .review-comment {
+        margin: 0.5rem 0;
+    }
+
+    .review-date {
+        font-size: 0.8rem;
+        color: #888;
+    }
+    
+    .product-card-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .product-card-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+    }
+
+    .bulk-upload-docs {
+    margin: 20px 0;
+    padding: 20px;
+    border: 2px solid #d9534f;
+    background-color: #f2dede;
+    color: #a94442;
+    border-radius: 8px;
+    font-family: Arial, sans-serif;
+}
+
+.bulk-upload-docs h3, .bulk-upload-docs h4 {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.bulk-upload-docs table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.bulk-upload-docs table th, .bulk-upload-docs table td {
+    border: 1px solid #a94442;
+    padding: 8px;
+    text-align: left;
+}
+
+.bulk-upload-docs ul {
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.highlight {
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+.toggle-details-btn {
+    margin-top: 10px;
+    padding: 6px 12px;
+    background-color: #a94442;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.toggle-details-btn:hover {
+    background-color: #843534;
+}
+    
+    /* Responsive Breakpoints */
+    @media (max-width: 992px) {
+        .dashboard-container {
+            grid-template-columns: 200px 1fr;
+        }
+        
+        .products-table {
+            font-size: 0.85rem;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .mobile-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .dashboard-container {
+            grid-template-columns: 1fr;
+            padding-top: 60px;
+        }
+        
+        .sidebar {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            width: 250px;
+            height: calc(100vh - 60px);
+            z-index: 90;
+            transform: translateX(-100%);
+        }
+        
+        .sidebar.active {
+            transform: translateX(0);
+        }
+        
+        .products-main {
+            padding: 1rem;
+        }
+        
+        .products-table {
+            display: none;
+        }
+        
+        .mobile-products {
+            display: block;
+        }
+        
+        .btn {
+            padding: 0.6rem 0.8rem;
+            font-size: 0.8rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .products-actions {
+            width: 100%;
+        }
+        
+        .btn {
+            flex: 1;
+            justify-content: center;
+        }
+    }
+</style>
+
+
+{% endblock style %}
+
+{% block content %}
+<main class="products-main">
+    <div class="products-header">
+        <h2 class="products-title">My Products</h2>
+        <div class="products-actions">
+            <button class="btn btn-primary" id="newProductBtn">
+                <i class="fas fa-plus"></i> New Product
+            </button>
+            <button class="btn btn-secondary" id="bulkUploadBtn">
+                <i class="fas fa-upload"></i> Bulk Upload
+            </button>
+            <input type="file" id="excelFileInput" accept=".xlsx, .xls" style="display: none;">
+        </div>
+    </div>
+
+    <!-- Always-visible Bulk Upload Instructions (Danger/Important Styling) -->
+    <!-- Bulk Upload Instructions Section -->
+<div class="bulk-upload-docs">
+    <h3><i class="fas fa-exclamation-triangle"></i> Important: Bulk Upload Instructions</h3>
+    
+    <p><strong>Quick Note:</strong> Required fields: <span class="highlight">name, strength, price, stock quantity, dosage form</span>.</p>
+    
+    <!-- Collapsible detailed section -->
+    <div class="bulk-upload-details" id="bulkUploadDetails" style="display: none;">
+        <h4>1. File Structure</h4>
+        <p>The first row must contain headers. Common accepted names:</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Accepted Header Names</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>Product Name</td><td>name, product name, product_name</td></tr>
+                <tr><td>Strength</td><td>strength, dose</td></tr>
+                <tr><td>Price</td><td>price, cost, unit price</td></tr>
+                <tr><td>Stock Quantity</td><td>stock_quantity, stock quantity, quantity, stock, stock qty</td></tr>
+                <tr><td>Dosage Form</td><td>dosage_form_id, dosage, dosage form, form</td></tr>
+                <tr><td>Expiration Date (optional)</td><td>expire_date, expiry, expire date, expiry date, expiration date</td></tr>
+            </tbody>
+        </table>
+
+        <h4>2. Supported Dosage Forms</h4>
+        <p>Only the following dosage forms are accepted (case-insensitive):</p>
+        <ul>
+            <li>Tablet, Capsule, Injection, Syrup, Suspension</li>
+            <li>Cream, Ointment, Gel, Lotion, Suppository</li>
+            <li>Powder, Drops (Eye/Ear/Nasal), Inhaler, Patch, Granules</li>
+            <li>Mouthwash, Lozenge, Solution, Emulsion, Spray</li>
+        </ul>
+
+        <h4>3. Data Rules</h4>
+        <ul>
+            <li>Required fields: name, strength, price, stock_quantity, dosage_form_id.</li>
+            <li>Dosage Form must match exactly one of the supported forms.</li>
+            <li>Expiration Date is optional; if present, it must be a valid date (YYYY-MM-DD, MM/DD/YYYY).</li>
+        </ul>
+
+        <h4>4. Upload Behavior</h4>
+        <ul>
+            <li>Existing products (same name, strength, dosage form, supplier) are updated.</li>
+            <li>New products are created if no match exists.</li>
+            <li>Errors are recorded per row; upload continues even if some rows fail.</li>
+        </ul>
+
+        <h4>5. Post-Upload Feedback</h4>
+        <ul>
+            <li>Success: shows how many new products were created and how many existing products were updated.</li>
+            <li>Errors: lists row numbers with problems for easy correction.</li>
+        </ul>
+    </div>
+
+    <button class="toggle-details-btn" onclick="toggleBulkUploadDetails()">Show More</button>
+</div>
+
+
+    <table class="products-table">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Strength</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Expiration Date</th>
+                <th>Reviews</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="productTableBody">
+        </tbody>
+    </table>
+
+    <div class="mobile-products" id="mobileProductCards"></div>
+</main>
+
+{% endblock content %}
+
+
+{% block script %}
+<script>
+function toggleBulkUploadDetails() {
+    const details = document.getElementById('bulkUploadDetails');
+    const btn = document.querySelector('.toggle-details-btn');
+    if (details.style.display === 'none') {
+        details.style.display = 'block';
+        btn.textContent = 'See Less';
+    } else {
+        details.style.display = 'none';
+        btn.textContent = 'Show More';
+    }
+}
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Select the HTML elements where we'll render the product data
+        const productTableBody = document.getElementById('productTableBody');
+        const mobileProductCards = document.getElementById('mobileProductCards');
+        const newProductBtn = document.getElementById('newProductBtn');
+        const bulkUploadBtn = document.getElementById('bulkUploadBtn');
+        const excelFileInput = document.getElementById('excelFileInput');
+        // Predefined list of dosage forms and a map for their mock IDs
+        const DOSAGE_FORMS_MAP = {
+            "Tablet": 1, "Capsule": 2, "Injection": 3, "Syrup": 4, "Suspension": 5,
+            "Cream": 6, "Ointment": 7, "Gel": 8, "Lotion": 9, "Suppository": 10,
+            "Powder": 11, "Drops (Eye/Ear/Nasal)": 12, "Inhaler": 13, "Patch": 14,
+            "Granules": 15, "Mouthwash": 16, "Lozenge": 17, "Solution": 18,
+            "Emulsion": 19, "Spray": 20
+        };
+
+        /**
+        * Retrieves the CSRF token from the meta tag in the document's head.
+        * @returns {string | null} The CSRF token or null if not found.
+        */
+        function getCsrfToken() {
+            try {
+                const metaTag = document.querySelector('meta[name="csrf-token"]');
+                return metaTag ? metaTag.getAttribute('content') : null;
+            } catch (error) {
+                console.error('Error getting CSRF token:', error);
+                return null;
+            }
+        }
+
+        /**
+        * Displays a message to the user in a consistent way.
+        * @param {'success'|'error'|'info'} type The type of message.
+        * @param {string} message The message content.
+        * @param {number} duration The duration in milliseconds to show the message.
+        */
+        function showMessage(type, message, duration = 5000) {
+            try {
+                // Remove any existing message first
+                const existingMessage = document.querySelector('.message-box');
+                if (existingMessage) existingMessage.remove();
+
+                const messageBox = document.createElement('div');
+                messageBox.classList.add('message-box', type);
+                messageBox.textContent = message;
+                document.body.appendChild(messageBox);
+
+                setTimeout(() => {
+                    try {
+                        messageBox.classList.add('fade-out');
+                        setTimeout(() => messageBox.remove(), 300);
+                    } catch (e) {
+                        console.error('Error removing message:', e);
+                    }
+                }, duration);
+            } catch (error) {
+                console.error('Error showing message:', error);
+            }
+        }
+
+        if (bulkUploadBtn && excelFileInput) {
+        bulkUploadBtn.addEventListener('click', () => {
+            excelFileInput.click(); // This programmatically triggers the file input dialog
+        });
+        excelFileInput.addEventListener('change', handleExcelUpload);
+    }
+
+    // Function to handle the Excel file upload
+    async function handleExcelUpload(event) {
+        const file = event.target.files[0];
+        if (!file) {
+            showMessage('error', 'No file selected.');
+            return;
+        }
+
+        // Validate file type and extension
+        const allowedTypes = [
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "application/vnd.ms-excel"
+        ];
+        const ext = file.name.split('.').pop().toLowerCase();
+        if (!allowedTypes.includes(file.type) || !['xlsx', 'xls'].includes(ext)) {
+            showMessage('error', 'Invalid file. Only Excel files (.xlsx, .xls) are allowed.');
+            return;
+        }
+
+        // Validate file size (max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            showMessage('error', 'File size exceeds the 5MB limit.');
+            return;
+        }
+
+        // CSRF token
+        const csrfToken = getCsrfToken();
+        if (!csrfToken) {
+            showMessage('error', "CSRF token not found.");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            showMessage('info', 'Uploading file...', 10000);
+
+            const response = await fetch('/pharmacy/products/bulk-upload/', {
+                method: 'POST',
+                headers: { 'X-CSRFToken': csrfToken },
+                body: formData,
+            });
+
+            let result;
+            try {
+                result = await response.json();
+            } catch (e) {
+                throw new Error("Invalid server response (not JSON).");
+            }
+
+            if (response.ok) {
+                // Show summary of saved/updated products
+                let summary = result.message || 'File uploaded successfully.';
+                showMessage('success', summary, 8000);
+
+                // If any errors, display them separately
+                if (result.errors && result.errors.length > 0) {
+                    const errorMsg = 'Successful Operation you see this because some rows failed to import:\n' + result.errors.map(e => `• ${e}`).join('\n');
+                    console.error(errorMsg);
+                    showMessage('error', errorMsg, 10000);
+                }
+
+                fetchProducts(); // Refresh the product list
+            } else {
+                const errorMsg = result.error || 'Failed to upload file.';
+                throw new Error(errorMsg);
+            }
+        } catch (error) {
+            console.error('Error during bulk upload:', error);
+            showMessage('error', `Bulk upload failed: ${error.message}`);
+        }
+    }
+
+
+
+
+    async function fetchProducts() {
+        try {
+            const response = await fetch('/pharmacy/api/products/');
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.detail || 'Network response was not ok');
+            }
+            const products = await response.json();
+            
+            // Clear any existing content to prevent duplicates on refresh
+            productTableBody.innerHTML = '';
+            mobileProductCards.innerHTML = '';
+            
+            // Iterate through each product and render it
+            products.forEach(product => {
+                const tableRow = createProductTableRow(product, products);
+                productTableBody.appendChild(tableRow);
+                
+                const mobileCard = createProductMobileCard(product, products);
+                mobileProductCards.appendChild(mobileCard);
+            });
+
+        } catch (error) {
+            console.error('There was a problem fetching the products:', error);
+            showMessage('error', `Failed to load products: ${error.message}`);
+        }
+    }
+    
+    /**
+     * Validates product data before submission to prevent bad requests.
+     * @param {object} productData The data from the form.
+     * @returns {string|null} An error message string or null if valid.
+     */
+    function validateProductData(productData) {
+        const errors = [];
+    
+        
+        if (!productData.name || productData.name.trim() === '') {
+            errors.push('Product name is required.');
+        }
+        
+        if (isNaN(productData.price) || productData.price <= 0) {
+            errors.push('Price must be a positive number.');
+        }
+        
+        if (!productData.strength || productData.strength.trim() === '') {
+            errors.push('Strength is required.');
+        }
+        
+        if (isNaN(productData.dosage_form) || !Object.values(DOSAGE_FORMS_MAP).includes(productData.dosage_form)) {
+            errors.push('Invalid dosage form selected.');
+        }
+        
+        if (!productData.expire_date || productData.expire_date.trim() === '') {
+            errors.push('Expiration date is required.');
+        }
+        
+        if (isNaN(productData.stock_quantity) || productData.stock_quantity < 0) {
+            errors.push('Stock quantity must be a non-negative number.');
+        }
+        
+        return errors.length === 0 ? null : errors.join(' ');
+    }
+
+    /**
+     * Posts new product data to the API.
+     * @param {object} productData The product data to post.
+     */
+    async function postProduct(productData) {
+        try {
+            const validationError = validateProductData(productData);
+            if (validationError) {
+                showMessage('error', validationError);
+                return;
+            }
+
+            const csrfToken = getCsrfToken();
+            if (!csrfToken) {
+                showMessage('error', "CSRF token not found. Please ensure a meta tag is present.");
+                return;
+            }
+
+            // Using FormData to handle both JSON and file uploads
+            const formData = new FormData();
+            for (const key in productData) {
+                if (key === 'image' && productData[key]) {
+                    formData.append(key, productData[key]);
+                } else if (key !== 'image') {
+                    formData.append(key, productData[key]);
+                }
+            }
+
+            const response = await fetch('/pharmacy/api/products/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                },
+                body: formData // Use formData directly, browser will set Content-Type
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.detail || errorData.message || 'Failed to add product');
+            }
+
+            // Close the modal and refresh the product list on success
+            const modalBackdrop = document.querySelector('.modal-backdrop');
+            if (modalBackdrop) modalBackdrop.remove();
+            
+            showMessage('success', 'Product added successfully!');
+            fetchProducts();
+        } catch (error) {
+            console.error('Error adding product:', error);
+            showMessage('error', error.message);
+        }
+    }
+
+    /**
+     * Submits an updated product to the API using a PUT request.
+     * @param {string} productId The ID of the product to update.
+     * @param {object} productData The updated product data.
+     */
+    async function putProduct(productId, productData) {
+        try {
+            const validationError = validateProductData(productData);
+            if (validationError) {
+                showMessage('error', validationError);
+                return;
+            }
+
+            const csrfToken = getCsrfToken();
+            if (!csrfToken) {
+                showMessage('error', "CSRF token not found. Please ensure a meta tag is present.");
+                return;
+            }
+
+            // Using FormData to handle both JSON and file uploads
+            const formData = new FormData();
+            for (const key in productData) {
+                if (key === 'image' && productData[key]) {
+                    formData.append(key, productData[key]);
+                } else if (key !== 'image') {
+                    formData.append(key, productData[key]);
+                }
+            }
+
+            const response = await fetch(`/pharmacy/api/products/${productId}/`, {
+                method: 'PUT',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                },
+                body: formData // Use formData directly
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.detail || errorData.message || 'Failed to update product');
+            }
+
+            const modalBackdrop = document.querySelector('.modal-backdrop');
+            if (modalBackdrop) modalBackdrop.remove();
+
+            showMessage('success', 'Product updated successfully!');
+            fetchProducts();
+        } catch (error) {
+            console.error('Error updating product:', error);
+            showMessage('error', error.message);
+        }
+    }
+    
+    /**
+     * Deletes a product from the database via an API call.
+     * @param {string} productId The ID of the product to delete.
+     */
+    async function deleteProduct(productId) {
+        try {
+            const csrfToken = getCsrfToken();
+            if (!csrfToken) {
+                showMessage('error', "CSRF token not found. Please ensure a meta tag is present.");
+                return;
+            }
+
+            const response = await fetch(`/pharmacy/api/products/${productId}/`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                },
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.detail || errorData.message || 'Failed to delete product');
+            }
+
+            const modalBackdrop = document.querySelector('.modal-backdrop');
+            if (modalBackdrop) modalBackdrop.remove();
+
+            showMessage('success', 'Product deleted successfully!');
+            fetchProducts();
+        } catch (error) {
+            console.error('Error deleting product:', error);
+            showMessage('error', error.message);
+        }
+    }
+
+    /**
+     * Creates and displays the product form modal for a new product.
+     */
+    function createNewProductModal() {
+        if (document.querySelector('.modal-backdrop')) return;
+        createProductFormModal('Add New Product', 'Add Product');
+    }
+
+    /**
+     * Creates and displays the product form modal for updating an existing product.
+     * @param {object} product The product object to pre-fill the form with.
+     */
+    function createUpdateProductModal(product) {
+        if (document.querySelector('.modal-backdrop')) return;
+        createProductFormModal('Update Product', 'Update Product', product);
+    }
+    
+    /**
+     * Creates and displays a confirmation modal before deleting a product.
+     * @param {object} product The product to be deleted.
+     */
+    function createDeleteConfirmationModal(product) {
+        if (document.querySelector('.modal-backdrop')) return;
+
+        const modalBackdrop = document.createElement('div');
+        modalBackdrop.className = 'modal-backdrop';
+
+        const modalContent = document.createElement('div');
+        modalContent.className = 'modal-content styled-modal';
+        modalContent.innerHTML = `
+            <div class="modal-header">
+                <h2 class="modal-title">Confirm Deletion</h2>
+                <button class="close-modal-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete the product **${product.name}**?</p>
+                <div class="modal-actions" style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px;">
+                    <button type="button" 
+                            class="btn btn-secondary close-modal-btn" 
+                            style="padding: 8px 16px; border-radius: 4px; font-weight: 500; cursor: pointer; transition: all 0.2s; background-color: #f0f0f0; color: #333; border: 1px solid #ccc; min-width: 80px;">
+                        Cancel
+                    </button>
+                    <button type="button" 
+                            class="btn btn-danger confirm-delete-btn" 
+                            style="padding: 8px 16px; border-radius: 4px; font-weight: 500; cursor: pointer; transition: all 0.2s; background-color: #dc3545; color: white; border: 1px solid #dc3545; min-width: 80px;">
+                        Delete
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        modalBackdrop.appendChild(modalContent);
+        document.body.appendChild(modalBackdrop);
+
+        const closeModal = () => modalBackdrop.remove();
+        
+        modalBackdrop.querySelectorAll('.close-modal-btn').forEach(btn => {
+            btn.addEventListener('click', closeModal);
+        });
+
+        modalBackdrop.addEventListener('click', (e) => {
+            if (e.target === modalBackdrop) closeModal();
+        });
+
+        modalContent.querySelector('.confirm-delete-btn').addEventListener('click', () => {
+            deleteProduct(product.id);
+        });
+
+        modalContent.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+    }
+
+    /**
+     * Generic function to create and show the product form modal.
+     * @param {string} title The modal title.
+     * @param {string} submitBtnText The text for the submit button.
+     * @param {object} [product] The product object to pre-fill the form (optional).
+     */
+    function createProductFormModal(title, submitBtnText, product = null) {
+        try {
+            const modalBackdrop = document.createElement('div');
+            modalBackdrop.className = 'modal-backdrop';
+
+            const modalContent = document.createElement('div');
+            modalContent.className = 'modal-content styled-modal';
+            modalContent.innerHTML = `
+                <div class="modal-header">
+                    <h2 class="modal-title">${title}</h2>
+                    <button class="close-modal-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="productForm" class="product-form" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label for="name">Name:</label>
+                            <input type="text" id="name" name="name" required value="${product ? product.name : ''}">
+                        </div>
+                        <div class="form-group">
+                            <label for="price">Price ($):</label>
+                            <input type="number" id="price" name="price" step="0.01" min="0.01" required value="${product ? product.price : ''}">
+                        </div>
+                        <div class="form-group">
+                            <label for="strength">Strength:</label>
+                            <input type="text" id="strength" name="strength" required value="${product ? product.strength : ''}">
+                            <span class="form-hint">e.g., 500mg, 10mg/ml</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="dosage_form">Dosage Form:</label>
+                            <select id="dosage_form" name="dosage_form" required>
+                                <option value="" disabled ${!product ? 'selected' : ''}>Select a dosage form</option>
+                                ${Object.keys(DOSAGE_FORMS_MAP).map(form => 
+                                    `<option value="${DOSAGE_FORMS_MAP[form]}" ${product && DOSAGE_FORMS_MAP[form] === product.dosage_form ? 'selected' : ''}>${form}</option>`
+                                ).join('')}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="expire_date">Expiration Date:</label>
+                            <input type="date" id="expire_date" name="expire_date" required value="${product ? product.expire_date : ''}">
+                        </div>
+                        <div class="form-group">
+                            <label for="stock_quantity">Stock Quantity:</label>
+                            <input type="number" id="stock_quantity" name="stock_quantity" min="0" required value="${product ? product.stock_quantity : ''}">
+                        </div>
+                        <div class="form-group">
+                            <label for="image">Product Image:</label>
+                            <input type="file" id="image" name="image" accept="image/*">
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary close-modal-btn">Cancel</button>
+                            <button type="submit" class="btn btn-primary">${submitBtnText}</button>
+                        </div>
+                    </form>
+                </div>
+            `;
+
+            modalBackdrop.appendChild(modalContent);
+            document.body.appendChild(modalBackdrop);
+
+            // Focus on first input field when modal opens
+            modalContent.querySelector('input').focus();
+
+            // Add event listeners to close the modal
+            const closeModal = () => modalBackdrop.remove();
+            modalBackdrop.querySelectorAll('.close-modal-btn').forEach(btn => {
+                btn.addEventListener('click', closeModal);
+            });
+            
+            modalBackdrop.addEventListener('click', (e) => {
+                if (e.target === modalBackdrop) closeModal();
+            });
+
+            // Add event listener for form submission
+            const form = modalContent.querySelector('#productForm');
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                try {
+                    const productData = {
+                        // Product ID is disabled for edits, so we get it from the original object
+                        name: form.name.value.trim(),
+                        price: parseFloat(form.price.value),
+                        strength: form.strength.value.trim(),
+                        dosage_form: parseInt(form.dosage_form.value),
+                        expire_date: form.expire_date.value,
+                        stock_quantity: parseInt(form.stock_quantity.value),
+                        image: form.image.files[0] || null, // Get the file object
+                    };
+
+                    if (product) {
+                        putProduct(product.id, productData);
+                    } else {
+                        postProduct(productData);
+                    }
+                } catch (error) {
+                    console.error('Error processing form:', error);
+                    showMessage('error', 'Invalid form data. Please check your inputs.');
+                }
+            });
+
+            // Prevent modal from closing when clicking inside content
+            modalContent.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+
+        } catch (error) {
+            console.error('Error creating product modal:', error);
+            showMessage('error', 'Failed to open product form. Please try again.');
+        }
+    }
+
+    /**
+     * Creates and displays a read-only modal to view product details.
+     * @param {object} product The product object to display.
+     */
+    function showProductDetailsModal(product) {
+        if (document.querySelector('.modal-backdrop')) return;
+    
+        const modalBackdrop = document.createElement('div');
+        modalBackdrop.className = 'modal-backdrop';
+
+        // Helper function to get the dosage form name from its ID
+        const getDosageFormName = (id) => Object.keys(DOSAGE_FORMS_MAP).find(key => DOSAGE_FORMS_MAP[key] === id) || 'Unknown';
+
+        const modalContent = document.createElement('div');
+        modalContent.className = 'modal-content styled-modal';
+        modalContent.innerHTML = `
+            <div class="modal-header">
+                <h2 class="modal-title">Product Details: ${product.name}</h2>
+                <button class="close-modal-btn">&times;</button>
+            </div>
+            <div class="modal-body product-details-view">
+                ${product.image ? `<div class="product-image-container"><img src="${product.image}" alt="Product Image" class="product-image"></div>` : ''}
+                <div class="detail-item"><strong>Name:</strong> <span>${product.name}</span></div>
+                <div class="detail-item"><strong>Dosage Form:</strong> <span>${getDosageFormName(product.dosage_form)}</span></div>
+                <div class="detail-item"><strong>Strength:</strong> <span>${product.strength}</span></div>
+                <div class="detail-item"><strong>Price:</strong> <span>$${product.price}</span></div>
+                <div class="detail-item"><strong>Stock Quantity:</strong> <span>${product.stock_quantity}</span></div>
+                <div class="detail-item"><strong>Expiration Date:</strong> <span>${new Date(product.expire_date).toLocaleDateString()}</span></div>
+                <div class="modal-actions" style="display: flex; justify-content: flex-end; margin-top: 20px;">
+                    <button type="button" class="btn btn-secondary close-modal-btn">Close</button>
+                </div>
+            </div>
+        `;
+
+        modalBackdrop.appendChild(modalContent);
+        document.body.appendChild(modalBackdrop);
+
+        const closeModal = () => modalBackdrop.remove();
+        
+        modalBackdrop.querySelectorAll('.close-modal-btn').forEach(btn => {
+            btn.addEventListener('click', closeModal);
+        });
+
+        modalBackdrop.addEventListener('click', (e) => {
+            if (e.target === modalBackdrop) closeModal();
+        });
+
+        modalContent.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+    }
+
+    // Attach event listener to the "New Product" button with error handling
+    if (newProductBtn) {
+        newProductBtn.addEventListener('click', (e) => {
+            try {
+                createNewProductModal();
+            } catch (error) {
+                console.error('Error opening new product modal:', error);
+                showMessage('error', 'Failed to open product form. Please try again.');
+            }
+        });
+    } else {
+        console.warn('New product button not found. Please ensure the button with id="newProductBtn" exists.');
+    }
+
+    // Function to create and show the reviews modal
+    function showReviewsModal(product) {
+        // Create the modal backdrop and content
+        const modalBackdrop = document.createElement('div');
+        modalBackdrop.className = 'modal-backdrop';
+
+        const modalContent = document.createElement('div');
+        modalContent.className = 'modal-content';
+        modalContent.innerHTML = `
+            <div class="modal-header">
+                <h2>Reviews for ${product.name}</h2>
+                <button class="close-modal-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <ul class="reviews-list">
+                    ${product.reviews.map(review => `
+                        <li class="review-item">
+                            <div class="review-header">
+                                <strong>${review.reviewer_name}</strong>
+                                <span class="star-rating">${'★'.repeat(review.rating)}</span>
+                            </div>
+                            <p class="review-comment">${review.comment}</p>
+                            <span class="review-date">${new Date(review.created_at).toLocaleDateString()}</span>
+                        </li>
+                    `).join('')}
+                </ul>
+               ${product?.reviews?.length === 0 ? '<p>No reviews yet.</p>' : ''}
+            </div>
+        `;
+
+        modalBackdrop.appendChild(modalContent);
+        document.body.appendChild(modalBackdrop);
+
+        // Add event listener to close the modal
+        modalBackdrop.querySelector('.close-modal-btn').addEventListener('click', () => {
+            modalBackdrop.remove();
+        });
+
+        // Close modal if the user clicks outside of the content
+        modalBackdrop.addEventListener('click', (e) => {
+            if (e.target === modalBackdrop) {
+                modalBackdrop.remove();
+            }
+        });
+    }
+
+    // Function to create a table row for a product
+    function createProductTableRow(product, allProducts) {
+        const tr = document.createElement('tr');
+        
+        tr.innerHTML = `
+            <td>
+                <div class="product-info">
+                    <div class="product-image">
+                        <i class="fas fa-pills"></i> </div>
+                    <div>
+                        <div class="product-name">${product.name}</div>
+                        <div class="product-category">${product.dosage_form_name}</div>
+                    </div>
+                </div>
+            </td>
+            <td>${product.strength}</td>
+            <td>$${product.price}</td>
+            <td>
+                <span class="stock-status ${product.stock_quantity}">
+                    ${product.stock_quantity}
+                </span>
+            </td>
+            <td>${new Date(product.expire_date).toLocaleDateString()}</td>
+            <td>
+                <button class="show-reviews-btn review-link" data-product-id="${product.id}">${product.reviews.length} reviews</button>
+            </td>
+            <td>
+                <button class="action-btn edit-btn" title="Edit" data-id="${product.id}">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="action-btn view-btn" title="View" data-id="${product.id}">
+                    <i class="fas fa-eye"></i>
+                </button>
+                <button class="action-btn delete-btn" title="Delete" data-id="${product.id}">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        `;
+        // Attach the event listeners
+        tr.querySelector('.edit-btn').addEventListener('click', () => {
+            createUpdateProductModal(product);
+        });
+        tr.querySelector('.view-btn').addEventListener('click', () => {
+            showProductDetailsModal(product);
+        });
+        tr.querySelector('.show-reviews-btn').addEventListener('click', () => {
+            showReviewsModal(product);
+        });
+        tr.querySelector('.delete-btn').addEventListener('click', () => {
+            createDeleteConfirmationModal(product);
+        });
+        return tr;
+    }
+
+    // Function to create a mobile product card
+    function createProductMobileCard(product, allProducts) {
+        const card = document.createElement('div');
+        card.classList.add('product-card');
+
+        card.innerHTML = `
+            <div class="product-card-header">
+                <div class="product-image"><i class="fas fa-pills"></i></div>
+                <div>
+                    <div class="product-name">${product.name}</div>
+                    <div class="product-category">${product.dosage_form_name}</div>
+                </div>
+            </div>
+            <div class="product-details">
+                <div><strong>Price:</strong> $${product.price}</div>
+                <div><strong>Stock:</strong> <span class="stock-status ${getStockStatusClass(product.stock_quantity)}">
+                    ${getStockStatusText(product.stock_quantity)}
+                </span></div>
+                <div><strong>Exp. Date:</strong> ${new Date(product.expire_date).toLocaleDateString()}</div>
+                <div>
+                    <strong>Reviews:</strong> 
+                    <button class="show-reviews-btn review-link" data-product-id="${product.id}">${product.reviews.length}</button>
+                </div>
+            </div>
+            <div class="product-card-actions">
+                <button class="btn btn-outline edit-btn" style="padding: 0.4rem 0.8rem;" data-id="${product.id}">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-outline view-btn" style="padding: 0.4rem 0.8rem;" data-id="${product.id}">
+                    <i class="fas fa-eye"></i>
+                </button>
+                <button class="btn btn-outline delete-btn" style="padding: 0.4rem 0.8rem; color: var(--accent-color); border-color: var(--accent-color);" data-id="${product.id}">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        `;
+        // Attach the event listeners
+        card.querySelector('.edit-btn').addEventListener('click', () => {
+            createUpdateProductModal(product);
+        });
+        card.querySelector('.view-btn').addEventListener('click', () => {
+            showProductDetailsModal(product);
+        });
+        card.querySelector('.show-reviews-btn').addEventListener('click', () => {
+            showReviewsModal(product);
+        });
+        card.querySelector('.delete-btn').addEventListener('click', () => {
+            createDeleteConfirmationModal(product);
+        });
+        return card;
+    }
+    
+    // Helper function to determine stock status text
+    function getStockStatusText(stock) {
+        if (stock > 50) return 'In Stock';
+        if (stock > 0) return 'Low Stock';
+        return 'Out of Stock';
+    }
+
+    // Helper function to determine stock status CSS class
+    function getStockStatusClass(stock) {
+        if (stock > 50) return 'in-stock';
+        if (stock > 0) return 'low-stock';
+        return 'out-of-stock';
+    }
+    
+    // Call the fetch function when the page loads
+    fetchProducts();
+});
+
+</script>
+{% endblock script %}

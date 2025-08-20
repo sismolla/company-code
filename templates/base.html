@@ -1,0 +1,402 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Dashboard | Pharma ገበያ</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{%static 'base.css'%}">
+<style>
+
+
+    /* Notification and dropdown styling */
+/* Styling for the new header and button */
+.notification-dropdown-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.notification-dropdown-header h4 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+/* Base styles for mobile devices (default) */
+.dashboard-header {
+    /* Existing styles */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.dashboard-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+
+.user-menu {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* Adjust the size of the icons and avatar for mobile */
+.notification-icon, .user-avatar {
+    font-size: 1.2rem;
+}
+
+/* On screens larger than 768px (for tablets and up) */
+@media (min-width: 768px) {
+    .logo span {
+        display: inline; /* Show the logo text again */
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-left: 0.5rem;
+    }
+
+    .logo i {
+        font-size: 1.5rem;
+    }
+    
+    .dashboard-header {
+        padding: 1rem 2rem;
+    }
+}
+
+.mark-all-read-btn {
+    background: none;
+    border: none;
+    color: #3498db;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 500;
+    padding: 5px;
+    border-radius: 5px;
+    transition: background-color 0.2s;
+}
+
+.mark-all-read-btn:hover {
+    background-color: #ecf0f1;
+}
+
+.mark-all-read-btn.hidden {
+    display: none;
+}
+.notification-icon {
+    position: relative;
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: #333;
+}
+
+.notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -10px;
+    background-color: #e74c3c;
+    color: #fff;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    min-width: 20px;
+    text-align: center;
+    border: 1px solid #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.notification-badge.hidden {
+    display: none;
+}
+
+.notification-dropdown {
+    position: absolute;
+    top: 50px; /* Adjust based on your header height */
+    right: 0;
+    width: 300px;
+    max-height: 400px;
+    overflow-y: auto;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+}
+
+.notification-dropdown.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.notification-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.notification-item {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.2s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.notification-item:hover {
+    background-color: #f8f9fa;
+}
+
+.notification-item.unread {
+    background-color: #ecf0f1;
+    font-weight: 500;
+}
+
+.notification-item.unread:hover {
+    background-color: #e0e6e7;
+}
+
+.notification-message {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+    color: #34495e;
+}
+
+.notification-icon-fa {
+    margin-right: 10px;
+    color: #3498db;
+}
+
+.notification-timestamp {
+    color: #95a5a6;
+    font-size: 0.8rem;
+    align-self: flex-end;
+}
+
+.notification-item-empty {
+    padding: 20px;
+    text-align: center;
+    color: #7f8c8d;
+}
+
+
+
+</style>
+    {% block style %}{% endblock style %}
+</head>
+<body>
+    <header class="dashboard-header">
+        <nav class="dashboard-nav">
+            <div class="logo">
+                <a href="{% url 'landing:landing-page' %}" style="display: flex; align-items: center; text-decoration: none; color: #2c3e50;">
+                    <img src="{% static 'logo.svg' %}" alt="Pharma Gebeya Logo" style="height: 100px; width: auto; margin-right: 10px;">
+                    <span style="font-weight: 600; font-size: 1.2rem;">Pharma ገበያ</span>
+                </a>
+            </div>
+
+            <div class="user-menu">
+                <div class="notification-icon">
+                    <i class="fas fa-bell"></i>
+                    <span id="notification-count" class="notification-badge hidden">0</span>
+                    <div id="notification-dropdown" class="notification-dropdown">
+                        <div class="notification-dropdown-header">
+                            <h4>Notifications</h4>
+                            <button id="mark-all-read-btn" class="mark-all-read-btn hidden">Mark All as Read</button>
+                        </div>
+                        <ul id="notification-list" class="notification-list">
+                            </ul>
+                    </div>
+                </div>
+                <div class="user-dropdown-container">
+                    <div class="user-avatar" id="avatarBtn">
+                        {%if logo %}
+                            <img src="{{ logo.url }}" alt="Supplier Logo" style="height: 40px; width: 40px; border-radius: 50%;">
+                        {%else%}  
+                            <i class="fas fa-user"></i>
+                        {% endif %}
+                    </div>
+                    <ul class="dropdown-menu" id="dropdownMenu">
+                        <li class="user-info">
+                            <h3>Welcome back,</h3>
+                            <p>{{request.user.username}}</p>
+                        </li>
+                        <hr style="margin: 0.5rem 0; border: none; border-bottom: 1px solid #eee;">
+                        <li><a href="{%url 'landing:dashboard'%}" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
+                        <li><a href="{%url 'landing:user-products'%}"><i class="fas fa-shopping-cart"></i> My Products</a></li>
+                        <li><a href="{%url 'landing:order-view'%}"><i class="fas fa-clipboard-list"></i> Manage Orders</a></li>
+                        <li><a href="{%url 'landing:message-view'%}"><i class="fas fa-comments"></i> Messages</a></li>
+                        <li><a href="{%url 'landing:profile'%}"><i class="fas fa-cog"></i> Account Settings</a></li>
+                        <li><a href="{%url 'landing:help'%}"><i class="fas fa-question-circle"></i> Help Center</a></li>
+                        <li><a href="{%url 'landing:logout'%}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>  </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    {% block content %}
+    
+    {% endblock content %}
+
+    {% block script %}
+    
+    {% endblock script %}
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const avatarBtn = document.getElementById('avatarBtn');
+            const dropdownMenu = document.getElementById('dropdownMenu');
+            const userDropdownContainer = document.querySelector('.user-dropdown-container');
+
+            // Function to toggle the dropdown
+            const toggleDropdown = () => {
+                dropdownMenu.classList.toggle('show');
+            };
+
+            // Toggle dropdown on avatar click
+            avatarBtn.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevents the click from bubbling up to the document
+                toggleDropdown();
+            });
+
+            // Hide dropdown when clicking anywhere else on the document
+            document.addEventListener('click', (e) => {
+                if (!userDropdownContainer.contains(e.target)) {
+                    dropdownMenu.classList.remove('show');
+                }
+            });
+        });
+        document.addEventListener('DOMContentLoaded', () => {
+    // Select all necessary elements
+    const notificationIcon = document.querySelector('.notification-icon');
+    const notificationDropdown = document.getElementById('notification-dropdown');
+    const notificationCount = document.getElementById('notification-count');
+    const notificationList = document.getElementById('notification-list');
+    const markAllReadBtn = document.getElementById('mark-all-read-btn');
+
+    // API endpoint for notifications
+    const API_URL = '/pharmacy/api/notification/';
+    const FETCH_INTERVAL = 30000;
+
+    // Toggle the notification dropdown on icon click
+    notificationIcon.addEventListener('click', (e) => {
+        e.stopPropagation();
+        notificationDropdown.classList.toggle('show');
+    });
+
+    // Hide the dropdown when clicking anywhere else on the document
+    document.addEventListener('click', (e) => {
+        if (!notificationIcon.contains(e.target)) {
+            notificationDropdown.classList.remove('show');
+        }
+    });
+
+    // Fetches and updates the UI with notifications
+    const fetchNotifications = async () => {
+        try {
+            const response = await fetch(API_URL);
+            if (!response.ok) {
+                throw new Error('Failed to fetch notifications.');
+            }
+            const notifications = await response.json();
+            updateNotifications(notifications);
+        } catch (error) {
+            console.error('Error fetching notifications:', error);
+        }
+    };
+
+    // Updates the UI with fetched notifications
+    const updateNotifications = (notifications) => {
+        const unreadCount = notifications.filter(n => !n.is_read).length;
+
+        // Update the badge
+        notificationCount.textContent = unreadCount;
+        if (unreadCount > 0) {
+            notificationCount.classList.remove('hidden');
+            markAllReadBtn.classList.remove('hidden'); // Show the button if there are unread messages
+        } else {
+            notificationCount.classList.add('hidden');
+            markAllReadBtn.classList.add('hidden'); // Hide the button if there are no unread messages
+        }
+
+        // Update the notification list in the dropdown
+        notificationList.innerHTML = '';
+        if (notifications.length === 0) {
+            const emptyState = document.createElement('li');
+            emptyState.className = 'notification-item-empty';
+            emptyState.textContent = 'No new notifications.';
+            notificationList.appendChild(emptyState);
+        } else {
+            notifications.forEach(notification => {
+                const li = document.createElement('li');
+                li.className = 'notification-item';
+                if (!notification.is_read) {
+                    li.classList.add('unread');
+                }
+                const formattedDate = new Date(notification.created_at).toLocaleString();
+                li.innerHTML = `
+                    <div class="notification-message">
+                        <i class="fas fa-info-circle notification-icon-fa"></i>
+                        <span>${notification.message}</span>
+                    </div>
+                    <small class="notification-timestamp">${formattedDate}</small>
+                `;
+                notificationList.appendChild(li);
+            });
+        }
+    };
+
+    // Handles the "Mark All as Read" action
+    const markAllNotificationsAsRead = async () => {
+        try {
+            const response = await fetch(API_URL, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({ is_read: true })
+            });
+            if (!response.ok) {
+                throw new Error('Failed to mark all notifications as read.');
+            }
+            // Optimistically update the UI after a successful request
+            notificationCount.classList.add('hidden');
+            markAllReadBtn.classList.add('hidden');
+            const notificationItems = notificationList.querySelectorAll('.notification-item');
+            notificationItems.forEach(item => item.classList.remove('unread'));
+        } catch (error) {
+            console.error('Error marking notifications as read:', error);
+        }
+    };
+
+    // Add event listener to the "Mark All as Read" button
+    markAllReadBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        markAllNotificationsAsRead();
+    });
+
+    // Initial fetch and set up recurring fetches
+    fetchNotifications();
+    setInterval(fetchNotifications, FETCH_INTERVAL);
+});
+    </script>
+</body>
+</html>

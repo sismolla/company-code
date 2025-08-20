@@ -1,0 +1,1456 @@
+{% extends 'base2.html' %}
+{% load static %}
+
+{% block style %}
+<style>
+    :root {
+        --primary: #0066cc;
+        --secondary: #004080;
+        --light: #f8f9fa;
+        --dark: #212529;
+        --success: #28a745;
+        --warning: #ffc107;
+        --danger: #dc3545;
+        --info: #17a2b8;
+        --text: #2b2d42;
+        --border: #e9ecef;
+        --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f5f7fa;
+        color: var(--dark);
+        line-height: 1.6;
+        margin: 0;
+        padding: 0;
+    }
+
+    .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .logo {
+        color: var(--primary);
+        font-weight: 700;
+        font-size: 24px;
+    }
+
+    .pharmacy-name {
+        font-size: 14px;
+        color: #666;
+        margin-top: 5px;
+    }
+
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 500;
+        margin-bottom: 1rem;
+        transition: color 0.2s;
+    }
+
+    .back-link:hover {
+        color: var(--secondary);
+    }
+
+    .supplier-avatar {
+        width: 100px;
+        height: 100px;
+        background-color: #f0f4ff;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .supplier-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .supplier-avatar i {
+        font-size: 2.5rem;
+        color: var(--primary);
+    }
+
+    .supplier-title {
+        flex-grow: 1;
+    }
+
+    .supplier-name {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin: 0 0 0.5rem 0;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .verified-badge {
+        background-color: #e8f5e9;
+        color: var(--success);
+        padding: 0.25rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .supplier-meta {
+        display: flex;
+        gap: 1.5rem;
+        color: var(--secondary);
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .supplier-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .product-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+    }
+
+    .product-table th {
+        background-color: var(--primary);
+        color: white;
+        padding: 12px 15px;
+        text-align: left;
+        font-weight: 600;
+    }
+
+    .product-table td {
+        padding: 12px 15px;
+        border-bottom: 1px solid #eee;
+        vertical-align: middle;
+    }
+
+    .product-table tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    .product-name {
+        font-weight: 600;
+    }
+
+    .product-strength {
+        color: #666;
+        font-size: 14px;
+    }
+
+    .product-manufacturer {
+        color: #666;
+        font-size: 14px;
+    }
+
+    .quantity-control {
+        display: flex;
+        align-items: center;
+    }
+
+    .quantity-control button {
+        background-color: #e9ecef;
+        border: none;
+        width: 30px;
+        height: 30px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        border-radius: 4px;
+    }
+
+    .quantity-control button:hover:not(:disabled) {
+        background-color: #d8dbe0;
+    }
+
+    .quantity-control button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .quantity-control input {
+        width: 50px;
+        text-align: center;
+        height: 30px;
+        border: 1px solid #ddd;
+        margin: 0 5px;
+        border-radius: 4px;
+    }
+
+    .add-to-cart {
+        background-color: var(--success);
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+
+    .add-to-cart:hover {
+        background-color: #218838;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .in-stock {
+        background-color: #d4edda;
+        color: #155724;
+    }
+
+    .low-stock {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+
+    .out-of-stock {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+
+    .info-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: var(--card-shadow);
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: var(--secondary);
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        font-size: 1rem;
+        box-sizing: border-box;
+        transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.2);
+    }
+
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin: 0 0 1.5rem 0;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .section-title i {
+        color: var(--primary);
+    }
+
+    .supplier-description {
+        line-height: 1.7;
+        color: var(--text);
+    }
+
+    .details-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+    }
+
+    .detail-item {
+        margin-bottom: 0.5rem;
+    }
+
+    .detail-label {
+        font-weight: 500;
+        color: var(--secondary);
+        margin-bottom: 0.25rem;
+        font-size: 0.9rem;
+    }
+
+    .detail-value {
+        font-weight: 500;
+    }
+
+    .contact-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: var(--card-shadow);
+        margin-bottom: 1.5rem;
+    }
+
+    .contact-method {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .contact-method:last-child {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
+    }
+
+    .contact-icon {
+        width: 40px;
+        height: 40px;
+        background-color: #f0f4ff;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .contact-icon i {
+        color: var(--primary);
+    }
+
+    .contact-info {
+        flex-grow: 1;
+    }
+
+    .contact-label {
+        font-size: 0.85rem;
+        color: var(--secondary);
+        margin-bottom: 0.25rem;
+    }
+
+    .contact-value {
+        font-weight: 500;
+    }
+
+    .contact-value a {
+        text-decoration: none;
+        color: var(--text);
+        transition: color 0.2s;
+    }
+
+    .contact-value a:hover {
+        color: var(--primary);
+        text-decoration: underline;
+    }
+
+    .status-message {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        color: white;
+        font-weight: 600;
+        z-index: 1000;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        max-width: 90%;
+        opacity: 0;
+        transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+        pointer-events: none;
+    }
+
+    .status-message.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+        pointer-events: auto;
+    }
+
+    .status-message.hide {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-20px);
+    }
+
+    .status-message.error {
+        background-color: var(--danger);
+    }
+
+    .status-message.success {
+        background-color: var(--success);
+    }
+
+    .status-message.warning {
+        background-color: var(--warning);
+        color: var(--dark);
+    }
+
+    .status-message.info {
+        background-color: var(--info);
+    }
+
+    .status-message i {
+        font-size: 1.2rem;
+    }
+
+    .loader-container {
+        text-align: center;
+        margin-top: 5rem;
+        padding: 2rem;
+        border-radius: 8px;
+        background: white;
+        box-shadow: var(--card-shadow);
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .loader {
+        border: 4px solid #f0f4ff;
+        border-top: 4px solid var(--primary);
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 1rem;
+    }
+
+    .loader p {
+        font-size: 1.1rem;
+        color: var(--secondary);
+        margin-bottom: 0;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* Error state */
+    .error-state {
+        text-align: center;
+        padding: 3rem;
+        background: white;
+        border-radius: 8px;
+        box-shadow: var(--card-shadow);
+        max-width: 600px;
+        margin: 2rem auto;
+    }
+
+    .error-state i {
+        font-size: 3rem;
+        color: var(--danger);
+        margin-bottom: 1rem;
+    }
+
+    .error-state h2 {
+        color: var(--danger);
+        margin-bottom: 1rem;
+    }
+
+    .error-state p {
+        margin-bottom: 1.5rem;
+        color: var(--text);
+    }
+
+    .retry-btn {
+        background-color: var(--primary);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 4px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .retry-btn:hover {
+        background-color: var(--secondary);
+    }
+
+    /* Two-Panel Layout */
+    .main-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 2rem;
+        align-items: start;
+    }
+
+    .main-content {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .sidebar {
+        position: sticky;
+        top: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .search-bar {
+        margin-bottom: 1.5rem;
+        position: sticky;
+        top: 20px;
+        z-index: 10;
+    }
+
+    .search-bar .form-control {
+        background-color: white;
+        border-radius: 50px;
+        padding-left: 2rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        border: none;
+    }
+
+    .search-container {
+        position: relative;
+    }
+
+    .search-icon {
+        position: absolute;
+        top: 50%;
+        left: 15px;
+        transform: translateY(-50%);
+        color: var(--secondary);
+    }
+
+    .product-search-bar {
+        margin-bottom: 1.5rem;
+    }
+
+    .product-search-bar .form-control {
+        width: 100%;
+    }
+
+    /* Cart Section */
+    .cart-section {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+        padding: 25px;
+        margin-top: 30px;
+    }
+
+    .cart-items {
+        margin-bottom: 20px;
+        max-height: 300px;
+        overflow-y: auto;
+        padding-right: 10px;
+    }
+
+    .cart-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .cart-item-details {
+        flex: 1;
+    }
+
+    .cart-item-price {
+        font-weight: 600;
+    }
+
+    .cart-total {
+        display: flex;
+        justify-content: space-between;
+        font-size: 18px;
+        font-weight: 600;
+        padding: 15px 0;
+        border-top: 2px solid #eee;
+        margin-top: 10px;
+    }
+
+    .checkout-btn {
+        background-color: var(--primary);
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 4px;
+        font-size: 16px;
+        cursor: pointer;
+        width: 100%;
+        transition: background 0.3s;
+        font-weight: 500;
+        margin-top: 1rem;
+    }
+
+    .checkout-btn:hover {
+        background-color: var(--secondary);
+    }
+
+    .checkout-btn:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+    }
+
+    .empty-cart-message {
+        text-align: center;
+        color: #666;
+        padding: 1rem;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 992px) {
+        .main-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .sidebar {
+            position: static;
+        }
+
+
+        .supplier-avatar {
+            margin-bottom: 1rem;
+        }
+
+        .details-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+    /* Force table to not be like a table anymore */
+    .product-table,
+    .product-table thead,
+    .product-table tbody,
+    .product-table th,
+    .product-table td,
+    .product-table tr {
+        display: block;
+    }
+
+    /* Hide table headers (but not display: none;, so accessibility is kept) */
+    .product-table thead tr {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+    }
+
+    .product-table tr {
+        border: 1px solid var(--border);
+        margin-bottom: 1rem;
+        border-radius: 8px;
+        padding: 1rem;
+        background: white;
+        box-shadow: var(--card-shadow);
+    }
+
+    .product-table td {
+        /* Behave like a "row" */
+        border: none;
+        position: relative;
+        padding-left: 50%; /* Adjust this value */
+        text-align: right;
+    }
+
+    .product-table td:before {
+        /* Now like a table header */
+        position: absolute;
+        /* Top/left values mimic padding */
+        top: 0;
+        left: 6px;
+        width: 45%;
+        padding-right: 10px;
+        white-space: nowrap;
+        text-align: left;
+        font-weight: bold;
+        color: var(--secondary);
+    }
+
+    /* Label the data based on `data-label` attribute */
+    .product-table td:nth-of-type(1):before { content: "Product"; }
+    .product-table td:nth-of-type(2):before { content: "Details"; }
+    .product-table td:nth-of-type(3):before { content: "Price"; }
+    .product-table td:nth-of-type(4):before { content: "Status"; }
+    .product-table td:nth-of-type(5):before { content: "Quantity"; }
+}
+
+    /* Print styles */
+    @media print {
+        body {
+            background-color: white;
+            color: black;
+            font-size: 12pt;
+        }
+
+        .container {
+            max-width: 100%;
+            padding: 0;
+        }
+
+        .back-link, .search-bar, .checkout-btn, .sidebar {
+            display: none;
+        }
+
+        .main-grid {
+            display: block;
+        }
+
+        .info-card, .product-table {
+            box-shadow: none;
+            border: 1px solid #ddd;
+            page-break-inside: avoid;
+        }
+
+        .product-table th {
+            background-color: white;
+            color: black;
+            border-bottom: 2px solid #000;
+        }
+
+        .product-table td {
+            border-bottom: 1px solid #ddd;
+        }
+
+        a {
+            text-decoration: none;
+            color: black;
+        }
+    }
+</style>
+{% endblock style %}
+
+{% block content %}
+
+<div id="status-message" class="status-message">
+    <i class="fas fa-check-circle"></i>
+    <span class="message-text"></span>
+</div>
+
+<div id="loading-state" class="loader-container">
+    <div class="loader"></div>
+    <p>Loading supplier details...</p>
+</div>
+
+<div id="error-state" class="error-state" style="display: none;">
+    <i class="fas fa-exclamation-triangle"></i>
+    <h2>Error Loading Supplier</h2>
+    <p id="error-message">We couldn't load the supplier details at this time.</p>
+    <button id="retry-btn" class="retry-btn">Try Again</button>
+</div>
+
+<div id="main-content" class="container" style="display: none;">
+    <div class="page-header">
+        <a href="{% url 'landing:suppliers-list' %}" class="back-link">
+            <i class="fas fa-arrow-left"></i>
+            Back to suppliers
+        </a>
+    </div>
+
+    <div class="supplier-header">
+        <div id="supplier-avatar" class="supplier-avatar">
+            <i class="fas fa-building"></i>
+        </div>
+        <div class="supplier-title">
+            <h1 class="supplier-name">
+                <span id="supplier-name">Loading...</span>
+            </h1>
+            <div id="supplier-meta" class="supplier-meta">
+                <div class="supplier-meta-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span id="supplier-address">Loading...</span>
+                </div>
+                <div class="supplier-meta-item">
+                    <i class="fas fa-boxes"></i>
+                    <span id="product-count">Loading products...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-grid">
+        <div class="main-panel">
+            <div class="info-card">
+                <h2 class="section-title">
+                    <i class="fas fa-info-circle"></i>
+                    About This Supplier
+                </h2>
+                <p id="supplier-description" class="supplier-description">Loading supplier information...</p>
+
+                <div class="details-grid">
+                    <div class="detail-item">
+                        <div class="detail-label">Business Name</div>
+                        <div id="business-name" class="detail-value">Loading...</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Provide Delivery</div>
+                        <div id="delivery-status" class="detail-value">Loading...</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Bulk Discount</div>
+                        <div id="bulk-discount" class="detail-value">Loading...</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="search-bar product-search-bar">
+                <div class="search-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="product-search" class="form-control" placeholder="Search for products..." disabled>
+                </div>
+            </div>
+
+            <div class="info-card">
+                <h2 class="section-title">
+                    <i class="fas fa-pills"></i>
+                    Pharmaceutical Products
+                </h2>
+                <strong>Simply click the '+' button to order. All orders are fulfilled on a first-come, first-served basis, which guarantees a faster response than direct contact.</strong>
+                <br>
+                <br>
+                <div class="info-card">
+                    <h2 class="section-title">
+                        <i class="fas fa-pills"></i>
+                        Pharmaceutical Products
+                    </h2>
+                    <div style="overflow-x: auto;">
+                        <table class="product-table">
+                            <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Details</th>
+                                <th>Price</th>
+                                <th>Status</th>
+                                <th>Quantity</th>
+                            </tr>
+                            </thead>
+                            <tbody id="products-table-body">
+                            <tr>
+                                <td colspan="5" style="text-align: center;">Loading products...</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar-panel">
+            <div class="contact-card">
+                <h2 class="section-title">
+                    <i class="fas fa-address-book"></i>
+                    Contact Information
+                </h2>
+                <div id="contact-methods">
+                    <div class="contact-method">
+                        <div class="contact-icon"><i class="fas fa-spinner fa-spin"></i></div>
+                        <div class="contact-info">
+                            <div class="contact-label">Loading</div>
+                            <div class="contact-value">Contact information loading...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cart-section">
+                <h2 class="section-title">
+                    <i class="fas fa-shopping-cart"></i>
+                    Order Summary
+                </h2>
+
+                <div id="customer-info-form" class="info-card" style="display: none;">
+                    <h2 class="section-title">
+                        <i class="fas fa-user"></i>
+                        Customer Information
+                    </h2>
+                    <form id="order-form">
+                        <div class="form-group">
+                            <label class="form-label" for="customer-name">Full Name <span class="required">*</span></label>
+                            <input type="text" id="customer-name" class="form-control" placeholder="John Doe" required>
+                            <div class="invalid-feedback">Please provide your full name.</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="customer-email">Email Address</label>
+                            <input type="email" id="customer-email" class="form-control" placeholder="john.doe@example.com">
+                            <div class="invalid-feedback">Please provide a valid email address.</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="customer-phone">Phone Number <span class="required">*</span></label>
+                            <input type="tel" id="customer-phone" class="form-control" placeholder="+1234567890" required>
+                            <div class="invalid-feedback">Please provide a valid phone number.</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="pharmacy-name">Pharmacy Name <span class="required">*</span></label>
+                            <input type="text" id="pharmacy-name" class="form-control" placeholder="My Pharmacy" required>
+                            <div class="invalid-feedback">Please provide your pharmacy name.</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="delivery-address">Delivery Address <span class="required">*</span></label>
+                            <textarea id="delivery-address" class="form-control" rows="3" placeholder="123 Main St, City, State, ZIP" required></textarea>
+                            <div class="invalid-feedback">Please provide a delivery address.</div>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="cart-items" id="cart-items">
+                    <p class="empty-cart-message">Your order is empty. Add products to begin.</p>
+                </div>
+
+                <div class="cart-total">
+                    <span>Total:</span>
+                    <span id="cart-total">$0.00</span>
+                </div>
+
+                <button class="checkout-btn" disabled>Submit Order Request</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block script %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // DOM Elements
+        const loadingState = document.getElementById('loading-state');
+        const errorState = document.getElementById('error-state');
+        const mainContent = document.getElementById('main-content');
+        const statusMessage = document.getElementById('status-message');
+        const messageText = statusMessage.querySelector('.message-text');
+        const productsTableBody = document.getElementById('products-table-body');
+        const cartItemsContainer = document.getElementById('cart-items');
+        const cartTotalElement = document.getElementById('cart-total');
+        const customerInfoForm = document.getElementById('customer-info-form');
+        const checkoutBtn = document.querySelector('.checkout-btn');
+        const productSearchInput = document.getElementById('product-search');
+        const retryBtn = document.getElementById('retry-btn');
+        const errorMessage = document.getElementById('error-message');
+
+        // State variables
+        let allProducts = [];
+        let cart = [];
+        let isSubmitting = false;
+
+        // Extract supplier ID from URL
+        const pathParts = window.location.pathname.split('/').filter(Boolean);
+        const supplierId = pathParts[pathParts.length - 1];
+
+        /**
+         * Show a status message to the user
+         * @param {string} message - The message to display
+         * @param {string} type - The type of message (success, error, warning, info)
+         * @param {number} duration - How long to display the message in milliseconds (default: 3000)
+         */
+        function showMessage(message, type = 'success', duration = 3000) {
+            // Set icon based on message type
+            let iconClass;
+            switch(type) {
+                case 'success':
+                    iconClass = 'fas fa-check-circle';
+                    break;
+                case 'error':
+                    iconClass = 'fas fa-exclamation-circle';
+                    break;
+                case 'warning':
+                    iconClass = 'fas fa-exclamation-triangle';
+                    break;
+                case 'info':
+                    iconClass = 'fas fa-info-circle';
+                    break;
+                default:
+                    iconClass = 'fas fa-info-circle';
+            }
+
+            // Update message content
+            statusMessage.innerHTML = `<i class="${iconClass}"></i><span class="message-text">${message}</span>`;
+            statusMessage.className = `status-message show ${type}`;
+
+            // Hide message after duration
+            setTimeout(() => {
+                statusMessage.classList.add('hide');
+                setTimeout(() => {
+                    statusMessage.className = 'status-message';
+                }, 300);
+            }, duration);
+        }
+
+        /**
+         * Display error state with retry option
+         * @param {string} message - The error message to display
+         */
+        function displayError(message) {
+            loadingState.style.display = 'none';
+            mainContent.style.display = 'none';
+            errorMessage.textContent = message;
+            errorState.style.display = 'block';
+        }
+
+        /**
+         * Update cart with product and quantity
+         * @param {object} product - The product to add/update
+         * @param {number} quantity - The quantity to set
+         */
+        function updateCart(product, quantity) {
+            const existingItemIndex = cart.findIndex(item => item.id === product.id);
+
+            if (quantity > 0) {
+                if (existingItemIndex > -1) {
+                    cart[existingItemIndex].quantity = quantity;
+                } else {
+                    cart.push({
+                        id: product.id,
+                        name: product.name,
+                        strength: product.strength,
+                        price: product.price,
+                        quantity: quantity
+                    });
+                }
+            } else {
+                if (existingItemIndex > -1) {
+                    cart.splice(existingItemIndex, 1);
+                }
+            }
+            updateCartDisplay();
+        }
+
+        /**
+         * Update the cart display in the UI
+         */
+        function updateCartDisplay() {
+            cartItemsContainer.innerHTML = '';
+            let total = 0;
+
+            if (cart.length > 0) {
+                customerInfoForm.style.display = 'block';
+                checkoutBtn.disabled = false;
+                
+                cart.forEach(item => {
+                    const itemTotal = item.price * item.quantity;
+                    total += itemTotal;
+                    
+                    const cartItem = document.createElement('div');
+                    cartItem.className = 'cart-item';
+                    cartItem.innerHTML = `
+                        <div class="cart-item-details">
+                            <strong>${item.name} ${item.strength}</strong> (Qty: ${item.quantity})
+                        </div>
+                        <div class="cart-item-price">$${itemTotal}</div>
+                    `;
+                    cartItemsContainer.appendChild(cartItem);
+                });
+            } else {
+                customerInfoForm.style.display = 'none';
+                checkoutBtn.disabled = true;
+                cartItemsContainer.innerHTML = '<p class="empty-cart-message">Your order is empty. Add products to begin.</p>';
+            }
+
+            cartTotalElement.textContent = `$${total}`;
+        }
+
+        /**
+         * Render products in the table
+         * @param {array} productsToRender - Array of products to render
+         */
+        function renderProducts(productsToRender) {
+            productsTableBody.innerHTML = '';
+            
+            if (productsToRender && productsToRender.length > 0) {
+                productsToRender.forEach(productItem => {
+                    const product = productItem.product;
+                    const stockQuantity = product.stock_quantity;
+                    const stockDisplay = stockQuantity > 0 ? `${stockQuantity} in stock` : 'Out of Stock';
+                    const statusClass = stockQuantity > 10 ? 'in-stock' : 
+                                    stockQuantity > 0 ? 'low-stock' : 'out-of-stock';
+                    const maxQuantity = stockQuantity;
+
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>
+                            <div class="product-name">${product.name}</div>
+                            <div class="product-strength">${product.strength}</div>
+                        </td>
+                        <td>
+                            <div class="product-manufacturer">${product.manufacturer || 'Generic'}</div>
+                            <div>${product.dosage_form.name}</div>
+                        </td>
+                        <td>$${product.price}</td>
+                        <td><span class="status-badge ${statusClass}">${stockDisplay}</span></td>
+                        <td>
+                            <div class="quantity-control">
+                                <button class="decrement-btn" ${maxQuantity === 0 ? 'disabled' : ''}>-</button>
+                                <input type="number" class="quantity-input" value="0" min="0" max="${maxQuantity}" ${maxQuantity === 0 ? 'disabled' : ''}>
+                                <button class="increment-btn" ${maxQuantity === 0 ? 'disabled' : ''}>+</button>
+                            </div>
+                        </td>
+                    `;
+                    productsTableBody.appendChild(row);
+
+                    // Add event listeners for quantity controls
+                    const incrementBtn = row.querySelector('.increment-btn');
+                    const decrementBtn = row.querySelector('.decrement-btn');
+                    const quantityInput = row.querySelector('.quantity-input');
+
+                    const handleQuantityChange = () => {
+                        const quantity = parseInt(quantityInput.value) || 0;
+                        const validQuantity = Math.max(0, Math.min(quantity, maxQuantity));
+                        quantityInput.value = validQuantity;
+                        updateCart(product, validQuantity);
+                    };
+
+                    incrementBtn.addEventListener('click', () => {
+                        const currentValue = parseInt(quantityInput.value) || 0;
+                        if (currentValue < maxQuantity) {
+                            quantityInput.value = currentValue + 1;
+                            handleQuantityChange();
+                        }
+                    });
+
+                    decrementBtn.addEventListener('click', () => {
+                        const currentValue = parseInt(quantityInput.value) || 0;
+                        if (currentValue > 0) {
+                            quantityInput.value = currentValue - 1;
+                            handleQuantityChange();
+                        }
+                    });
+
+                    quantityInput.addEventListener('change', handleQuantityChange);
+                    quantityInput.addEventListener('input', handleQuantityChange);
+                });
+            } else {
+                productsTableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No products available matching your search.</td></tr>';
+            }
+        }
+
+        /**
+         * Fetch supplier details from the API
+         */
+        async function fetchSupplierDetails() {
+            // Validate supplier ID
+            if (!supplierId || isNaN(supplierId)) {
+                displayError('Invalid supplier ID provided in the URL.');
+                return;
+            }
+
+            try {
+                // Show loading state
+                loadingState.style.display = 'block';
+                errorState.style.display = 'none';
+                mainContent.style.display = 'none';
+
+                const response = await fetch(`/pharmacy/user-models/${supplierId}/`);
+                
+                // Handle HTTP errors
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        throw new Error('Supplier not found. The supplier may have been removed or the URL is incorrect.');
+                    } else if (response.status === 403) {
+                        throw new Error('You do not have permission to view this supplier.');
+                    } else if (response.status >= 500) {
+                        throw new Error('Server error. Please try again later.');
+                    } else {
+                        throw new Error(`Failed to load supplier details. Status: ${response.status}`);
+                    }
+                }
+
+                const supplierData = await response.json();
+                
+                // Validate response data
+                if (!supplierData || !supplierData.supplier) {
+                    throw new Error('Invalid data received from server.');
+                }
+
+                allProducts = supplierData.products || [];
+                renderSupplierDetails(supplierData);
+                
+                // Enable search now that we have products
+                productSearchInput.disabled = false;
+                productSearchInput.placeholder = "Search for products...";
+                
+            } catch (error) {
+                console.error('Error fetching supplier details:', error);
+                displayError(error.message || 'Failed to load supplier details. Please try again.');
+            }
+        }
+
+        /**
+         * Render supplier details in the UI
+         * @param {object} data - Supplier data from API
+         */
+        function renderSupplierDetails(data) {
+            try {
+                // Update page title
+                document.title = `${data.supplier.name} | Supplier Profile`;
+
+                // Update basic supplier info
+                document.getElementById('supplier-name').textContent = data.supplier.name;
+                document.getElementById('supplier-address').textContent = data.supplier.address || 'Address not provided';
+                document.getElementById('product-count').textContent = `${allProducts.length} product${allProducts.length !== 1 ? 's' : ''}`;
+                document.getElementById('supplier-description').textContent = data.description || 'No description available.';
+                document.getElementById('business-name').textContent = data.supplier.name;
+                document.getElementById('delivery-status').textContent = data.offer_delivery ? 'Yes' : 'No';
+                document.getElementById('bulk-discount').textContent = data.bulk_discount_available ? 'Yes' : 'No';
+
+                // Update supplier avatar/logo
+                const avatarContainer = document.getElementById('supplier-avatar');
+                if (data.supplier.logo) {
+                    avatarContainer.innerHTML = `<img src="${data.supplier.logo}" alt="${data.supplier.name} logo" onerror="this.parentElement.innerHTML='<i class=\\'fas fa-building fa-2x\\'></i>'">`;
+                } else {
+                    avatarContainer.innerHTML = `<i class="fas fa-building fa-2x"></i>`;
+                }
+
+                // Update contact methods
+                const contactMethodsContainer = document.getElementById('contact-methods');
+                contactMethodsContainer.innerHTML = '';
+                
+                if (data.supplier.phone) {
+                    contactMethodsContainer.innerHTML += createContactMethod('Phone', data.supplier.phone, 'fas fa-phone-alt');
+                }
+                if (data.supplier.email) {
+                    contactMethodsContainer.innerHTML += createContactMethod('Email', data.supplier.email, 'fas fa-envelope');
+                }
+                if (data.supplier.whatsapp_link) {
+                    contactMethodsContainer.innerHTML += createContactMethod('Whatsapp', data.supplier.whatsapp_link, 'fab fa-whatsapp', true);
+                }
+                if (data.supplier.telegram_link) {
+                    contactMethodsContainer.innerHTML += createContactMethod('Telegram', data.supplier.telegram_link, 'fab fa-telegram', true);
+                }
+                
+                if (contactMethodsContainer.children.length === 0) {
+                    contactMethodsContainer.innerHTML = '<p>No contact information available.</p>';
+                }
+
+                // Render products
+                renderProducts(allProducts);
+                
+                // Show main content
+                loadingState.style.display = 'none';
+                mainContent.style.display = 'block';
+                updateCartDisplay();
+            } catch (error) {
+                console.error('Error rendering supplier details:', error);
+                displayError('An error occurred while displaying supplier details.');
+            }
+        }
+
+        /**
+         * Create HTML for a contact method
+         * @param {string} label - Contact method label
+         * @param {string} value - Contact value
+         * @param {string} iconClass - Icon class
+         * @param {boolean} isLink - Whether the value is a link
+         * @returns {string} HTML string
+         */
+        function createContactMethod(label, value, iconClass, isLink = false) {
+            if (!value) return '';
+            
+            const displayValue = isLink ? 
+                `<a href="${value}" target="_blank" rel="noopener noreferrer">${label === 'Email' ? value : 'Contact via ' + label}</a>` : 
+                value;
+                
+            return `
+                <div class="contact-method">
+                    <div class="contact-icon"><i class="${iconClass}"></i></div>
+                    <div class="contact-info">
+                        <div class="contact-label">${label}</div>
+                        <div class="contact-value">${displayValue}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        /**
+         * Validate the order form
+         * @returns {boolean} True if form is valid
+         */
+        function validateOrderForm() {
+            const form = document.getElementById('order-form');
+            let isValid = true;
+            
+            // Validate required fields
+            const requiredFields = [
+                'customer-name',
+                'customer-phone',
+                'pharmacy-name',
+                'delivery-address'
+            ];
+            
+            requiredFields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (!field.value.trim()) {
+                    field.classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    field.classList.remove('is-invalid');
+                }
+            });
+            
+            // Validate email format if provided
+            const emailField = document.getElementById('customer-email');
+            if (emailField.value.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailField.value)) {
+                emailField.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                emailField.classList.remove('is-invalid');
+            }
+            
+            return isValid;
+        }
+
+        // Event listeners
+        productSearchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase().trim();
+            const filteredProducts = allProducts.filter(productItem => {
+                const product = productItem.product;
+                const searchFields = [
+                    product.name.toLowerCase(),
+                    (product.strength || '').toLowerCase(),
+                    (product.manufacturer || '').toLowerCase(),
+                    (product.dosage_form_name || '').toLowerCase()
+                ];
+                return searchFields.some(field => field.includes(searchTerm));
+            });
+            renderProducts(filteredProducts);
+        });
+
+        retryBtn.addEventListener('click', fetchSupplierDetails);
+
+        checkoutBtn.addEventListener('click', async function() {
+            // Prevent multiple submissions
+            if (isSubmitting) return;
+            isSubmitting = true;
+            
+            try {
+                // Validate cart
+                if (cart.length === 0) {
+                    showMessage('Please add products to your order before submitting', 'error');
+                    return;
+                }
+
+                // Validate form
+                if (!validateOrderForm()) {
+                    showMessage('Please fill out all required fields correctly.', 'error');
+                    return;
+                }
+
+                // Prepare order payload
+                const orderPayload = {
+                    supplier_id: supplierId,
+                    customer_full_name: document.getElementById('customer-name').value.trim(),
+                    customer_email_address: document.getElementById('customer-email').value.trim(),
+                    customer_phone: document.getElementById('customer-phone').value.trim(),
+                    customer_pharmacy_name: document.getElementById('pharmacy-name').value.trim(),
+                    customer_delivery_address: document.getElementById('delivery-address').value.trim(),
+                    items: cart.map(item => ({
+                        product_id: item.id,
+                        quantity: item.quantity,
+                        price: item.price
+                    }))
+                };
+
+                // Update UI for submission
+                checkoutBtn.disabled = true;
+                checkoutBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+
+                // Submit order
+                const response = await fetch('/pharmacy/order/creation/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken'),
+                    },
+                    body: JSON.stringify(orderPayload)
+                });
+
+                // Handle response
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(
+                        errorData.detail || 
+                        errorData.message || 
+                        `Order submission failed with status ${response.status}`
+                    );
+                }
+
+                const result = await response.json();
+                
+                // Show success message
+                showMessage(
+                    'Order request submitted successfully! Please Track the detail On Your Email or you can Call directly to the Wholesaler For confirm details.', 
+                    'success',
+                    10000
+                );
+
+                // Reset form and cart
+                cart = [];
+                updateCartDisplay();
+                document.querySelectorAll('.quantity-input').forEach(input => input.value = '0');
+                document.getElementById('order-form').reset();
+                
+            } catch (error) {
+                console.error('Order submission error:', error);
+                showMessage(
+                    error.message || 'An error occurred while submitting your order. Please try again.', 
+                    'error'
+                );
+            } finally {
+                checkoutBtn.disabled = false;
+                checkoutBtn.innerHTML = 'Submit Order Request';
+                isSubmitting = false;
+            }
+        });
+
+        // Helper function to get CSRF token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let cookie of cookies) {
+                    cookie = cookie.trim();
+                    if (cookie.startsWith(name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // Initialize the page
+        fetchSupplierDetails();
+    });
+</script>
+{% endblock script %}

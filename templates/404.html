@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Page Not Found</title>
+    <style>
+        :root {
+            --primary-color: #3498db; /* A friendly blue */
+            --secondary-color: #2c3e50; /* A dark, professional gray */
+            --background-color: #f4f6f9; /* Light gray background */
+            --text-color: #555;
+            --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            padding: 40px;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transform: translateY(-20px);
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            font-size: 6rem;
+            color: var(--primary-color);
+            margin: 0;
+            font-weight: 700;
+            letter-spacing: -3px;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            color: var(--secondary-color);
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: #fff;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .cta-button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .suggestion-link {
+            display: block;
+            margin-top: 15px;
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.3s ease;
+        }
+
+        .suggestion-link:hover {
+            color: #2980b9;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>404</h1>
+        <h2>Oops! Page Not Found</h2>
+        <p>
+            It looks like the page you're looking for doesn't exist. It might have been moved or deleted.
+        </p>
+        <a href="/pharmacy" class="cta-button">Go to Homepage</a>
+        <a href="javascript:history.back()" class="suggestion-link">Or, go back to the previous page</a>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,315 @@
+{% extends 'base2.html' %}
+{% load static %}
+{% block style %}
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-light: #f0f4ff;
+            --secondary: #6c757d;
+            --text: #2b2d42;
+            --border: #e9ecef;
+            --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: var(--text);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin: 0 0 1rem 0;
+        }
+
+        .page-description {
+            color: var(--secondary);
+            margin: 0;
+        }
+
+        .search-container {
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .search-input {
+            flex-grow: 1;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .supplier-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .supplier-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.2s;
+        }
+
+        .supplier-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .supplier-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .supplier-avatar {
+            width: 60px;
+            height: 60px;
+            background-color: var(--primary-light);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .supplier-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .supplier-info {
+            flex-grow: 1;
+        }
+
+        .supplier-name {
+            font-weight: 600;
+            margin: 0;
+            color: var(--text);
+        }
+
+        .supplier-location {
+            font-size: 0.85rem;
+            color: var(--secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            margin-top: 0.25rem;
+        }
+        
+        .supplier-rating {
+            font-size: 0.9rem;
+            color: #ffc107; /* Star color */
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            margin-top: 0.25rem;
+        }
+
+        .supplier-description {
+            color: var(--secondary);
+            font-size: 0.9rem;
+            margin: 1rem 0;
+            line-height: 1.5;
+        }
+
+        .top-products {
+            margin: 1rem 0;
+        }
+
+        .product-tag {
+            display: inline-block;
+            background-color: var(--primary-light);
+            color: var(--primary);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .view-btn {
+            display: block;
+            width: 100%;
+            padding: 0.75rem;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .view-btn:hover {
+            background-color: #3a56e8;
+        }
+
+        @media (max-width: 768px) {
+            .supplier-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+{% endblock style %}
+{% block content %}
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">Trusted Pharmaceutical Suppliers</h1>
+            <p class="page-description">Browse our verified suppliers and their top products</p>
+        </div>
+
+        <div class="search-container">
+            <input type="text" id="searchLocation" class="search-input" placeholder="Search by location (e.g., kotebe, London)">
+        </div>
+
+        <div class="supplier-list">
+            <p>Loading suppliers...</p>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block script %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const supplierList = document.querySelector('.supplier-list');
+            const searchInput = document.getElementById('searchLocation');
+            const apiUrl = '/pharmacy/user-models/';
+            let allSuppliers = []; // Store the full list of suppliers
+
+            async function fetchAndRenderSuppliers() {
+                try {
+                    const response = await fetch(apiUrl);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    allSuppliers = await response.json();
+                    renderSuppliers(allSuppliers);
+                } catch (error) {
+                    console.error('Could not fetch suppliers:', error);
+                    supplierList.innerHTML = '<p class="error-message">Failed to load suppliers. Please check your network connection and try again.</p>';
+                }
+            }
+
+            function renderSuppliers(suppliersToRender) {
+                supplierList.innerHTML = ''; // Clear previous content
+
+                if (suppliersToRender.length === 0) {
+                    supplierList.innerHTML = '<p>No suppliers match your search. Try a different location.</p>';
+                    return;
+                }
+
+                suppliersToRender.forEach(supplier => {
+                    const supplierCard = document.createElement('div');
+                    supplierCard.className = 'supplier-card';
+                    
+                    const avatarText = supplier.supplier.split(' ').map(name => name.charAt(0)).join('');
+                    const avatarUrl = `https://via.placeholder.com/100?text=${avatarText}`;
+                    
+                    const ratingValue = calculateAverageRating(supplier.average_rating);
+                    const ratingHtml = createStarRating(ratingValue);
+
+                    supplierCard.innerHTML = `
+                        <div class="supplier-header">
+                            <div class="supplier-avatar">
+                                <img src="${supplier.logo}" alt="image logo">
+                            </div>
+                            <div class="supplier-info">
+                                <h3 class="supplier-name">${supplier.supplier}</h3>
+                                <div class="supplier-location">
+                                    <i class="fas fa-map-marker-alt"></i> ${supplier.address}
+                                </div>
+                                ${ratingHtml}
+                            </div>
+                        </div>
+                        <p class="supplier-description">
+                            ${supplier.description || 'No description available.'}
+                        </p>
+                        <div class="top-products">
+                            </div>
+                        <a href="http://127.0.0.1:8000/pharmacy/supplier-detail/${supplier.id}/" class="view-btn">
+                            View Supplier Profile
+                        </a>
+
+                    `;
+                    supplierList.appendChild(supplierCard);
+                });
+            }
+
+            function calculateAverageRating(ratingsArray) {
+                if (!ratingsArray || ratingsArray.length === 0) {
+                    return 0;
+                }
+                const validRatings = ratingsArray.filter(r => r !== null);
+                if (validRatings.length === 0) {
+                    return 0;
+                }
+                const sum = validRatings.reduce((acc, curr) => acc + curr, 0);
+                return sum / validRatings.length;
+            }
+
+            function createStarRating(rating) {
+                const fullStars = Math.floor(rating);
+                const halfStar = rating % 1 !== 0;
+                const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
+                
+                let starsHtml = '';
+                for (let i = 0; i < fullStars; i++) {
+                    starsHtml += '<i class="fas fa-star"></i>';
+                }
+                if (halfStar) {
+                    starsHtml += '<i class="fas fa-star-half-alt"></i>';
+                }
+                for (let i = 0; i < emptyStars; i++) {
+                    starsHtml += '<i class="far fa-star"></i>';
+                }
+
+                return `
+                    <div class="supplier-rating">
+                        ${starsHtml} (${rating.toFixed(1)})
+                    </div>
+                `;
+            }
+
+            // Search functionality
+            searchInput.addEventListener('input', function(event) {
+                const searchTerm = event.target.value.toLowerCase();
+                const filteredSuppliers = allSuppliers.filter(supplier =>
+                    supplier.address.toLowerCase().includes(searchTerm)
+                );
+                renderSuppliers(filteredSuppliers);
+            });
+
+            fetchAndRenderSuppliers();
+        });
+    </script>
+{% endblock script %}

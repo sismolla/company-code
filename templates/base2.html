@@ -1,0 +1,198 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pharma ገበያ | Pharmaceutical Marketplace</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{%static 'style.css'%}">
+    <!-- Google Font: Inter -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- Base Styles for the Logo Container --- */
+        .navbar .logo {
+            display: flex; /* Use Flexbox for easy alignment */
+            align-items: center; /* Vertically centers the logo image and text */
+            gap: 10px; /* Creates space between the image and the text */
+            text-decoration: none; /* Removes the underline from the link */
+            color: #2c3e50; /* A dark, professional color for the text */
+            font-size: 1.2rem; /* Sets a base font size */
+            font-weight: 600; /* Makes the text bold */
+            transition: transform 0.3s ease; /* Adds a smooth hover effect */
+        }
+
+        .navbar .logo:hover {
+            transform: scale(1.05); /* Slightly scales up the logo on hover for a subtle effect */
+        }
+
+        /* --- Styles for the Logo Image --- */
+        .navbar .logo img {
+            height: 100px; /* Sets a fixed height for the logo */
+            width: auto; /* Maintains the original aspect ratio */
+            display: block; /* Removes any default bottom margin on the image */
+        }
+
+        /* --- Styles for the Logo Text --- */
+        .navbar .logo span {
+            white-space: nowrap; /* Prevents the text from wrapping to a new line */
+            transition: opacity 0.3s ease; /* Smooth transition for when the text is hidden */
+        }
+
+        /* --- Responsive Styles for Smaller Screens --- */
+        @media (max-width: 768px) {
+            .navbar .logo {
+                gap: 0; /* Removes the space between the logo image and text */
+            }
+
+            .navbar .logo span {
+                /* Hides the text on smaller screens to save space */
+                display: none;
+            }
+
+            .navbar .logo img {
+                height: 100px; /* Slightly shrinks the logo on smaller screens */
+            }
+        }
+
+        .footer-links a,
+        .footer-section a {
+            color: #64748b;
+            margin-right: 1.5rem;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover,
+        .footer-section a:hover {
+            color: #3b82f6;
+        }
+    </style>
+    {% block style %}{% endblock style %}
+</head>
+<body>
+<header>
+    <nav class="navbar">
+        <a href="{% url 'landing:landing-page' %}" class="logo">
+            <img src="{%static 'logo.svg'%}" alt="Pharma Gebeya Logo">
+            <span>Pharma ገበያ</span>
+        </a>
+
+        <div class="search-bar">
+            <input type="text" placeholder="Search for drugs or suppliers..." id="search-input">
+            <button id="search-button"><i class="fas fa-search"></i></button>
+        </div>
+
+        <button class="hamburger-menu" id="hamburger-menu">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <div class="nav-links-container" id="nav-links-container">
+            <a href="{% url 'landing:suppliers-list' %}" class="nav-link">
+                Suppliers
+            </a>
+            <a href="{% url 'landing:faq' %}" class="nav-link">
+                FAQ
+            </a>
+            {% if user.is_authenticated %}
+            {% if logo %}
+            <a href="{% url 'landing:dashboard' %}">
+                <img src="{{ logo.url }}" alt="Supplier Logo" style="height: 40px; width: 40px; border-radius: 50%;">
+            </a>
+            {% else %}
+            <a href="{% url 'landing:dashboard' %}">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+            </a>
+            {% endif %}
+            {% else %}
+            <a href="{% url 'landing:user-signup' %}" class="btn btn-register">Join</a>
+            {% endif %}
+        </div>
+    </nav>
+</header>
+
+{% block content %}
+{% endblock content %}
+
+<footer class="bg-gray-900 text-white py-12">
+    <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+                <h3 class="text-xl font-bold mb-4">Pharma ገበያ</h3>
+                <p class="text-gray-400">Connecting healthcare providers with trusted pharmaceutical suppliers In Ethiopia.</p>
+            </div>
+            <div>
+                <h4 class="font-semibold mb-4">Quick Links</h4>
+                <ul class="space-y-2">
+                    <li><a href="/pharmacy" class="text-gray-400 hover:text-white">Home</a></li>
+                    <li><a href="/pharmacy/list" class="text-gray-400 hover:text-white">Suppliers</a></li>
+                    <li><a href="/pharmacy/dashboard" class="text-gray-400 hover:text-white">My Account</a></li>
+                    <li><a href="/pharmacy/orders/view/" class="text-gray-400 hover:text-white">Order History</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-semibold mb-4">Resources</h4>
+                <ul class="space-y-2">
+                    <li><a href="/pharmacy/faq" class="text-gray-400 hover:text-white">FAQs</a></li>
+                    <li><a href="/terms" class="text-gray-400 hover:text-white">Terms and services</a></li>
+                    <li><a href="/privacy" class="text-gray-400 hover:text-white">Privacy Policy</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-semibold mb-4">Contact Us</h4>
+                <ul class="space-y-2">
+                    <li class="flex items-center text-gray-400"><i class="fas fa-phone-alt mr-3"></i> +251978539445</li>
+                    <li class="flex items-center text-gray-400"><i class="fas fa-envelope mr-3"></i> msisay967@gmail.com</li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h4>Stay Connected</h4>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-telegram"></i></a>
+                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+                <p class="mt-2">Join our Pages for updates.</p>
+            </div>
+        </div>
+        <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+            <p>© 2023 Pharma ገበያ. All rights reserved.</p>
+        </div>
+    </div>
+</footer>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const hamburgerMenu = document.getElementById('hamburger-menu');
+        const navLinksContainer = document.getElementById('nav-links-container');
+        const searchInput = document.getElementById('search-input'); // Get the search input
+        const searchButton = document.getElementById('search-button'); // Get the search button
+
+        hamburgerMenu.addEventListener('click', () => {
+            navLinksContainer.classList.toggle('active');
+        });
+
+        // Add a keydown event listener to the search input
+        searchInput.addEventListener('keydown', (event) => {
+            // Check if the key pressed is "Enter"
+            if (event.key === 'Enter') {
+                // Prevent the default form submission behavior (if it was inside a form)
+                event.preventDefault();
+                // Trigger a click event on the search button
+                searchButton.click();
+            }
+        });
+    });
+</script>
+
+{% block script %}
+
+{% endblock script %}
+
+</body>
+</html>

@@ -1,0 +1,322 @@
+{% extends 'base2.html' %}
+
+{% block style %}{% endblock style %}
+{% block content %}
+    <main class="main-container">
+        <div class="filter-section">
+            <div class="filter-group">
+                <h3>Categories</h3>
+                <div class="filter-options" id="filter-options-container">
+                    <div class="filter-chip active" data-filter-id="">All</div>
+                </div>
+            </div>
+            
+            <div class="filter-group">
+                <h3>Price Range ($)</h3>
+                <div class="price-range-container">
+                    <div class="price-display">
+                        <span id="min-price-display">$0</span>
+                        <span id="max-price-display">$1000</span>
+                    </div>
+                    <div class="slider-container">
+                        <div class="slider-track" id="slider-track"></div>
+                        <input type="range" class="range-slider" id="min-price-slider" min="0" max="1000" value="0" step="10">
+                        <input type="range" class="range-slider" id="max-price-slider" min="0" max="1000" value="1000" step="10">
+                    </div>
+                    <button class="btn" id="apply-price-filter">Apply</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="products-header">
+            <h2>Available Products <span class="products-count" id="products-count">(0 listings)</span></h2>
+            <div class="sort-options">
+                <select id="sort-select">
+                    <option value="">Sort by: Default</option>
+                    <option value="price">Price: Low to High</option>
+                    <option value="-price">Price: High to Low</option>
+                    <option value="name">Name: A-Z</option>
+                    <option value="-name">Name: Z-A</option>
+                    <option value="stock_quantity">Stock: Low to High</option>
+                    <option value="-stock_quantity">Stock: High to Low</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="products-grid" id="products-grid">
+            <p class="loading-message">Loading products...</p>
+        </div>
+        
+        <div class="pagination">
+            <!-- Pagination links will be generated here -->
+        </div>
+    </main>
+    
+{% endblock content %}
+{% block script %}
+
+<script>
+        // API endpoints
+        const PRODUCT_API_URL = 'http://127.0.0.1:8000/pharmacy/product/api';
+        const DOSAGE_API_URL = 'http://127.0.0.1:8000/pharmacy/dosage/api';
+
+        // DOM elements
+        const productsGrid = document.getElementById('products-grid');
+        const productsCountSpan = document.getElementById('products-count');
+        const filterOptionsContainer = document.getElementById('filter-options-container');
+        const searchInput = document.getElementById('search-input');
+        const searchButton = document.getElementById('search-button');
+        const minPriceSlider = document.getElementById('min-price-slider');
+        const maxPriceSlider = document.getElementById('max-price-slider');
+        const minPriceDisplay = document.getElementById('min-price-display');
+        const maxPriceDisplay = document.getElementById('max-price-display');
+        const applyPriceFilterButton = document.getElementById('apply-price-filter');
+        const sortSelect = document.getElementById('sort-select');
+        const sliderTrack = document.getElementById('slider-track');
+        
+        const priceMin = parseInt(minPriceSlider.min);
+        const priceMax = parseInt(minPriceSlider.max);
+        
+        // Icon mapping for different dosage forms
+        const dosageFormIcons = {
+            'Tablet': 'fa-tablets icon-tablet',
+            'Capsule': 'fa-capsules icon-capsule',
+            'Syrup': 'fa-prescription-bottle-alt icon-syrup',
+            'Injection': 'fa-syringe icon-injection',
+            'Suspension': 'fa-prescription-bottle-alt icon-syrup',
+            'Cream': 'fa-mortar-pestle icon-cream',
+            'Ointment': 'fa-mortar-pestle icon-cream',
+            'Gel': 'fa-mortar-pestle icon-cream',
+            'Lotion': 'fa-mortar-pestle icon-cream',
+            'Suppository': 'fa-pills icon-default',
+            'Powder': 'fa-pills icon-powder',
+            'Drops (Eye/Ear/Nasal)': 'fa-eyedropper icon-drops',
+            'Inhaler': 'fa-inhaler icon-inhaler',
+            'Patch': 'fa-band-aid icon-patch',
+            'Granules': 'fa-pills icon-default',
+            'Mouthwash': 'fa-bottle-water icon-default',
+            'Lozenge': 'fa-pills icon-default',
+            'Solution': 'fa-prescription-bottle-alt icon-syrup',
+            'Emulsion': 'fa-prescription-bottle-alt icon-syrup',
+            'Spray': 'fa-spray-can icon-default',
+            'default': 'fa-pills icon-default'
+        };
+        
+        let currentFilters = {
+            dosage_form: '',
+            search: '',
+            price__gte: priceMin,
+            price__lte: priceMax,
+            ordering: 'price'
+        };
+
+        // Function to build the API URL based on current filters
+        function buildApiUrl() {
+            const params = new URLSearchParams();
+            if (currentFilters.dosage_form) {
+                params.append('dosage_form', currentFilters.dosage_form);
+            }
+            if (currentFilters.search) {
+                params.append('search', currentFilters.search);
+            }
+            if (currentFilters.price__gte !== priceMin) {
+                params.append('price__gte', currentFilters.price__gte);
+            }
+            if (currentFilters.price__lte !== priceMax) {
+                params.append('price__lte', currentFilters.price__lte);
+            }
+            if (currentFilters.ordering) {
+                params.append('ordering', currentFilters.ordering);
+            }
+            
+            const queryString = params.toString();
+            return `${PRODUCT_API_URL}${queryString ? '?' + queryString : ''}`;
+        }
+        
+function renderProducts(products) {
+    productsGrid.innerHTML = ''; // Clear previous products
+    productsCountSpan.textContent = `(${products.length} listings)`;
+
+    if (products.length === 0) {
+        productsGrid.innerHTML = '<p class="error-message">No products found for the selected criteria.</p>';
+        return;
+    }
+
+    products.forEach(product => {
+        // Use the product image if it exists, otherwise use the default icon.
+        const imageContent = product.image 
+            ? `<img src="${product.image}" alt="${product.name}" class="product-real-image">`
+            : `<i class="fas ${dosageFormIcons[product.dosage_form_name] || dosageFormIcons['default']}"></i>`;
+
+        // --- START OF NEW CODE: Review Calculation and Display ---
+        let reviewHtml = '';
+        if (product.reviews && product.reviews.length > 0) {
+            const totalReviews = product.reviews.length;
+            const sumRatings = product.reviews.reduce((sum, review) => sum + review.rating, 0);
+            const averageRating = (sumRatings / totalReviews).toFixed(1);
+
+            const starsHtml = '⭐️'.repeat(Math.round(averageRating));
+
+            reviewHtml = `
+                <div class="product-reviews">
+                    <span class="average-rating">${averageRating} ${starsHtml}</span>
+                    <span class="review-count">(${totalReviews} reviews)</span>
+                </div>
+            `;
+        }
+        // --- END OF NEW CODE ---
+
+        let stockStatusText = 'In Stock';
+        let stockStatusClass = 'product-stock';
+        if (product.stock_quantity <= 0) {
+            stockStatusText = 'Out of Stock';
+            stockStatusClass += ' out-of-stock';
+        }
+
+        const productCardHtml = `
+            <a href=/pharmacy/product/detail/${product.id}/ class="product-card-link">
+                <div class="product-card">
+                    <div class="product-image">
+                        ${imageContent}
+                    </div>
+                    <div class="product-details">
+                        <div class="product-category">${product.dosage_form_name}</div>
+                        <h3 class="product-title">${product.name} ${product.strength}</h3>
+                        <div class="product-price">$${product.price}</div>
+                        ${reviewHtml}
+                        <div class="product-meta">
+                            <span>Available: ${product.stock_quantity > 0 ? product.stock_quantity : '0'}+</span>
+                            <span class="${stockStatusClass}">${stockStatusText}</span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        `;
+        productsGrid.innerHTML += productCardHtml;
+    });
+}
+
+        // Main function to fetch products and render the page
+        async function fetchProducts() {
+            productsGrid.innerHTML = '<p class="loading-message">Loading products...</p>';
+            productsCountSpan.textContent = '(loading...)';
+            
+            const url = buildApiUrl();
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const products = await response.json();
+                renderProducts(products);
+            } catch (error) {
+                console.error('Error fetching products:', error);
+                productsGrid.innerHTML = '<p class="error-message">Failed to load products. Please try again later.</p>';
+                productsCountSpan.textContent = '(0 listings)';
+            }
+        }
+        
+        // Function to fetch dosage forms and populate filter chips
+        async function fetchDosageForms() {
+            try {
+                const response = await fetch(DOSAGE_API_URL);
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const dosageForms = await response.json();
+                
+                const allFilterChip = document.querySelector('[data-filter-id=""]');
+                filterOptionsContainer.innerHTML = '';
+                filterOptionsContainer.appendChild(allFilterChip);
+
+                dosageForms.forEach(form => {
+                    const chip = document.createElement('div');
+                    chip.className = 'filter-chip';
+                    chip.textContent = form.name;
+                    chip.setAttribute('data-filter-id', form.id);
+                    chip.addEventListener('click', () => {
+                        document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+                        chip.classList.add('active');
+                        currentFilters.dosage_form = form.id;
+                        fetchProducts();
+                    });
+                    filterOptionsContainer.appendChild(chip);
+                });
+            } catch (error) {
+                console.error('Error fetching dosage forms:', error);
+            }
+        }
+        
+        // --- Price Slider Logic ---
+        function updateSliderTrack() {
+            const minVal = parseInt(minPriceSlider.value);
+            const maxVal = parseInt(maxPriceSlider.value);
+            const minPercent = ((minVal - priceMin) / (priceMax - priceMin)) * 100;
+            const maxPercent = ((maxVal - priceMin) / (priceMax - priceMin)) * 100;
+            sliderTrack.style.left = minPercent + '%';
+            sliderTrack.style.width = (maxPercent - minPercent) + '%';
+        }
+
+        function handleMinSlider() {
+            let minVal = parseInt(minPriceSlider.value);
+            const maxVal = parseInt(maxPriceSlider.value);
+            if (minVal > maxVal) {
+                minPriceSlider.value = maxVal;
+                minVal = maxVal;
+            }
+            minPriceDisplay.textContent = `$${minVal}`;
+            updateSliderTrack();
+        }
+
+        function handleMaxSlider() {
+            let maxVal = parseInt(maxPriceSlider.value);
+            const minVal = parseInt(minPriceSlider.value);
+            if (maxVal < minVal) {
+                maxPriceSlider.value = minVal;
+                maxVal = minVal;
+            }
+            maxPriceDisplay.textContent = `$${maxVal}`;
+            updateSliderTrack();
+        }
+
+        minPriceSlider.addEventListener('input', handleMinSlider);
+        maxPriceSlider.addEventListener('input', handleMaxSlider);
+        
+        // Event listener for search
+        searchButton.addEventListener('click', () => {
+            currentFilters.search = searchInput.value;
+            fetchProducts();
+        });
+
+        // Event listener for the "All" filter chip
+        document.querySelector('[data-filter-id=""]').addEventListener('click', (e) => {
+            document.querySelectorAll('.filter-chip').forEach(chip => chip.classList.remove('active'));
+            e.target.classList.add('active');
+            currentFilters.dosage_form = '';
+            fetchProducts();
+        });
+
+        // Event listener for price filter
+        applyPriceFilterButton.addEventListener('click', () => {
+            currentFilters.price__gte = minPriceSlider.value;
+            currentFilters.price__lte = maxPriceSlider.value;
+            fetchProducts();
+        });
+
+        // Event listener for sorting
+        sortSelect.addEventListener('change', (e) => {
+            currentFilters.ordering = e.target.value;
+            fetchProducts();
+        });
+
+        // Initialize the page on load
+        window.onload = async () => {
+            await fetchDosageForms();
+            await fetchProducts();
+            updateSliderTrack(); // Initial slider track setup
+        };
+    </script>
+
+
+{% endblock script %}    
