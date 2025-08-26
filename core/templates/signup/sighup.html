@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         :root {
-            --primary-color: #2a7fba;
+            --primary-color: #2c3e50;
             --secondary-color: #f8f9fa;
             --accent-color: #e74c3c;
             --text-color: #333;
@@ -327,7 +327,7 @@
             <div class="auth-hero">
                 <i class="fas fa-prescription-bottle-alt fa-4x"></i>
                 <h2>Connect with Pharmacies Worldwide</h2>
-                <p>Join PharmaConnect's network of trusted pharmaceutical suppliers</p>
+                <p>Join PharmaConnect's network of trusted pharmaceutical Wholesalers</p>
             </div>
             
             <!-- Auth Content -->
@@ -456,8 +456,8 @@
 
     <script>
         // Placeholder for API endpoints
-        const loginApiUrl = 'http://127.0.0.1:8000/pharmacy/api/login/';
-        const signupApiUrl = 'http://127.0.0.1:8000/pharmacy/api/signup/';
+        const loginApiUrl = 'http://127.0.0.1:8000/api/login/';
+        const signupApiUrl = 'http://127.0.0.1:8000/api/signup/';
 
         // Get elements
         const tabs = document.querySelectorAll('.auth-tab');
@@ -501,7 +501,6 @@
             messageBox.classList.remove('show');
         }
 
-        // Function to display a specific error next to an input field
         function showError(inputElement, message) {
             const errorElement = document.getElementById(`${inputElement.id}-error`);
             if (errorElement) {

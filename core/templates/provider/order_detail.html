@@ -594,7 +594,7 @@
         // Update order status
         async function updateOrderStatus(newStatus) {
             try {
-                const response = await fetch(`/pharmacy/orders/${orderId}/`, {
+                const response = await fetch(`/orders/${orderId}/`, {
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
@@ -689,7 +689,7 @@
         // Fetch order details
         async function fetchOrderDetails() {
             try {
-                const response = await fetch(`/pharmacy/orders/${orderId}/`);
+                const response = await fetch(`/orders/${orderId}/`);
                 
                 if (!response.ok) {
                     if (response.status === 404) {

@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% load static %}
-
+{% block title %}Products{% endblock title %}
 {% block style %}
 <style>
 
@@ -588,12 +588,12 @@
     <!-- Collapsible detailed section -->
     <div class="bulk-upload-details" id="bulkUploadDetails" style="display: none;">
         <h4>1. File Structure</h4>
-        <p>The first row must contain headers. Common accepted names:</p>
+        <p>The first row of your Excel must contain headers. Common accepted names:</p>
         <table>
             <thead>
                 <tr>
                     <th>Field</th>
-                    <th>Accepted Header Names</th>
+                    <th>Accepted Header Names Of Your Excel</th>
                 </tr>
             </thead>
             <tbody>
@@ -608,12 +608,12 @@
 
         <h4>2. Supported Dosage Forms</h4>
         <p>Only the following dosage forms are accepted (case-insensitive):</p>
-        <ul>
+        <strong><ul>
             <li>Tablet, Capsule, Injection, Syrup, Suspension</li>
             <li>Cream, Ointment, Gel, Lotion, Suppository</li>
             <li>Powder, Drops (Eye/Ear/Nasal), Inhaler, Patch, Granules</li>
             <li>Mouthwash, Lozenge, Solution, Emulsion, Spray</li>
-        </ul>
+        </ul></strong>
 
         <h4>3. Data Rules</h4>
         <ul>
@@ -782,7 +782,7 @@ function toggleBulkUploadDetails() {
         try {
             showMessage('info', 'Uploading file...', 10000);
 
-            const response = await fetch('/pharmacy/products/bulk-upload/', {
+            const response = await fetch('/products/bulk-upload/', {
                 method: 'POST',
                 headers: { 'X-CSRFToken': csrfToken },
                 body: formData,
@@ -823,7 +823,7 @@ function toggleBulkUploadDetails() {
 
     async function fetchProducts() {
         try {
-            const response = await fetch('/pharmacy/api/products/');
+            const response = await fetch('/api/products/');
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
                 throw new Error(errorData.detail || 'Network response was not ok');
@@ -913,7 +913,7 @@ function toggleBulkUploadDetails() {
                 }
             }
 
-            const response = await fetch('/pharmacy/api/products/', {
+            const response = await fetch('/api/products/', {
                 method: 'POST',
                 headers: {
                     'X-CSRFToken': csrfToken,
@@ -967,7 +967,7 @@ function toggleBulkUploadDetails() {
                 }
             }
 
-            const response = await fetch(`/pharmacy/api/products/${productId}/`, {
+            const response = await fetch(`/api/products/${productId}/`, {
                 method: 'PUT',
                 headers: {
                     'X-CSRFToken': csrfToken,
@@ -1003,7 +1003,7 @@ function toggleBulkUploadDetails() {
                 return;
             }
 
-            const response = await fetch(`/pharmacy/api/products/${productId}/`, {
+            const response = await fetch(`/api/products/${productId}/`, {
                 method: 'DELETE',
                 headers: {
                     'X-CSRFToken': csrfToken,

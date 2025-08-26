@@ -1,9 +1,10 @@
 import requests
 import logging
-from django.conf import settings
+import os
 from .models import UserProducts
-
+from dotenv import load_dotenv
 logger = logging.getLogger(__name__)
+
 
 POST_TEMPLATES = [
     """✨ {supplier_name} Pharmaceutical Import
@@ -65,9 +66,10 @@ def send_telegram_post(text):
     Sends a Telegram message to a supplier group and a channel.
     Raises exception if a request fails, so Celery can retry.
     """
-    channel_id = settings.TELEGRAM_CHANNEL_BOT_ID
-    BOT_TOKEN = settings.TELEGRAM_BOT_TOKEN
-    chat_id = settings.TELEGRAM_BOT_ID  # Use the passed-in link for the supplier
+    load_dotenv()
+    channel_id = os.getenv("TELEGRAM_CHANNEL_BOT_ID")
+    BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+    chat_id = os.getenv("TELEGRAM_BOT_ID")  # Use the passed-in link for the supplier
 
     base_url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
 

@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% load static %}
+{% block title %}Messages{% endblock title %}
 
 {% block style %}
     <style>
@@ -141,6 +142,7 @@
 
         .conversation-search {
             padding: 1rem 1.5rem;
+            margin-top: 50px;
             border-bottom: 1px solid var(--border-color);
             position: sticky;
             top: 73px;
@@ -232,29 +234,120 @@
         }
 
         /* Message Area */
-        .message-area {
-            display: none;
-            flex-direction: column;
-            height: 100%;
-            background-color: var(--light-bg);
-            position: relative;
-        }
+    /* ... (keep all your existing styles) ... */
 
-        .message-area.active {
-            display: flex;
-        }
+    .messages-container {
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        max-width: 1400px;
+        margin: 0 auto;
+        background: var(--white);
+        height: 100vh;
+        overflow: hidden; /* Keep this to prevent overall scrolling */
+    }
 
-        .message-header {
-            padding: 1.25rem 1.5rem;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            gap: 0.875rem;
-            position: sticky;
-            top: 0;
-            background: var(--white);
-            z-index: 10;
+    /* Message Area - Updated for scrollable content */
+    .message-area {
+        display: none;
+        flex-direction: column;
+        height: 100%;
+        background-color: var(--light-bg);
+        position: relative;
+    }
+
+    .message-area.active {
+        display: flex;
+    }
+
+    .message-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        gap: 0.875rem;
+        background: var(--white);
+        z-index: 10;
+        flex-shrink: 0; /* Prevent header from shrinking */
+    }
+
+    /* Updated Message Content Area - Now scrollable */
+    .message-content {
+        flex: 1;
+        padding: 1rem 1.5rem;
+        overflow-y: auto; /* Enable vertical scrolling */
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        max-width: 800px;
+        margin: 0 auto;
+        box-sizing: border-box;
+        /* Modern scrollbar styling */
+        scrollbar-width: thin;
+        scrollbar-color: var(--border-color) transparent;
+    }
+
+    /* Modern scrollbar for WebKit browsers */
+    .message-content::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .message-content::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .message-content::-webkit-scrollbar-thumb {
+        background-color: var(--border-color);
+        border-radius: 3px;
+    }
+
+    .message-content::-webkit-scrollbar-thumb:hover {
+        background-color: var(--light-text);
+    }
+
+    .message-input-area {
+        padding: 1rem 1.5rem;
+        border-top: 1px solid var(--border-color);
+        display: flex;
+        gap: 0.75rem;
+        background: var(--white);
+        width: 100%;
+        max-width: 800px;
+        margin: 0 auto;
+        box-sizing: border-box;
+        flex-shrink: 0; /* Prevent input area from shrinking */
+    }
+
+    /* ... (rest of your existing styles) ... */
+
+    /* Responsive Breakpoints */
+    @media (max-width: 992px) {
+        .messages-container {
+            padding-top: 10%;
+            height: 100vh;
         }
+        
+        .message-content,
+        .message-input-area {
+            max-width: 100%;
+            padding: 1rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        /* ... (keep your existing responsive styles) ... */
+        
+        .message-content {
+            padding: 1rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        /* ... (keep your existing responsive styles) ... */
+        
+        .message-content {
+            padding: 0.75rem;
+        }
+    }
 
         .back-btn {
             background: none;
@@ -459,6 +552,7 @@
         /* Responsive Breakpoints */
         @media (max-width: 992px) {
             .messages-container {
+                padding-top: 10%%;
                 height: 100vh;
             }
             
@@ -473,8 +567,8 @@
             .messages-container {
                 grid-template-columns: 1fr;
             }
-
-            .conversations-sidebar {
+            
+            .conversations-sidebar, .message-area {
                 position: absolute;
                 top: 0;
                 left: 0;
@@ -482,11 +576,17 @@
                 height: 100%;
                 background: var(--white);
                 z-index: 20;
-                transform: translateX(0);
+                transition: transform 0.3s ease-in-out;
             }
 
             .conversations-sidebar.hidden {
                 transform: translateX(-100%);
+            }
+            .message-area:not(.active) {
+                transform: translateX(100%);
+            }
+            .message-area.active {
+                transform: translateX(0);
             }
 
             .back-btn {
@@ -535,7 +635,6 @@
 
 {% block content %}
     <div class="messages-container">
-        <!-- Conversations Sidebar -->
         <div class="conversations-sidebar" id="conversationsSidebar">
             <div class="conversations-header">
                 <div class="conversations-title">Messages</div>
@@ -546,19 +645,16 @@
             </div>
             
             <ul class="conversation-list" id="conversationList">
-                <!-- Conversations will be dynamically added here -->
                 <li class="loading-indicator">Loading conversations...</li>
             </ul>
         </div>
         
-        <!-- Message Area -->
         <div class="message-area" id="messageArea">
             <div class="message-header">
                 <button class="back-btn" id="backBtn">
                     <i class="fas fa-chevron-left"></i>
                 </button>
                 <div class="conversation-avatar">
-                    <!-- The logo image will be rendered here dynamically -->
                     <img id="messagePartnerLogo" src="" alt="Partner Logo">
                 </div>
                 <div>
@@ -569,7 +665,6 @@
             
             <div class="message-content" id="messageContent" 
             style="max-height: 75%; overflow-y: auto;">
-            <!-- Messages will be dynamically added here -->
             <div class="empty-message-state" id="emptyState">
                 <i class="fas fa-comments empty-icon"></i>
                 <p>Select a conversation to start chatting.</p>
@@ -585,10 +680,14 @@
             </div>
         </div>
     </div>
+
+
 {% endblock content %}
 
 {% block script %}
+
 <script>
+    // === DOM Elements ===
     const conversationList = document.getElementById('conversationList');
     const conversationsSidebar = document.getElementById('conversationsSidebar');
     const messageArea = document.getElementById('messageArea');
@@ -600,88 +699,96 @@
     const searchInput = document.getElementById('searchInput');
     const messageInput = document.getElementById('messageInput');
     const sendBtn = document.getElementById('sendBtn');
-    
-    // Assume a logged-in user is 'admin' for this example
+    const logoElement = document.getElementById('messagePartnerLogo');
+
+    // Current logged-in user
     const currentUser = '{{ request.user.username }}'; 
     let allThreads = [];
     let activeThreadId = null;
 
-    // This function retrieves the CSRF token from the meta tag in the head.
+    // === CSRF Token Helper ===
     function getCsrfToken() {
-        return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        const tokenMeta = document.querySelector('meta[name="csrf-token"]');
+        return tokenMeta ? tokenMeta.getAttribute('content') : '';
     }
 
-    // Function to fetch all threads from the API
+    // === Fetch All Threads ===
     async function fetchThreads() {
         try {
             const response = await fetch('/pharmacy/threads/');
-            if (!response.ok) {
-                throw new Error('Failed to fetch threads');
-            }
+            if (!response.ok) throw new Error('Failed to fetch threads');
+
             const threads = await response.json();
-            // Assuming the server provides a read status for each message,
-            // or we can calculate unread counts here.
-            // For this example, we'll assume a message is unread if its sender is not the current user.
             allThreads = threads.map(thread => {
                 const unreadCount = thread.messages.filter(msg => msg.sender !== currentUser && !msg.is_read).length;
-                return { ...thread, unreadCount: unreadCount };
+                return { ...thread, unreadCount };
             });
+
             displayConversationList(allThreads);
-            
-            // On large screens, load the first conversation by default
-            if (window.innerWidth > 768 && threads.length > 0) {
-                // If there's an active thread, keep it active
-                const threadToDisplay = activeThreadId ? allThreads.find(t => t.id === activeThreadId) : allThreads[0];
+
+            // Auto-load first thread on large screens
+            if (window.innerWidth > 768 && allThreads.length > 0) {
+                const threadToDisplay = activeThreadId 
+                    ? allThreads.find(t => t.id === activeThreadId) 
+                    : allThreads[0];
                 if (threadToDisplay) {
                     displayMessages(threadToDisplay);
                     const activeItem = conversationList.querySelector(`[data-thread-id="${threadToDisplay.id}"]`);
-                    if (activeItem) {
-                        activeItem.classList.add('active');
-                    }
+                    if (activeItem) activeItem.classList.add('active');
                 }
             }
+
         } catch (error) {
-            console.error('Error fetching data:', error);
+            console.error('Error fetching threads:', error);
         }
     }
 
-    // Function to format the date and time
+    // === Format Message Time ===
     function formatTime(timestamp) {
+        if (!timestamp) return '';
         const date = new Date(timestamp);
         const now = new Date();
-        const diffInDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
+        const diffDays = Math.floor((now - date) / (1000*60*60*24));
 
-        if (diffInDays === 0) {
-            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        } else if (diffInDays === 1) {
-            return 'Yesterday';
-        } else {
-            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-        }
+        if (diffDays === 0) return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        if (diffDays === 1) return 'Yesterday';
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     }
 
-    // Function to render the list of conversations
+    // === Format "Last Seen" ===
+    function formatLastSeen(date) {
+        if (!date) return 'Offline';
+        const now = new Date();
+        const diffMins = Math.floor((now - date) / (1000*60));
+        if (diffMins < 1) return 'just now';
+        if (diffMins < 60) return `${diffMins} min ago`;
+        const diffHours = Math.floor(diffMins / 60);
+        if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+        const diffDays = Math.floor(diffHours / 24);
+        return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+    }
+
+    // === Render Conversation List ===
     function displayConversationList(threads) {
-        conversationList.innerHTML = ''; // Clear existing list
-        if (threads.length === 0) {
-            // Handle case with no conversations
-            conversationList.innerHTML = '<li style="text-align: center; color: var(--light-text); padding: 1rem;">No conversations found.</li>';
+        if (!conversationList) return;
+        conversationList.innerHTML = '';
+
+        if (!threads || threads.length === 0) {
+            conversationList.innerHTML = '<li class="empty-list">No conversations found.</li>';
             return;
         }
 
         threads.forEach(thread => {
-            const lastMessage = thread.messages.length > 0 ? thread.messages[thread.messages.length - 1] : null;
+            const lastMessage = thread.messages.slice(-1)[0];
             const partner = thread.user_1 === currentUser ? thread.user_2 : thread.user_1;
             const lastMessageText = lastMessage ? lastMessage.message : 'No messages yet';
             const lastMessageTime = lastMessage ? formatTime(lastMessage.timestamp) : '';
             const unreadBadge = thread.unreadCount > 0 ? `<span class="unread-badge">${thread.unreadCount}</span>` : '';
-            const logoUrl = thread.supplier_logo ? thread.supplier_logo : 'https://placehold.co/40x40/f0f8ff/007bff?text=NA';
+            const logoUrl = thread.supplier_logo || 'https://placehold.co/40x40/f0f8ff/007bff?text=NA';
 
             const li = document.createElement('li');
             li.className = 'conversation-item';
             li.dataset.threadId = thread.id;
-            
-            // Build the conversation item HTML
             li.innerHTML = `
                 <div class="conversation-avatar">
                     <img src="${logoUrl}" alt="${partner} Logo" onerror="this.onerror=null;this.src='https://placehold.co/40x40/f0f8ff/007bff?text=NA'">
@@ -690,261 +797,153 @@
                     <div class="conversation-partner">
                         <span>${partner}</span>
                         <div class="flex items-center">
-                          <span class="conversation-time">${lastMessageTime}</span>
-                          ${unreadBadge}
+                            <span class="conversation-time">${lastMessageTime}</span>
+                            ${unreadBadge}
                         </div>
                     </div>
-                    <div class="conversation-preview">
-                        ${lastMessageText}
-                    </div>
+                    <div class="conversation-preview">${lastMessageText}</div>
                 </div>
             `;
             conversationList.appendChild(li);
         });
     }
 
-    // Function to display messages for a selected conversation
+    // === Display Messages for a Thread ===
     function displayMessages(thread) {
+        if (!thread || !messageContent || !messagePartnerName || !messagePartnerStatus) return;
+
         activeThreadId = thread.id;
-        messageContent.innerHTML = ''; // Clear old messages
+        messageContent.innerHTML = '';
         emptyState.style.display = 'none';
-        const logoElement = document.getElementById('messagePartnerLogo');
+        messageArea.style.display = 'flex';
 
-        if (thread) {
-            messageArea.style.display = 'flex';
-            const partner = thread.user_1 === currentUser ? thread.user_2 : thread.user_1;
-            const logoUrl = thread.supplier_logo ? thread.supplier_logo : 'https://placehold.co/40x40/f0f8ff/007bff?text=NA';
-            
-            messagePartnerName.textContent = partner;
+        const partner = thread.user_1 === currentUser ? thread.user_2 : thread.user_1;
+        const logoUrl = thread.supplier_logo || 'https://placehold.co/40x40/f0f8ff/007bff?text=NA';
+        messagePartnerName.textContent = partner;
 
-            // --- Active now / Last seen logic ---
-            const lastActivity = thread.partner_last_activity; // ISO string or null
-            let statusText = 'Offline';
-            if (lastActivity) {
-                const lastActiveDate = new Date(lastActivity);
-                const now = new Date();
-                const diffMs = now - lastActiveDate;
-                const diffMins = diffMs / (1000 * 60);
+        const lastActivity = thread.partner_last_activity ? new Date(thread.partner_last_activity) : null;
+        let statusText = lastActivity && (new Date() - lastActivity <= 5*60*1000) ? 'Active now' : formatLastSeen(lastActivity);
+        messagePartnerStatus.textContent = statusText;
 
-                if (diffMins <= 5) {
-                    statusText = 'Active now';
-                } else {
-                    // Format last seen nicely, e.g. "Last seen 1h ago"
-                    statusText = 'Last seen ' + formatLastSeen(lastActiveDate);
-                }
-            }
-
-            messagePartnerStatus.textContent = statusText;
+        if (logoElement) {
             logoElement.src = logoUrl;
             logoElement.alt = `${partner} Logo`;
-
-            thread.messages.forEach(msg => {
-                const isSent = msg.sender === currentUser;
-                const messageClass = isSent ? 'sent' : 'received';
-                const div = document.createElement('div');
-                div.className = `message ${messageClass}`;
-                div.innerHTML = `
-                    <div class="message-bubble">
-                        ${msg.message}
-                    </div>
-                    <div class="message-time">
-                        ${formatTime(msg.timestamp)}
-                    </div>
-                `;
-                messageContent.appendChild(div);
-            });
-            // Scroll to the bottom of the chat
-            messageContent.scrollTop = messageContent.scrollHeight;
-
-        } else {
-            // Handle no conversation selected
-            messageArea.style.display = 'flex';
-            messagePartnerName.textContent = 'Select a chat';
-            messagePartnerStatus.textContent = '';
-            emptyState.style.display = 'flex';
-            logoElement.src = 'https://placehold.co/40x40/007bff/ffffff?text=Logo'; // Reset to default placeholder
-            logoElement.alt = 'Partner Logo';
         }
+
+        thread.messages.forEach(msg => {
+            const div = document.createElement('div');
+            div.className = `message ${msg.sender === currentUser ? 'sent' : 'received'}`;
+            div.innerHTML = `
+                <div class="message-bubble">${msg.message}</div>
+                <div class="message-time">${formatTime(msg.timestamp)}</div>
+            `;
+            messageContent.appendChild(div);
+        });
+
+        messageContent.scrollTop = messageContent.scrollHeight;
     }
 
-    // Helper to format "Last seen ..." nicely
-    function formatLastSeen(date) {
-        const now = new Date();
-        const diffMs = now - date;
-        const diffMins = Math.floor(diffMs / (1000 * 60));
-        const diffHours = Math.floor(diffMins / 60);
-        const diffDays = Math.floor(diffHours / 24);
-
-        if (diffMins < 1) return 'just now';
-        if (diffMins < 60) return `${diffMins} min ago`;
-        if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
-        return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
-    }
-
-    // Function to handle the search logic
+    // === Search Conversations ===
     function performSearch() {
+        if (!searchInput) return;
         const searchTerm = searchInput.value.toLowerCase();
-        if (searchTerm.trim() === '') {
-            displayConversationList(allThreads); // Show all threads if search is empty
-            return;
-        }
-        const filteredThreads = allThreads.filter(thread => 
-            thread.user_1.toLowerCase().includes(searchTerm) ||
-            thread.user_2.toLowerCase().includes(searchTerm)
+        if (!searchTerm.trim()) return displayConversationList(allThreads);
+
+        const filtered = allThreads.filter(t => 
+            t.user_1.toLowerCase().includes(searchTerm) || t.user_2.toLowerCase().includes(searchTerm)
         );
-        displayConversationList(filteredThreads);
+        displayConversationList(filtered);
     }
 
-    // New function to make the API call to mark messages as read
-    async function markMessagesAsRead(threadId) {
-        try {
-            const response = await fetch(`/pharmacy/thread/${threadId}/mark-as-read/`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': getCsrfToken(),
-                    'Content-Type': 'application/json'
-                }
-            });
+    searchInput?.addEventListener('input', performSearch);
+    searchInput?.addEventListener('keydown', e => { if (e.key==='Enter'){e.preventDefault(); performSearch();} });
 
-            if (!response.ok) {
-                console.error('Failed to mark messages as read.');
-            } else {
-                console.log(`Thread ${threadId} messages marked as read.`);
-            }
-        } catch (error) {
-            console.error('Error marking messages as read:', error);
-        }
-    }
-
-
-    // Search functionality with Enter key submission
-    searchInput.addEventListener('input', performSearch);
-    searchInput.addEventListener('keydown', (event) => {
-        if (event.key === 'Enter') {
-            event.preventDefault(); // Prevent a form submission if the input is in a form
-            performSearch();
-        }
-    });
-
-    // Send message functionality with Enter key submission
-    sendBtn.addEventListener('click', sendMessage);
-    messageInput.addEventListener('keydown', (event) => {
-        if (event.key === 'Enter' && !event.shiftKey) {
-            event.preventDefault(); // Prevent new line
-            sendMessage();
-        }
-    });
-
+    // === Send Message ===
     async function sendMessage() {
-        const messageText = messageInput.value.trim();
-        if (messageText === '' || activeThreadId === null) {
-            return; // Don't send empty messages or if no chat is selected
-        }
+        if (!messageInput || !activeThreadId) return;
+        const text = messageInput.value.trim();
+        if (!text) return;
 
-        const payload = {
-            thread: activeThreadId,
-            sender: currentUser,
-            message: messageText
-        };
+        const payload = { thread: activeThreadId, sender: currentUser, message: text };
 
         try {
-            const response = await fetch('/pharmacy/messages/create/', {
+            const res = await fetch('/pharmacy/messages/create/', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCsrfToken()
-                },
+                headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCsrfToken()},
                 body: JSON.stringify(payload)
             });
+            if (!res.ok) throw new Error('Failed to send message');
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.detail || 'Failed to send message');
-            }
-
-            // Message sent successfully, clear input and refresh messages
             messageInput.value = '';
-            messageInput.style.height = 'auto'; // Reset textarea height
-            
-            // Re-fetch threads to get the latest message
+            messageInput.style.height = 'auto';
             await fetchThreads();
-            // Find the newly updated thread and display its messages
-            const updatedThread = allThreads.find(t => t.id === activeThreadId);
-            if (updatedThread) {
-                displayMessages(updatedThread);
-            }
+            const updated = allThreads.find(t => t.id === activeThreadId);
+            if (updated) displayMessages(updated);
 
-        } catch (error) {
-            console.error('Error sending message:', error);
-            // Optional: Display an error message to the user
+        } catch (err) {
+            console.error(err);
             alert('Failed to send message. Please try again.');
         }
     }
 
-    // Event listener for conversation item clicks
-    conversationList.addEventListener('click', (event) => {
-        const item = event.target.closest('.conversation-item');
+    sendBtn?.addEventListener('click', sendMessage);
+    messageInput?.addEventListener('keydown', e => { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault(); sendMessage();} });
+
+    // === Mark Messages as Read ===
+    async function markMessagesAsRead(threadId){
+        try{
+            await fetch(`/pharmacy/thread/${threadId}/mark-as-read/`, {method:'POST', headers:{'X-CSRFToken':getCsrfToken(),'Content-Type':'application/json'}});
+        } catch(err){ console.error('Mark as read failed:', err); }
+    }
+
+    // === Conversation Click ===
+    conversationList?.addEventListener('click', e=>{
+        const item = e.target.closest('.conversation-item');
         if (!item) return;
 
-        // Remove 'active' class from all items and add to the clicked one
-        document.querySelectorAll('.conversation-item').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.conversation-item').forEach(el=>el.classList.remove('active'));
         item.classList.add('active');
 
         const threadId = parseInt(item.dataset.threadId);
-        const selectedThread = allThreads.find(t => t.id === threadId);
-        
-        // Reset the unread count for this thread in the UI
-        if (selectedThread) {
-            selectedThread.unreadCount = 0;
-            // Re-render the conversation list to update the badge
-            displayConversationList(allThreads);
-        }
+        const thread = allThreads.find(t=>t.id===threadId);
+        if(!thread) return;
 
-        displayMessages(selectedThread);
-        
-        // *** This is the new API call ***
+        thread.unreadCount = 0;
+        displayConversationList(allThreads);
+        displayMessages(thread);
         markMessagesAsRead(threadId);
 
-        // Hide sidebar on mobile and show message area
-        if (window.innerWidth <= 768) {
+        if(window.innerWidth<=768){
             conversationsSidebar.classList.add('hidden');
             messageArea.classList.add('active');
         }
     });
 
-    // Back button functionality for mobile
-    backBtn.addEventListener('click', () => {
+    // === Back Button ===
+    backBtn?.addEventListener('click', ()=>{
         conversationsSidebar.classList.remove('hidden');
         messageArea.classList.remove('active');
-        // Deselect conversation
-        document.querySelectorAll('.conversation-item').forEach(el => el.classList.remove('active'));
-        activeThreadId = null;
+        document.querySelectorAll('.conversation-item').forEach(el=>el.classList.remove('active'));
+        activeThreadId=null;
     });
 
-    // Auto-resize textarea
-    messageInput.addEventListener('input', function() {
-        this.style.height = 'auto';
-        this.style.height = (this.scrollHeight) + 'px';
-    });
-    
-    // Initial fetch when the page loads
-    fetchThreads();
+    // === Auto-resize textarea ===
+    messageInput?.addEventListener('input', function(){ this.style.height='auto'; this.style.height=(this.scrollHeight)+'px'; });
 
-    // Responsive logic for showing/hiding elements on initial load
-    window.addEventListener('resize', () => {
-        if (window.innerWidth > 768) {
+    // === Responsive logic ===
+    window.addEventListener('resize', ()=>{
+        if(window.innerWidth>768){
             conversationsSidebar.classList.remove('hidden');
             messageArea.classList.add('active');
         } else {
-            const activeItem = document.querySelector('.conversation-item.active');
-            if (activeItem) {
-                conversationsSidebar.classList.add('hidden');
-                messageArea.classList.add('active');
-            } else {
-                conversationsSidebar.classList.remove('hidden');
-                messageArea.classList.remove('active');
-            }
+            const activeItem=document.querySelector('.conversation-item.active');
+            if(activeItem){ conversationsSidebar.classList.add('hidden'); messageArea.classList.add('active'); }
+            else{ conversationsSidebar.classList.remove('hidden'); messageArea.classList.remove('active'); }
         }
     });
+
+    // === Initial Load ===
+    fetchThreads();
 </script>
 {% endblock script %}
+

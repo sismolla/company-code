@@ -745,7 +745,7 @@
         // Fetch orders from API
         async function fetchOrders() {
             try {
-                const response = await fetch('/pharmacy/orders/');
+                const response = await fetch('/orders/');
                 if (!response.ok) {
                     throw new Error('Failed to fetch orders');
                 }
@@ -761,7 +761,7 @@
         // Update order status
         async function updateOrderStatus(orderId, newStatus) {
             try {
-                const response = await fetch(`/pharmacy/orders/${orderId}/`, {
+                const response = await fetch(`/orders/${orderId}/`, {
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
@@ -823,7 +823,7 @@
 
         window.viewOrderDetails = function(orderId) {
             // Construct the detail page URL using Django's URL pattern
-            const detailUrl = `/pharmacy/order/${orderId}/`;
+            const detailUrl = `/order/${orderId}/`;
             
             // Navigate to the detail page
             window.location.href = detailUrl;

@@ -1,11 +1,21 @@
 {% load static %}
-
+{% load pwa %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    {% progressive_web_app_meta %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pharma ገበያ | Pharmaceutical Marketplace</title>
+    {% block meta %}
+    <meta name="description" content="Pharma ገበያ is Ethiopia’s trusted pharmacy wholesale marketplace. We connect verified wholesalers with pharmacies and bulk buyers for affordable, reliable medical supplies." />
+    {% endblock meta %}
+
+    <title>Pharma ገበያ | {% block title %}        
+        Ethiopia’s Pharmacy Wholesale Marketplace
+        
+        {% endblock title %}</title>
+    
+     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="{%static 'style.css'%}">
     <!-- Google Font: Inter -->
@@ -70,49 +80,131 @@
         .footer-section a:hover {
             color: #3b82f6;
         }
+        .top-bar {
+    background-color: #f8f9fa;
+    color: #555;
+    padding: 8px 20px;
+    font-size: 0.9em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e9ecef;
+    flex-wrap: wrap; /* allows wrapping on small screens */
+}
+
+.contact-info,
+.social-links {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.contact-info a,
+.social-links a {
+    color: #555;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    transition: color 0.3s ease;
+}
+
+.contact-info i {
+    margin-right: 5px;
+}
+
+/* Hover effect */
+.contact-info a:hover,
+.social-links a:hover {
+    color: #007bff;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .top-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        text-align: left;
+    }
+
+    .contact-info {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .social-links {
+        justify-content: flex-start;
+    }
+}
     </style>
     {% block style %}{% endblock style %}
 </head>
 <body>
+    <div class="top-bar">
+    <div class="contact-info">
+        <a href="mailto:info@pharmagebeya.com">
+            <i class="fas fa-envelope"></i>
+            <span>info@pharmagebeya.com</span>
+        </a>
+        <a href="tel:+251912345678">
+            <i class="fas fa-phone-alt"></i>
+            <span>+251 978 539 445</span>
+        </a>
+    </div>
+    <div class="social-links">
+        <a href="#"><i class="fab fa-facebook-f"></i></a>
+        <a href="#"><i class="fab fa-telegram"></i></a>
+        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+        <a href="#"><i class="fab fa-instagram"></i></a>
+    </div>
+</div>
 <header>
     <nav class="navbar">
-        <a href="{% url 'landing:landing-page' %}" class="logo">
-            <img src="{%static 'logo.svg'%}" alt="Pharma Gebeya Logo">
-            <span>Pharma ገበያ</span>
-        </a>
+    <a href="/" class="logo" style="display: flex; align-items: center; text-decoration: none;">
+        <img src="{%static 'logo.svg'%}" alt="Pharma Gebeya Logo" style="width: 70px; height: 70px; border-radius: 50%; object-fit: cover;">
+        <span style="margin-left: 10px; font-weight: bold; font-size: 1.2em; color: #000;">Pharma ገበያ</span>
+    </a>
 
         <div class="search-bar">
-            <input type="text" placeholder="Search for drugs or suppliers..." id="search-input">
+            <input type="text" placeholder="Search for drugs or Wholesalers..." id="search-input">
             <button id="search-button"><i class="fas fa-search"></i></button>
         </div>
 
         <button class="hamburger-menu" id="hamburger-menu">
             <i class="fas fa-bars"></i>
         </button>
+    <div class="nav-links-container" id="nav-links-container">
+                <a href="/aboutus" style="color: #3498db; text-decoration: none; font-weight: 600; padding: 8px 0; position: relative; transition: all 0.3s ease;">
+                    <span style="position: relative; z-index: 1;">About us</span>
+                    <span style="position: absolute; bottom: 0; left: 0; width: 0; height: 3px; background: #3498db; transition: width 0.3s ease;"></span>
+                </a>
+                <a href="/contactus" style="color: #3498db; text-decoration: none; font-weight: 600; padding: 8px 0; position: relative; transition: all 0.3s ease;">
+                    <span style="position: relative; z-index: 1;">Contact us</span>
+                    <span style="position: absolute; bottom: 0; left: 0; width: 0; height: 3px; background: #3498db; transition: width 0.3s ease;"></span>
+                </a>
+                <a href="http://127.0.0.1:8000/list" style="color: #3498db; text-decoration: none; font-weight: 600; padding: 8px 0; position: relative; transition: all 0.3s ease;">
+                    <span style="position: relative; z-index: 1;">Wholesalers</span>
+                    <span style="position: absolute; bottom: 0; left: 0; width: 0; height: 3px; background: #3498db; transition: width 0.3s ease;"></span>
+                </a>
+                <a href="http://127.0.0.1:8000/faq/" style="color: #3498db; text-decoration: none; font-weight: 600; padding: 8px 0; position: relative; transition: all 0.3s ease;">
+                    <span style="position: relative; z-index: 1;">FAQ</span>
+                    <span style="position: absolute; bottom: 0; left: 0; width: 0; height: 3px; background: #3498db; transition: width 0.3s ease;"></span>
+                </a>
 
-        <div class="nav-links-container" id="nav-links-container">
-            <a href="{% url 'landing:suppliers-list' %}" class="nav-link">
-                Suppliers
-            </a>
-            <a href="{% url 'landing:faq' %}" class="nav-link">
-                FAQ
-            </a>
-            {% if user.is_authenticated %}
-            {% if logo %}
-            <a href="{% url 'landing:dashboard' %}">
-                <img src="{{ logo.url }}" alt="Supplier Logo" style="height: 40px; width: 40px; border-radius: 50%;">
-            </a>
-            {% else %}
-            <a href="{% url 'landing:dashboard' %}">
-                <div class="user-avatar">
-                    <i class="fas fa-user"></i>
+                <!-- User section -->
+                {% if user.is_authenticated %}
+                <div style="display: flex; align-items: center; gap: 15px; margin-left: 10px;">
+                    <a href="{% url 'landing:dashboard' %}" style="display: flex; align-items: center; justify-content: center; height: 45px; width: 45px; border-radius: 50%; background-color: #f8f9fa; color: #3498db; text-decoration: none; transition: all 0.3s ease; border: 2px solid #e9ecef;">
+                        <i class="fas fa-user" style="font-size: 18px;"></i>
+                    </a>
+
+                    {%else%}
+                    <a href="{% url 'landing:user-signup' %}" style="padding: 10px 22px; background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: white; text-decoration: none; border-radius: 30px; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);">
+                        Join
+                    </a>
                 </div>
-            </a>
-            {% endif %}
-            {% else %}
-            <a href="{% url 'landing:user-signup' %}" class="btn btn-register">Join</a>
-            {% endif %}
-        </div>
+                {%endif%}
+            </div>
     </nav>
 </header>
 
@@ -124,21 +216,24 @@
         <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
                 <h3 class="text-xl font-bold mb-4">Pharma ገበያ</h3>
-                <p class="text-gray-400">Connecting healthcare providers with trusted pharmaceutical suppliers In Ethiopia.</p>
+                <p class="text-gray-400">Connecting healthcare providers with trusted pharmaceutical Wholesalers In Ethiopia.</p>
             </div>
             <div>
                 <h4 class="font-semibold mb-4">Quick Links</h4>
                 <ul class="space-y-2">
                     <li><a href="/pharmacy" class="text-gray-400 hover:text-white">Home</a></li>
-                    <li><a href="/pharmacy/list" class="text-gray-400 hover:text-white">Suppliers</a></li>
-                    <li><a href="/pharmacy/dashboard" class="text-gray-400 hover:text-white">My Account</a></li>
-                    <li><a href="/pharmacy/orders/view/" class="text-gray-400 hover:text-white">Order History</a></li>
+                    <li><a href="/aboutus" class="text-gray-400 hover:text-white">About us</a></li>
+                    <li><a href="/contactus" class="text-gray-400 hover:text-white">contact us</a></li>
+                    <li><a href="/list" class="text-gray-400 hover:text-white">Wholesalers</a></li>
+                    <li><a href="/dashboard" class="text-gray-400 hover:text-white">My Account</a></li>
+                    <li><a href="/orders/view/" class="text-gray-400 hover:text-white">Order History</a></li>
                 </ul>
             </div>
             <div>
                 <h4 class="font-semibold mb-4">Resources</h4>
                 <ul class="space-y-2">
-                    <li><a href="/pharmacy/faq" class="text-gray-400 hover:text-white">FAQs</a></li>
+
+                    <li><a href="/faq" class="text-gray-400 hover:text-white">FAQs</a></li>
                     <li><a href="/terms" class="text-gray-400 hover:text-white">Terms and services</a></li>
                     <li><a href="/privacy" class="text-gray-400 hover:text-white">Privacy Policy</a></li>
                 </ul>

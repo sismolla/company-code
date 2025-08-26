@@ -1,17 +1,18 @@
 {% load static %}
+{% load pwa %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    {% progressive_web_app_meta %}
     <meta charset="UTF-8">
     <meta name="csrf-token" content="{{ csrf_token }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Dashboard | Pharma ገበያ</title>
+    <title>{% block title %}{% endblock title %} | Pharma ገበያ</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="{%static 'base.css'%}">
 <style>
 
 
-    /* Notification and dropdown styling */
 /* Styling for the new header and button */
 .notification-dropdown-header {
     display: flex;
@@ -207,10 +208,10 @@
     <header class="dashboard-header">
         <nav class="dashboard-nav">
             <div class="logo">
-                <a href="{% url 'landing:landing-page' %}" style="display: flex; align-items: center; text-decoration: none; color: #2c3e50;">
-                    <img src="{% static 'logo.svg' %}" alt="Pharma Gebeya Logo" style="height: 100px; width: auto; margin-right: 10px;">
-                    <span style="font-weight: 600; font-size: 1.2rem;">Pharma ገበያ</span>
-                </a>
+                <a href="/" class="logo" style="display: flex; align-items: center; text-decoration: none;">
+                <img src="{%static 'logo.svg'%}" alt="Pharma Gebeya Logo" style="width: 70px; height: 70px; border-radius: 50%; object-fit: cover;">
+                <span style="margin-left: 10px; font-weight: bold; font-size: 1.2em; color: #000;">Pharma ገበያ</span>
+            </a>
             </div>
 
             <div class="user-menu">
@@ -229,7 +230,7 @@
                 <div class="user-dropdown-container">
                     <div class="user-avatar" id="avatarBtn">
                         {%if logo %}
-                            <img src="{{ logo.url }}" alt="Supplier Logo" style="height: 40px; width: 40px; border-radius: 50%;">
+                            <img src="{{ logo.url }}" alt="Wholesaler Logo" style="height: 40px; width: 40px; border-radius: 50%;">
                         {%else%}  
                             <i class="fas fa-user"></i>
                         {% endif %}
@@ -292,7 +293,7 @@
     const markAllReadBtn = document.getElementById('mark-all-read-btn');
 
     // API endpoint for notifications
-    const API_URL = '/pharmacy/api/notification/';
+    const API_URL = '/api/notification/';
     const FETCH_INTERVAL = 30000;
 
     // Toggle the notification dropdown on icon click

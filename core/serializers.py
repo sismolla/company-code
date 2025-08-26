@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import ChatMessage, ChatThread, DosageForm, Notification, Order, OrderItem, Product, ReportAbuse, Review, UserProducts
+from .models import ChatMessage, ChatThread, ContactUs, DosageForm, Notification, Order, OrderItem, Product, ReportAbuse, Review, UserProducts
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from django.db.models import Q
@@ -67,13 +67,12 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     reviews = ReviewSerializer(many=True, read_only=True)
     average_rating = serializers.SerializerMethodField()
     supplier = SupplierSerializer(read_only=True)
-    dosage_form = serializers.CharField(source='dosage_form.name',read_only=True)
+    dosage_form = serializers.PrimaryKeyRelatedField(queryset=DosageForm.objects.all())
     userproduct_id = serializers.SerializerMethodField()
     class Meta:
         model = Product
         fields = [
             'id',
-            'product_id',
             'name',
             'strength',
             'expire_date',
@@ -458,3 +457,8 @@ class SupplierOrderSerializer(serializers.ModelSerializer):
                     product.save()
 
         return super().update(instance, validated_data)
+
+class ContactUsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContactUs
+        fields = ['name', 'email', 'subject', 'message']

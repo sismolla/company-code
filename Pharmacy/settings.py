@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -20,12 +21,13 @@ load_dotenv()
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
-SECRET_KEY = 'django-insecure-ej@&gucqj_s*n(_*e@a7#10^294@6bd5x(xmr%kuq-@t*v&y94'
-
-DEBUG = True
-
-ALLOWED_HOSTS = []
-
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
+APPEND_SLASH=True
+DEBUG = os.getenv('DJANGO_DEBUG').lower() == 'true'
+if not DEBUG:
+    ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS').split(',')
+else:
+    ALLOWED_HOSTS=['*']
 AUTHENTICATION_BACKENDS = [
     'core.backends.EmailBackend',  # path to your custom backend
     'django.contrib.auth.backends.ModelBackend',  # default
@@ -53,6 +55,8 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'django_filters',
     'rest_framework',
+    'django.contrib.sitemaps',
+    'pwa',
 ]
 
 MIDDLEWARE = [
@@ -88,20 +92,48 @@ WSGI_APPLICATION = 'Pharmacy.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+# DATABASE_URL = os.environ.get('DATABASE_URL')
+
+# if DATABASE_URL:
+#     # Railway / production (Postgres)
+#     DATABASES = {
+#         "default": dj_database_url.config(
+#             default=DATABASE_URL,
+#             conn_max_age=600,
+#             ssl_require=True
+#         )
+#     }
+# else:
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'default': {
+        'ENGINE': os.getenv('POSTGRES_ENGINE'),
         'NAME': os.getenv('POSTGRES_DB'),
         'USER': os.getenv('POSTGRES_USER'),
         'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
         'HOST': os.getenv('POSTGRES_HOST'),
         'PORT': os.getenv('POSTGRES_PORT'),
-        }
     }
+}
+    
+
+if not DEBUG:
+
+    SECURE_HSTS_SECONDS = 31536000  # 1 year in seconds
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
 
 
-# Password validation
+
+
+
+
+# Password validation MvKl1O3ilxZhfnz7
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -137,8 +169,10 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [
-    BASE_DIR / 'static',  # Example: A 'static' folder in your project root
+    os.path.join(BASE_DIR, 'static'),
 ]
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
@@ -147,20 +181,35 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-from celery.schedules import crontab
 
-CELERY_BROKER_URL = 'redis://localhost:6379/0'  # Redis URL
-CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'  # Optional for results
-# Telegram bot token
-TELEGRAM_BOT_TOKEN ="8479156932:AAHr6OEG2cX2kulOplbxIwJUvS006vuYQyQ"
-TELEGRAM_BOT_ID = "-1002861058989"
-TELEGRAM_CHANNEL_BOT_ID = "@pharmagebeya"
-CELERY_TIMEZONE = 'UTC'  # or your local timezone
-CELERY_ENABLE_UTC = True
 
-CELERY_BEAT_SCHEDULE = {
-    'post-supplier-products-every-15-minutes': {
-        'task': 'core.tasks.post_next_supplier_products',
-        'schedule': 900.0,
+
+PWA_APP_NAME = 'Pharma Gebeya'
+PWA_APP_DESCRIPTION = "Wholesale Pharma Marketplace"
+PWA_APP_THEME_COLOR = '#3498db'
+PWA_APP_BACKGROUND_COLOR = '#ffffff'
+PWA_APP_DISPLAY = 'standalone'
+PWA_APP_SCOPE = '/'
+PWA_APP_ID = '/pharmacy'
+PWA_APP_START_URL = '/pharmacy'
+PWA_APP_ICONS = [
+    {"src": "/static/logo_192.png", "sizes": "192x192"},
+    {"src": "/static/logo_512.png", "sizes": "512x512"}
+]
+
+PWA_APP_SCREENSHOTS = [
+    {
+        "src": "/static/phone_scren.png",
+        "sizes": "374x665",
+        "type": "image/png",
     },
-}
+    {
+        "src": "/static/desktop_scren.png",
+        "sizes": "1920x1080",
+        "type": "image/png",
+        "form_factor": "wide"
+    }
+]
+
+
+PWA_SERVICE_WORKER_PATH = os.path.join(BASE_DIR, 'static', 'serviceworker.js')

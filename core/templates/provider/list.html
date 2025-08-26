@@ -1,5 +1,12 @@
 {% extends 'base2.html' %}
 {% load static %}
+{% block meta %}
+<meta name="description" content="Browse a list of verified Ethiopian pharmaceutical wholesalers on Pharma ገበያ. Connect directly with trusted suppliers for bulk pharmacy orders." />
+
+{% endblock meta %}
+
+{% block title %}Ethiopian Pharmaceutical Wholesalers{% endblock title %}
+
 {% block style %}
     <style>
         :root {
@@ -159,7 +166,7 @@
             display: block;
             width: 100%;
             padding: 0.75rem;
-            background-color: var(--primary);
+            background-color: #3498db;
             color: white;
             border: none;
             border-radius: 8px;
@@ -184,8 +191,8 @@
 {% block content %}
     <div class="container">
         <div class="page-header">
-            <h1 class="page-title">Trusted Pharmaceutical Suppliers</h1>
-            <p class="page-description">Browse our verified suppliers and their top products</p>
+            <h1 class="page-title">Trusted Pharmaceutical Wholesalers</h1>
+            <p class="page-description">Browse our verified Wholesalers and their top products</p>
         </div>
 
         <div class="search-container">
@@ -193,123 +200,112 @@
         </div>
 
         <div class="supplier-list">
-            <p>Loading suppliers...</p>
+            <p>Loading Wholesalers...</p>
         </div>
     </div>
 {% endblock content %}
 
 {% block script %}
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const supplierList = document.querySelector('.supplier-list');
-            const searchInput = document.getElementById('searchLocation');
-            const apiUrl = '/pharmacy/user-models/';
-            let allSuppliers = []; // Store the full list of suppliers
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const supplierList = document.querySelector('.supplier-list');
+    const searchInput = document.getElementById('searchLocation');
+    const apiUrl = '/user-models/';
+    let allSuppliers = []; // Store the full list of suppliers
 
-            async function fetchAndRenderSuppliers() {
-                try {
-                    const response = await fetch(apiUrl);
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! Status: ${response.status}`);
-                    }
-                    allSuppliers = await response.json();
-                    renderSuppliers(allSuppliers);
-                } catch (error) {
-                    console.error('Could not fetch suppliers:', error);
-                    supplierList.innerHTML = '<p class="error-message">Failed to load suppliers. Please check your network connection and try again.</p>';
-                }
-            }
+    // --- Fetch suppliers from API ---
+    async function fetchAndRenderSuppliers() {
+        if (!supplierList) return;
+        try {
+            const response = await fetch(apiUrl);
+            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+            allSuppliers = await response.json();
+            renderSuppliers(allSuppliers);
+        } catch (error) {
+            console.error('Could not fetch Wholesalers:', error);
+            supplierList.innerHTML = '<p class="error-message">Failed to load Wholesalers. Please check your network connection and try again.</p>';
+        }
+    }
 
-            function renderSuppliers(suppliersToRender) {
-                supplierList.innerHTML = ''; // Clear previous content
+    // --- Render supplier cards ---
+    function renderSuppliers(suppliersToRender) {
+        if (!supplierList) return;
+        supplierList.innerHTML = ''; // Clear previous content
 
-                if (suppliersToRender.length === 0) {
-                    supplierList.innerHTML = '<p>No suppliers match your search. Try a different location.</p>';
-                    return;
-                }
+        if (!suppliersToRender || suppliersToRender.length === 0) {
+            supplierList.innerHTML = '<p>No Wholesalers match your search. Try a different location.</p>';
+            return;
+        }
 
-                suppliersToRender.forEach(supplier => {
-                    const supplierCard = document.createElement('div');
-                    supplierCard.className = 'supplier-card';
-                    
-                    const avatarText = supplier.supplier.split(' ').map(name => name.charAt(0)).join('');
-                    const avatarUrl = `https://via.placeholder.com/100?text=${avatarText}`;
-                    
-                    const ratingValue = calculateAverageRating(supplier.average_rating);
-                    const ratingHtml = createStarRating(ratingValue);
+        suppliersToRender.forEach(supplier => {
+            const supplierCard = document.createElement('div');
+            supplierCard.className = 'supplier-card';
 
-                    supplierCard.innerHTML = `
-                        <div class="supplier-header">
-                            <div class="supplier-avatar">
-                                <img src="${supplier.logo}" alt="image logo">
-                            </div>
-                            <div class="supplier-info">
-                                <h3 class="supplier-name">${supplier.supplier}</h3>
-                                <div class="supplier-location">
-                                    <i class="fas fa-map-marker-alt"></i> ${supplier.address}
-                                </div>
-                                ${ratingHtml}
-                            </div>
-                        </div>
-                        <p class="supplier-description">
-                            ${supplier.description || 'No description available.'}
-                        </p>
-                        <div class="top-products">
-                            </div>
-                        <a href="http://127.0.0.1:8000/pharmacy/supplier-detail/${supplier.id}/" class="view-btn">
-                            View Supplier Profile
-                        </a>
+            const avatarText = supplier.supplier.split(' ').map(name => name.charAt(0)).join('');
+            const avatarUrl = `https://via.placeholder.com/100?text=${avatarText}`;
 
-                    `;
-                    supplierList.appendChild(supplierCard);
-                });
-            }
+            const ratingValue = calculateAverageRating(supplier.average_rating);
+            const ratingHtml = createStarRating(ratingValue);
 
-            function calculateAverageRating(ratingsArray) {
-                if (!ratingsArray || ratingsArray.length === 0) {
-                    return 0;
-                }
-                const validRatings = ratingsArray.filter(r => r !== null);
-                if (validRatings.length === 0) {
-                    return 0;
-                }
-                const sum = validRatings.reduce((acc, curr) => acc + curr, 0);
-                return sum / validRatings.length;
-            }
-
-            function createStarRating(rating) {
-                const fullStars = Math.floor(rating);
-                const halfStar = rating % 1 !== 0;
-                const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
-                
-                let starsHtml = '';
-                for (let i = 0; i < fullStars; i++) {
-                    starsHtml += '<i class="fas fa-star"></i>';
-                }
-                if (halfStar) {
-                    starsHtml += '<i class="fas fa-star-half-alt"></i>';
-                }
-                for (let i = 0; i < emptyStars; i++) {
-                    starsHtml += '<i class="far fa-star"></i>';
-                }
-
-                return `
-                    <div class="supplier-rating">
-                        ${starsHtml} (${rating.toFixed(1)})
+            supplierCard.innerHTML = `
+                <div class="supplier-header">
+                    <div class="supplier-avatar">
+                        <img src="${supplier.logo || avatarUrl}" alt="${supplier.supplier} logo" onerror="this.onerror=null;this.src='${avatarUrl}'">
                     </div>
-                `;
-            }
+                    <div class="supplier-info">
+                        <h3 class="supplier-name">${supplier.supplier}</h3>
+                        <div class="supplier-location">
+                            <i class="fas fa-map-marker-alt"></i> ${supplier.address || 'N/A'}
+                        </div>
+                        ${ratingHtml}
+                    </div>
+                </div>
+                <p class="supplier-description">
+                    ${supplier.description || 'No description available.'}
+                </p>
+                <a href="/supplier-detail/${supplier.id}/" class="view-btn">
+                    View Supplier Profile
+                </a>
+            `;
 
-            // Search functionality
-            searchInput.addEventListener('input', function(event) {
-                const searchTerm = event.target.value.toLowerCase();
-                const filteredSuppliers = allSuppliers.filter(supplier =>
-                    supplier.address.toLowerCase().includes(searchTerm)
-                );
-                renderSuppliers(filteredSuppliers);
-            });
-
-            fetchAndRenderSuppliers();
+            supplierList.appendChild(supplierCard);
         });
-    </script>
+    }
+
+    // --- Calculate average rating ---
+    function calculateAverageRating(ratingsArray) {
+        if (!ratingsArray || ratingsArray.length === 0) return 0;
+        const validRatings = ratingsArray.filter(r => r != null);
+        if (validRatings.length === 0) return 0;
+        const sum = validRatings.reduce((acc, curr) => acc + curr, 0);
+        return sum / validRatings.length;
+    }
+
+    // --- Create star rating HTML ---
+    function createStarRating(rating) {
+        const fullStars = Math.floor(rating);
+        const halfStar = rating % 1 >= 0.5;
+        const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
+
+        let starsHtml = '';
+        for (let i = 0; i < fullStars; i++) starsHtml += '<i class="fas fa-star"></i>';
+        if (halfStar) starsHtml += '<i class="fas fa-star-half-alt"></i>';
+        for (let i = 0; i < emptyStars; i++) starsHtml += '<i class="far fa-star"></i>';
+
+        return `<div class="supplier-rating">${starsHtml} (${rating.toFixed(1)})</div>`;
+    }
+
+    // --- Search functionality ---
+    searchInput?.addEventListener('input', function(event) {
+        const searchTerm = event.target.value.toLowerCase();
+        const filteredSuppliers = allSuppliers.filter(supplier =>
+            supplier.address && supplier.address.toLowerCase().includes(searchTerm)
+        );
+        renderSuppliers(filteredSuppliers);
+    });
+
+    // --- Initial fetch ---
+    fetchAndRenderSuppliers();
+});
+</script>
 {% endblock script %}

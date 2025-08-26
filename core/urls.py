@@ -1,11 +1,13 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-from .views import ChatMessageCreateAPIView, ChatThreadCreateAPIView, ChatThreadListAPIView, CustomerDashboardView, FAQView, HelpPageView, MarkMessagesAsReadView, MessageView, NotificationApi, Pharmacy_page,ProductApiView,DosageApi, ProductBulkUploadView, ProductDetailAPIView, ProductProvider, ProductProviderDetailPage, ProductViewSet, ProductsView, ProfilePageView, ReportAbuseCreateAPIView, ReviewCreateAPIView,ProductDetailView, SignUpPageView, SupplierOrderDetailPage, SupplierProfileViewSet, SupplierSignupAPIView, UserLoginAPIView, UserOrderDetailUpdateView, UserOrdersListView, UserProfileAPIView, logout_view, ProductProviderListPage,OrderCreateView, SupplierOrderPage
+from .views import google_calendar_webhook, ChatMessageCreateAPIView, ChatThreadCreateAPIView, ChatThreadListAPIView, ContactUsViewSet, CustomerDashboardView, FAQView, HelpPageView, MarkMessagesAsReadView, MessageView, NotificationApi, Pharmacy_page,ProductApiView,DosageApi, ProductBulkUploadView, ProductDetailAPIView, ProductProvider, ProductProviderDetailPage, ProductViewSet, ProductsView, ProfilePageView, ReportAbuseCreateAPIView, ReviewCreateAPIView,ProductDetailView, SignUpPageView, SupplierOrderDetailPage, SupplierProfileViewSet, SupplierSignupAPIView, UserLoginAPIView, UserOrderDetailUpdateView, UserOrdersListView, UserProfileAPIView, logout_view, ProductProviderListPage,OrderCreateView, SupplierOrderPage
+
 
 app_name = 'landing'
 router = DefaultRouter()
-router.register(r'products', ProductViewSet) # This line is correct
+router.register(r'products', ProductViewSet,) # This line is correct
 router.register(r'user-models', ProductProvider, basename='user-model')
+router.register(r'user-contactus', ContactUsViewSet)
 
 urlpatterns = [
     path('logout/', logout_view, name='logout'),
@@ -50,6 +52,9 @@ urlpatterns = [
 
     path('api/', include(router.urls)),
     path('faq/',FAQView.as_view(),name='faq'),
+
+    path('calendar-webhook/', google_calendar_webhook, name='calendar-webhook'),
+
 ]
 
 urlpatterns += router.urls

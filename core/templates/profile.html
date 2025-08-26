@@ -1,22 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Business Settings</title>
-    
-    <meta name="csrf-token" content="{{ csrf_token }}">
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+{% extends 'base.html' %}
+{% load static %}
+
+{% block style %}
     <style>
         :root {
-            --primary: #4361ee;
-            --primary-dark: #3a56e8;
+            --primary: #3498db;
+            --primary-dark: #3498f0ff;
             --secondary: #6c757d;
             --light: #f8f9fa;
             --dark: #212529;
@@ -242,8 +231,23 @@
             }
         }
     </style>
-</head>
-<body>
+{% endblock style %}
+{% comment %} <html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Settings</title>
+    
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+     {% endcomment %}
+
+{% block content %}
     <div class="settings-container">
         <div class="settings-card">
             <header class="header">
@@ -255,299 +259,312 @@
                 <p class="subtitle">Manage your business profile and communication preferences.</p>
             </header>
 
-            <form id="settingsForm">
-                <div class="section">
-                    <h2 class="section-title">
-                        <i class="fas fa-info-circle"></i>
-                        Basic Information
-                    </h2>
-                    
-                    <div class="form-group">
-                        <label for="name" class="form-label">Business Name</label>
-                        <input type="text" id="name" name="name" class="form-control" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="phone" class="form-label">Phone Number</label>
-                        <input type="tel" id="phone" name="phone" class="form-control">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="address" class="form-label">Business Address</label>
-                        <textarea id="address" name="address" class="form-control" rows="3"></textarea>
-                    </div>
-                </div>
+            <div id="loadingState" style="text-align: center; padding: 50px; display: block;">
+                <i class="fas fa-spinner fa-spin fa-2x text-primary"></i>
+                <p class="mt-3">Loading your settings...</p>
+            </div>
 
-                <div class="section">
-                    <h2 class="section-title">
-                        <i class="fas fa-store"></i>
-                        Business Details
-                    </h2>
-                    <div class="form-group">
-                        <label for="description" class="form-label">Description</label>
-                        <textarea id="description" name="description" class="form-control" rows="5" maxlength="2000"></textarea>
-                        <p class="form-text">A brief description of your business (max 2000 characters).</p>
-                    </div>
-                    
-                    <div class="form-check">
-                        <input type="checkbox" id="bulk_discount" name="bulk_discount_available" class="form-check-input">
-                        <label for="bulk_discount" class="form-label">Offer Bulk Discount</label>
-                    </div>
-                    
-                    <div class="form-check">
-                        <input type="checkbox" id="delivery" name="offer_delivery" class="form-check-input">
-                        <label for="delivery" class="form-label">Offer Delivery</label>
-                    </div>
-                </div>
+            <div id="errorState" style="text-align: center; padding: 50px; display: none;">
+                <i class="fas fa-exclamation-triangle fa-2x text-danger"></i>
+                <p class="mt-3">Failed to load settings. Please try again later.</p>
+            </div>
 
-                <div class="section">
-                    <h2 class="section-title">
-                        <i class="fas fa-image"></i>
-                        Branding
-                    </h2>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Business Logo</label>
-                        <div class="logo-preview" id="logoPreview">
-                            <i class="fas fa-building"></i>
+            <div id="formContainer" style="display: none;">
+                <form id="settingsForm">
+                    <div class="section">
+                        <h2 class="section-title">
+                            <i class="fas fa-info-circle"></i>
+                            Basic Information
+                        </h2>
+                        
+                        <div class="form-group">
+                            <label for="name" class="form-label">Business Name</label>
+                            <input type="text" id="name" name="name" class="form-control" required>
                         </div>
-                        <input type="file" id="logoFile" name="logo" class="form-control" accept="image/*">
-                        <p class="form-text">Recommended size: 300x300 pixels (PNG or JPG)</p>
+                        
+                        <div class="form-group">
+                            <label for="phone" class="form-label">Phone Number</label>
+                            <input type="tel" id="phone" name="phone" class="form-control">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="address" class="form-label">Business Address</label>
+                            <textarea id="address" name="address" class="form-control" rows="3"></textarea>
+                        </div>
                     </div>
-                </div>
 
-                <div class="section">
-                    <h2 class="section-title">
-                        <i class="fas fa-comments"></i>
-                        Communication Preferences
-                    </h2>
-                    
-                    <div class="form-group">
-                        <label for="response_time" class="form-label">Typical Response Time</label>
-                        <select id="response_time" name="response_time" class="form-control">
-                            <option value="instantly">Instantly</option>
-                            <option value="3-5">Within 3 to 5 Minutes</option>
-                            <option value="longer">A little longer</option>
-                        </select>
+                    <div class="section">
+                        <h2 class="section-title">
+                            <i class="fas fa-store"></i>
+                            Business Details
+                        </h2>
+                        <div class="form-group">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea id="description" name="description" class="form-control" rows="5" maxlength="2000"></textarea>
+                            <p class="form-text">A brief description of your business (max 2000 characters).</p>
+                        </div>
+                        
+                        <div class="form-check">
+                            <input type="checkbox" id="bulk_discount" name="bulk_discount_available" class="form-check-input">
+                            <label for="bulk_discount" class="form-label">Offer Bulk Discount</label>
+                        </div>
+                        
+                        <div class="form-check">
+                            <input type="checkbox" id="delivery" name="offer_delivery" class="form-check-input">
+                            <label for="delivery" class="form-label">Offer Delivery</label>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h2 class="section-title">
+                            <i class="fas fa-image"></i>
+                            Branding
+                        </h2>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Business Logo</label>
+                            <div class="logo-preview" id="logoPreview">
+                                <i class="fas fa-building"></i>
+                            </div>
+                            <input type="file" id="logoFile" name="logo" class="form-control" accept="image/*">
+                            <p class="form-text">Recommended size: 300x300 pixels (PNG or JPG)</p>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h2 class="section-title">
+                            <i class="fas fa-comments"></i>
+                            Communication Preferences
+                        </h2>
+                        
+                        <div class="form-group">
+                            <label for="response_time" class="form-label">Typical Response Time</label>
+                            <select id="response_time" name="response_time" class="form-control">
+                                <option value="instantly">Instantly</option>
+                                <option value="3-5">Within 3 to 5 Minutes</option>
+                                <option value="longer">A little longer</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="whatsapp" class="form-label">WhatsApp Link</label>
+                            <input type="url" id="whatsapp" name="whatsapp_link" class="form-control" placeholder="https://wa.me/1234567890">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="telegram" class="form-label">Telegram Link</label>
+                            <input type="url" id="telegram" name="telegram_link" class="form-control" placeholder="https://t.me/yourusername">
+                        </div>
                     </div>
                     
-                    <div class="form-group">
-                        <label for="whatsapp" class="form-label">WhatsApp Link</label>
-                        <input type="url" id="whatsapp" name="whatsapp_link" class="form-control" placeholder="https://wa.me/1234567890">
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" id="cancelButton">
+                            Cancel
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            Save Changes
+                        </button>
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="telegram" class="form-label">Telegram Link</label>
-                        <input type="url" id="telegram" name="telegram_link" class="form-control" placeholder="https://t.me/yourusername">
-                    </div>
-                </div>
-                
-                <div class="form-actions">
-                    <button type="button" class="btn btn-secondary" id="cancelButton">
-                        Cancel
-                    </button>
-                    <button type="submit" class="btn btn-primary">
-                        Save Changes
-                    </button>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     </div>
+{% endblock content %}
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Form elements
-            const form = document.getElementById('settingsForm');
-            const nameInput = document.getElementById('name');
-            const phoneInput = document.getElementById('phone');
-            const addressTextarea = document.getElementById('address');
-            const descriptionTextarea = document.getElementById('description');
-            const bulkDiscountCheckbox = document.getElementById('bulk_discount');
-            const offerDeliveryCheckbox = document.getElementById('delivery');
-            const responseTimeSelect = document.getElementById('response_time');
-            const whatsappInput = document.getElementById('whatsapp');
-            const telegramInput = document.getElementById('telegram');
-            const logoFile = document.getElementById('logoFile');
-            const logoPreview = document.getElementById('logoPreview');
-            const cancelButton = document.getElementById('cancelButton');
+{% block script %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- HTML Elements ---
+        const form = document.getElementById('settingsForm');
+        const formContainer = document.getElementById('formContainer');
+        const loadingState = document.getElementById('loadingState');
+        const errorState = document.getElementById('errorState');
+        const cancelButton = document.getElementById('cancelButton');
 
-            // API Configuration
-            const API_URL = '/pharmacy/api/profile/';
-            const USER_MODEL_API = '/pharmacy/user-models-page/';
-            const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]')?.content;
+        // Form fields (as in your original script)
+        const nameInput = document.getElementById('name');
+        const phoneInput = document.getElementById('phone');
+        const addressTextarea = document.getElementById('address');
+        const descriptionTextarea = document.getElementById('description');
+        const bulkDiscountCheckbox = document.getElementById('bulk_discount');
+        const offerDeliveryCheckbox = document.getElementById('delivery');
+        const responseTimeSelect = document.getElementById('response_time');
+        const whatsappInput = document.getElementById('whatsapp');
+        const telegramInput = document.getElementById('telegram');
+        const logoFile = document.getElementById('logoFile');
+        const logoPreview = document.getElementById('logoPreview');
 
-            /**
-             * Displays a message to the user
-             * @param {'success'|'error'|'info'} type 
-             * @param {string} message 
-             * @param {number} duration 
-             */
-            function showMessage(type, message, duration = 5000) {
-                const existingMessage = document.querySelector('.message-box');
-                if (existingMessage) existingMessage.remove();
+        // --- API Configuration (using hardcoded URLs as per your request) ---
+        const API_URL = '/api/profile/';
+        const USER_MODEL_API = '/user-models-page/';
+        const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]')?.content;
 
-                const messageBox = document.createElement('div');
-                messageBox.className = `message-box ${type}`;
-                messageBox.textContent = message;
-                document.body.appendChild(messageBox);
+        // Message display helper function
+        function showMessage(type, message, duration = 5000) {
+            const existingMessage = document.querySelector('.message-box');
+            if (existingMessage) existingMessage.remove();
 
-                setTimeout(() => {
-                    messageBox.classList.add('fade-out');
-                    setTimeout(() => messageBox.remove(), 300);
-                }, duration);
+            const messageBox = document.createElement('div');
+            messageBox.className = `message-box ${type}`;
+            messageBox.textContent = message;
+            document.body.appendChild(messageBox);
+
+            setTimeout(() => {
+                messageBox.classList.add('fade-out');
+                setTimeout(() => messageBox.remove(), 300);
+            }, duration);
+        }
+
+        // CSRF validation (note: this is still insecure as explained before. Use Django's template tag instead).
+        function validateCSRF() {
+            if (!CSRF_TOKEN) {
+                showMessage('error', 'Security token missing. Please refresh the page.');
+                return false;
             }
+            return true;
+        }
 
-            /**
-             * Validates CSRF token before making requests
-             */
-            function validateCSRF() {
-                if (!CSRF_TOKEN) {
-                    showMessage('error', 'Security token missing. Please refresh the page.');
-                    return false;
+        /**
+         * Fetches and populates profile data from both endpoints.
+         * Controls the visibility of loading, error, and form states.
+         */
+        async function fetchProfile() {
+            // 1. Show loading state, hide others
+            loadingState.style.display = 'block';
+            formContainer.style.display = 'none';
+            errorState.style.display = 'none';
+
+            try {
+                if (!validateCSRF()) {
+                    loadingState.style.display = 'none';
+                    return;
                 }
-                return true;
-            }
 
-            /**
-             * Fetches and populates profile data from both endpoints
-             */
-            async function fetchProfile() {
-                try {
-                    if (!validateCSRF()) return;
-
-                    // Fetch main profile data
-                    const profileResponse = await fetch(API_URL, {
-                        headers: {
-                            'X-CSRFToken': CSRF_TOKEN
-                        }
-                    });
-
-                    if (!profileResponse.ok) {
-                        throw new Error('Failed to fetch profile data');
-                    }
-
-                    const profile = await profileResponse.json();
-                    
-                    // Fetch user model data
-                    const userModelResponse = await fetch(USER_MODEL_API, {
-                        headers: { 
-                            'X-CSRFToken': CSRF_TOKEN 
-                        }
-                    });
-                    
-                    let userModel = {};
-                    if (userModelResponse.ok) {
-                        userModel = await userModelResponse.json();
-                    }
-
-                    // Populate form fields from both endpoints
-                    nameInput.value = profile.name || '';
-                    phoneInput.value = profile.phone || '';
-                    addressTextarea.value = profile.address || '';
-                    descriptionTextarea.value = userModel.description || profile.description || '';
-                    bulkDiscountCheckbox.checked = userModel.bulk_discount_available || false;
-                    offerDeliveryCheckbox.checked = userModel.offer_delivery || false;
-                    whatsappInput.value = profile.whatsapp_link || '';
-                    telegramInput.value = profile.telegram_link || '';
-                    responseTimeSelect.value = profile.response_time || 'instantly';
-
-                    // Update logo preview
-                    if (profile.logo) {
-                        logoPreview.innerHTML = `<img src="${profile.logo}" alt="Business Logo" style="width:100%;height:100%;object-fit:contain;">`;
-                    }
-
-                } catch (error) {
-                    console.error('Error:', error);
-                    showMessage('error', error.message);
-                }
-            }
-
-            /**
-             * Updates profile data to both endpoints
-             */
-            async function updateProfile(e) {
-                e.preventDefault();
+                // Use Promise.all to fetch both APIs concurrently for better performance
+                const [profileResponse, userModelResponse] = await Promise.all([
+                    fetch(API_URL, { headers: { 'X-CSRFToken': CSRF_TOKEN } }),
+                    fetch(USER_MODEL_API, { headers: { 'X-CSRFToken': CSRF_TOKEN } })
+                ]);
                 
-                if (!validateCSRF()) return;
+                if (!profileResponse.ok) throw new Error('Failed to fetch profile data.');
+                if (!userModelResponse.ok) throw new Error('Failed to fetch business details.');
 
-                try {
-                    // Prepare data for both endpoints
-                    const profileData = new FormData();
-                    profileData.append('name', nameInput.value);
-                    profileData.append('phone', phoneInput.value);
-                    profileData.append('address', addressTextarea.value);
-                    profileData.append('whatsapp_link', whatsappInput.value);
-                    profileData.append('telegram_link', telegramInput.value);
-                    profileData.append('response_time', responseTimeSelect.value);
+                const profile = await profileResponse.json();
+                const userModel = await userModelResponse.json();
 
-                    if (logoFile.files[0]) {
-                        profileData.append('logo', logoFile.files[0]);
-                    }
+                // 2. Populate form fields
+                nameInput.value = profile.name || '';
+                phoneInput.value = profile.phone || '';
+                addressTextarea.value = profile.address || '';
+                descriptionTextarea.value = userModel.description || profile.description || '';
+                bulkDiscountCheckbox.checked = userModel.bulk_discount_available || false;
+                offerDeliveryCheckbox.checked = userModel.offer_delivery || false;
+                responseTimeSelect.value = profile.response_time || 'instantly';
+                whatsappInput.value = profile.whatsapp_link || '';
+                telegramInput.value = profile.telegram_link || '';
 
-                    const userModelData = {
-                        description: descriptionTextarea.value,
-                        bulk_discount_available: bulkDiscountCheckbox.checked,
-                        offer_delivery: offerDeliveryCheckbox.checked
-                    };
-
-                    // Update both endpoints in parallel
-                    const [profileResponse, userModelResponse] = await Promise.all([
-                        fetch(API_URL, {
-                            method: 'PATCH',
-                            headers: {
-                                'X-CSRFToken': CSRF_TOKEN
-                            },
-                            body: profileData
-                        }),
-                        fetch(USER_MODEL_API, {
-                            method: 'PUT',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRFToken': CSRF_TOKEN
-                            },
-                            body: JSON.stringify(userModelData)
-                        })
-                    ]);
-
-                    // Check responses
-                    if (!profileResponse.ok) {
-                        const error = await profileResponse.json();
-                        throw new Error(error.detail || 'Failed to update profile');
-                    }
-
-                    if (!userModelResponse.ok) {
-                        const error = await userModelResponse.json();
-                        throw new Error(error.detail || 'Failed to update business details');
-                    }
-
-                    showMessage('success', 'All settings updated successfully');
-                    fetchProfile(); // Refresh data
-                } catch (error) {
-                    console.error('Error:', error);
-                    showMessage('error', error.message);
-                }
-            }
-
-            // Event Listeners
-            logoFile.addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = (event) => {
-                        logoPreview.innerHTML = `<img src="${event.target.result}" alt="Logo Preview" style="width:100%;height:100%;object-fit:contain;">`;
-                    };
-                    reader.readAsDataURL(file);
+                if (profile.logo) {
+                    logoPreview.innerHTML = `<img src="${profile.logo}" alt="Logo" style="width:100%;height:100%;object-fit:contain;">`;
                 } else {
                     logoPreview.innerHTML = '<i class="fas fa-building"></i>';
                 }
-            });
 
-            form.addEventListener('submit', updateProfile);
-            cancelButton.addEventListener('click', fetchProfile);
+                // 3. Hide loading, show form
+                loadingState.style.display = 'none';
+                formContainer.style.display = 'block';
 
-            // Initial data load
-            fetchProfile();
+            } catch (error) {
+                console.error('Error:', error);
+                loadingState.style.display = 'none';
+                errorState.style.display = 'block'; // Show error state
+                showMessage('error', error.message);
+            }
+        }
+
+        // --- Update function (unchanged, but now with state management) ---
+        async function updateProfile(e) {
+            e.preventDefault();
+            
+            if (!validateCSRF()) return;
+
+            // Optional: You can show a "Saving..." state here
+            // const saveButton = e.target.querySelector('button[type="submit"]');
+            // saveButton.textContent = 'Saving...';
+            // saveButton.disabled = true;
+
+            try {
+                const profileData = new FormData();
+                profileData.append('name', nameInput.value);
+                profileData.append('phone', phoneInput.value);
+                profileData.append('address', addressTextarea.value);
+                profileData.append('whatsapp_link', whatsappInput.value);
+                profileData.append('telegram_link', telegramInput.value);
+                profileData.append('response_time', responseTimeSelect.value);
+
+                if (logoFile.files[0]) {
+                    profileData.append('logo', logoFile.files[0]);
+                }
+
+                const userModelData = {
+                    description: descriptionTextarea.value,
+                    bulk_discount_available: bulkDiscountCheckbox.checked,
+                    offer_delivery: offerDeliveryCheckbox.checked
+                };
+
+                const [profileResponse, userModelResponse] = await Promise.all([
+                    fetch(API_URL, {
+                        method: 'PATCH',
+                        headers: { 'X-CSRFToken': CSRF_TOKEN },
+                        body: profileData
+                    }),
+                    fetch(USER_MODEL_API, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
+                        body: JSON.stringify(userModelData)
+                    })
+                ]);
+
+                if (!profileResponse.ok) {
+                    const error = await profileResponse.json();
+                    throw new Error(error.detail || 'Failed to update profile.');
+                }
+
+                if (!userModelResponse.ok) {
+                    const error = await userModelResponse.json();
+                    throw new Error(error.detail || 'Failed to update business details.');
+                }
+
+                showMessage('success', 'All settings updated successfully.');
+                fetchProfile(); // Re-fetch to update state
+
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('error', error.message);
+            } finally {
+                // saveButton.textContent = 'Save Changes';
+                // saveButton.disabled = false;
+            }
+        }
+
+        // Event Listeners
+        logoFile.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    logoPreview.innerHTML = `<img src="${event.target.result}" alt="Logo Preview" style="width:100%;height:100%;object-fit:contain;">`;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                logoPreview.innerHTML = '<i class="fas fa-building"></i>';
+            }
         });
-    </script>
-</body>
-</html>
+
+        form.addEventListener('submit', updateProfile);
+        cancelButton.addEventListener('click', fetchProfile);
+
+        // Initial data load
+        fetchProfile();
+    });
+</script>
+{% endblock script %}

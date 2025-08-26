@@ -23,12 +23,26 @@ from django.conf.urls import handler404
 
 handler404 = 'core.views.handler404'
 
+from django.contrib.sitemaps.views import sitemap
+from core.sitemaps import StaticViewSitemap, SupplierSitemap
+from core.views import robots_txt
+sitemaps = {
+    'static': StaticViewSitemap,
+    'detail':SupplierSitemap
+}
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('pharmacy/',include('core.urls')),
+    path('',include('core.urls')),
+    path('contactus/',TemplateView.as_view(template_name='contact_us.html'),name='contact-us'),
+    path('aboutus/',TemplateView.as_view(template_name='aboutus.html'),name='about-us'),
+    path('', include('pwa.urls')),
     path('privacy/', TemplateView.as_view(template_name='privacy.html'), name='privacy-policy'),
     path('terms/', TemplateView.as_view(template_name='terms.html'), name='terms-policy'),
+
+    path("robots.txt", robots_txt, name="robots_txt"),
+    path("sitemap.xml", sitemap, {"sitemaps": sitemaps}, name="sitemap"),
+
 ]
 
 if settings.DEBUG:

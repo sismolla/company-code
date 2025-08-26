@@ -1,11 +1,12 @@
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
 from rest_framework.permissions import AllowAny
 from rest_framework import generics
 from rest_framework.filters import SearchFilter,OrderingFilter
-from .models import ChatMessage, ChatThread, DosageForm, Order, Product, ReportAbuse, Review, Supplier, Notification, UserProducts
+from .models import ChatMessage, ChatThread, ContactUs, DosageForm, Order, Product, ReportAbuse, Review, Supplier, Notification, UserProducts
 from .filters import ProductFilter
-from .serializers import ChatMessageSerializer, ChatThreadCreateSerializer, ChatThreadSerializer, DosageFormSerializer, NotificationSerializer, OrderSerializer, ProductDetailSerializer, ProductProviderSerializer, ProductSerializerView, SupplierOrderSerializer, SupplierUpdateSerializer, ReportAbuseSerializer, ReviewSerializer, SupplierSignupSerializer, UserSerializer
+from .serializers import ChatMessageSerializer, ChatThreadCreateSerializer, ChatThreadSerializer, ContactUsSerializer, DosageFormSerializer, NotificationSerializer, OrderSerializer, ProductDetailSerializer, ProductProviderSerializer, ProductSerializerView, SupplierOrderSerializer, SupplierUpdateSerializer, ReportAbuseSerializer, ReviewSerializer, SupplierSignupSerializer, UserSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 from django.views.generic import TemplateView
 from rest_framework import  permissions
@@ -102,7 +103,7 @@ class ReportAbuseCreateAPIView(generics.CreateAPIView):
     permission_classes = [AllowAny]  
 
 class MessageView(LoginRequiredMixin,TemplateView):
-    login_url = '/pharmacy/user/signup/'
+    login_url = '/user/signup/'
     template_name = 'message.html'
 
     def get(self, request):
@@ -113,7 +114,7 @@ class MessageView(LoginRequiredMixin,TemplateView):
         return render(request, self.template_name, context)
 
 class CustomerDashboardView(LoginRequiredMixin,TemplateView):
-    login_url = '/pharmacy/user/signup/'
+    login_url = '/user/signup/'
     template_name = 'dashboard.html'
     context_object_name = 'dashboard'
 
@@ -190,7 +191,7 @@ class MarkMessagesAsReadView(APIView):
         )
 
 class ProfilePageView(LoginRequiredMixin,TemplateView):
-    login_url = '/pharmacy/user/signup/'
+    login_url = '/user/signup/'
     template_name = 'profile.html'
 
     def get(self, request):
@@ -215,7 +216,7 @@ class UserProfileAPIView(generics.RetrieveUpdateAPIView):
         )
     
 class HelpPageView(LoginRequiredMixin,TemplateView):
-    login_url = '/pharmacy/user/signup/'
+    login_url = '/user/signup/'
     template_name = 'help.html'
 
     def get(self, request):
@@ -226,7 +227,7 @@ class HelpPageView(LoginRequiredMixin,TemplateView):
         return render(request, self.template_name, context)
 
 class ProductsView(LoginRequiredMixin,TemplateView):
-    login_url = '/pharmacy/user/signup/'
+    login_url = '/user/signup/'
     template_name = 'products.html'
 
     def get(self, request):
@@ -411,11 +412,11 @@ class UserOrderDetailUpdateView(generics.RetrieveUpdateAPIView):
         return Order.objects.filter(supplier=self.request.user.id)
     
 class SupplierOrderPage(LoginRequiredMixin, TemplateView):
-    login_url = '/pharmacy/user/signup/'
+    login_url = '/user/signup/'
     template_name = 'provider/orders.html'
 
 class SupplierOrderDetailPage(LoginRequiredMixin,View):
-    login_url = '/pharmacy/user/signup/'
+    login_url = '/user/signup/'
     template_name = 'provider/order_detail.html'
     
     def get(self, request, pk):
@@ -542,6 +543,11 @@ class ProductBulkUploadView(APIView):
             },
             status=status.HTTP_201_CREATED,
         )
+    
+class ContactUsViewSet(viewsets.ModelViewSet):
+    queryset = ContactUs.objects.all()
+    serializer_class = ContactUsSerializer
+    http_method_names = ['post']
 
 
 class FAQView(TemplateView):
@@ -560,3 +566,27 @@ class FAQView(TemplateView):
 
 def handler404(request, exception):
     return render(request, '404.html', status=404)
+
+
+def robots_txt(request):
+    content = """
+    User-agent: *
+    Disallow: /admin/
+    Allow: /
+    Sitemap: http://127.0.0.1:8000/sitemap.xml
+    """
+    return HttpResponse(content, content_type="text/plain")
+
+
+# views.py
+from django.http import HttpResponse
+import json
+from .tasks import post_next_supplier_products
+
+def google_calendar_webhook(request):
+    # Call your function here
+    post_next_supplier_products()
+    return HttpResponse("Task executed successfully", status=200)
+
+
+

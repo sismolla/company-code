@@ -44,7 +44,7 @@ class Supplier(models.Model):
 
 
 class Product(models.Model):
-    product_id = models.CharField(max_length=30, unique=True)
+    product_id = models.CharField(max_length=50, unique=True)
     image = models.ImageField(upload_to='product_images/', blank=True, null=True)
     name = models.CharField(max_length=100)
     strength = models.CharField(max_length=50)
@@ -150,8 +150,9 @@ class Order(models.Model):
     customer_full_name = models.CharField(max_length=50,null=False,blank=False)
     customer_email_address = models.EmailField(null=False,blank=False)
     customer_phone = models.IntegerField(blank=False,null=False)
-    customer_pharmacy_name = models.CharField(blank=False,null=False)
-    customer_delivery_address = models.CharField(blank=False,null=False)
+    customer_pharmacy_name = models.CharField(max_length=200,blank=False,null=False)
+    customer_delivery_address = models.CharField(max_length=200,blank=False,null=False)
+    expiry_date = models.DateTimeField(null=True, blank=True)
     supplier = models.ForeignKey("Supplier", related_name="orders", on_delete=models.CASCADE)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -208,3 +209,17 @@ class SocialMediaPost(models.Model):
 #     )
 #     custom_time = models.TimeField(blank=True, null=True)  # if they want exact time posting
 
+
+
+class ContactUs(models.Model):
+    SUBJECT_CHOICES = [
+        ('wholesaler', 'wholesaler'),
+        ('buyer', 'buyer'),
+        ('partnership', 'partnership'),
+        ('support', 'support'),
+        ('other','other')
+    ]
+    name = models.CharField(max_length=50,null=False,blank=False)
+    email = models.EmailField(null=False,blank=False)
+    subject = models.CharField(choices=SUBJECT_CHOICES, null=False,blank=False,max_length=300)
+    message = models.TextField(null=False,blank=False,max_length=2000)

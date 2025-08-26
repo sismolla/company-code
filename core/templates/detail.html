@@ -1,5 +1,7 @@
 {% extends 'base2.html' %}
 {% load static %}
+{% block title %}product detail{% endblock title %}
+
 {% block style %}
     <style>
         /* Custom styles for minor adjustments and fonts */
@@ -8,8 +10,8 @@
             font-family: 'Inter', sans-serif;
         }
         .tab-btn.active {
-            color: #2a7fba;
-            border-bottom-color: #2a7fba;
+            color: #2c3e50;
+            border-bottom-color: #2c3e50;
         }
         .action-buttons {
             display: flex;
@@ -30,11 +32,11 @@
         }
         .btn-message {
             background-color: var(--primary-color);
-            color: #2a7fba;
-            border: 1px solid #2a7fba;
+            color: #2c3e50;
+            border: 1px solid #2c3e50;
         }
         .btn-message:hover {
-            background-color: #1e6ea0;
+            background-color: #2c3e50;
         }
         .btn-danger {
             background-color: #fff;
@@ -49,7 +51,7 @@
             font-size: 0.9em;
         }
         .tab-btn:hover {
-            color: #2a7fba;
+            color: #2c3e50;
         }
         .main-image {
             height: 400px;
@@ -501,7 +503,7 @@
                 try {
                     const csrftoken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-                    const response = await fetch('/pharmacy/threads/create/', {
+                    const response = await fetch('/threads/create/', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -570,7 +572,7 @@
         // Function to fetch product details from the API
         const fetchProductDetails = async () => {
             try {
-                const response = await fetch(`/pharmacy/product/api/${productId}/`);
+                const response = await fetch(`/product/api/${productId}/`);
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
@@ -579,8 +581,25 @@
                 const data = await response.json();
                 productData = data;
 
+                const DOSAGE_FORMS_MAP = {
+                    "Tablet": 1, "Capsule": 2, "Injection": 3, "Syrup": 4, "Suspension": 5,
+                    "Cream": 6, "Ointment": 7, "Gel": 8, "Lotion": 9, "Suppository": 10,
+                    "Powder": 11, "Drops (Eye/Ear/Nasal)": 12, "Inhaler": 13, "Patch": 14,
+                    "Granules": 15, "Mouthwash": 16, "Lozenge": 17, "Solution": 18,
+                    "Emulsion": 19, "Spray": 20
+                };
+
+                // Reverse mapping (id -> name)
+                const REVERSE_DOSAGE_MAP = Object.fromEntries(
+                    Object.entries(DOSAGE_FORMS_MAP).map(([name, id]) => [id, name])
+                );
+
                 // Populate product details
-                if (productDosage) productDosage.textContent = `${data.dosage_form}`;
+                if (productDosage) {
+                    const dosageName = REVERSE_DOSAGE_MAP[data.dosage_form] || "Unknown";
+                    productDosage.textContent = dosageName;
+                }
+
                 if (productNameEl) productNameEl.textContent = `${data.name} (${data.strength})`;
 
                 // Handle Delivery and Bulk Discount Notes
@@ -619,7 +638,7 @@
                 if (userProductId) {
                     // Construct the URL and update the link on the page
                     const link = document.getElementById('supplier-link');
-                    link.href = `http://127.0.0.1:8000/pharmacy/supplier-detail/${userProductId}/`;
+                    link.href = `http://127.0.0.1:8000/supplier-detail/${userProductId}/`;
                     link.style.display = 'block'; // Make the link visible
                 } else {
                     // Hide the link if userproduct_id is null
@@ -787,7 +806,7 @@
                 };
 
                 try {
-                    const response = await fetch(`/pharmacy/reviews/create/`, {
+                    const response = await fetch(`/reviews/create/`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -908,7 +927,7 @@
                 };
 
                 try {
-                    const response = await fetch('/pharmacy/report-abuse/', {
+                    const response = await fetch('/report-abuse/', {
                         method: 'POST',
                         headers: {
                             'X-CSRFToken': csrftoken,
