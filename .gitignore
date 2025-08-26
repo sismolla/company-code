@@ -1,23 +1,19 @@
-# Ignore Python cache files
+# Python
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
 
-# Ignore virtual environments
-venv/
-*.env/
-
-supplier_logos/
-.gitignore/
-# Ignore database files
+# Django
 db.sqlite3
-
-# Ignore media/uploads
 /media/
-/staticfiles/
+staticfiles/
+.env
 
-# Ignore IDE/editor files
-*.idea/
-*.vscode/
+# Virtual environment
+venv/
+env/
 
-# Ignore system files
-.DS_Store
+# IDEs
+.idea/
+.vscode/
