@@ -583,274 +583,208 @@
 
 {% block script %}
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const ordersContainer = document.getElementById('orders-container');
-        const searchInput = document.getElementById('order-search');
-        const statusFilter = document.getElementById('status-filter');
-        const toast = document.getElementById('toast-notification');
-        const toastMessage = document.getElementById('toast-message');
-        const viewMoreContainer = document.getElementById('view-more-container');
-        
-        let allOrders = []; // Store the full list of orders
+document.addEventListener('DOMContentLoaded', function() {
+    const ordersContainer = document.getElementById('orders-container');
+    const searchInput = document.getElementById('order-search');
+    const statusFilter = document.getElementById('status-filter');
+    const toast = document.getElementById('toast-notification');
+    const toastMessage = document.getElementById('toast-message');
+    const viewMoreContainer = document.getElementById('view-more-container');
 
-        // Format date
-        function formatDate(dateString) {
-            const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-            return new Date(dateString).toLocaleDateString('en-US', options);
+    let allOrders = [];
+
+    function formatDate(dateString) {
+        const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+        return new Date(dateString).toLocaleDateString('en-US', options);
+    }
+
+    function getInitials(name) {
+        return name.split(' ').map(n => n[0]).join('').toUpperCase();
+    }
+
+    function showToast(message, type = 'success') {
+        toast.className = `toast toast-${type} show`;
+        toastMessage.textContent = message;
+
+        const icon = toast.querySelector('i');
+        icon.className = type === 'success' ? 'fas fa-check-circle' : type === 'error' ? 'fas fa-exclamation-circle' : 'fas fa-info-circle';
+
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3000);
+    }
+
+    function createOrderCard(order) {
+        const statusText = order.status.charAt(0).toUpperCase() + order.status.slice(1);
+        const initials = getInitials(order.customer_full_name);
+
+        const totalAmount = order.items.reduce((sum, item) => sum + (parseFloat(item.product_price) * parseInt(item.quantity)), 0).toFixed(2);
+
+        let actions = '';
+        if (order.status === 'pending') {
+            actions = `
+                <button class="btn btn-outline" onclick="viewOrderDetails('${order.id}')"><i class="fas fa-eye"></i> View</button>
+                <button class="btn btn-primary order-action-btn" data-action="confirm" data-id="${order.id}">
+                    <i class="fas fa-check"></i> Confirm
+                </button>
+                <button class="btn btn-danger order-action-btn" data-action="cancel" data-id="${order.id}">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+            `;
+        } else {
+            actions = `<button class="btn btn-outline" onclick="viewOrderDetails('${order.id}')"><i class="fas fa-eye"></i> View</button>`;
         }
 
-        // Get initials for avatar
-        function getInitials(name) {
-            return name.split(' ').map(n => n[0]).join('').toUpperCase();
-        }
-
-        // Show toast notification
-        function showToast(message, type = 'success') {
-            toast.className = `toast toast-${type} show`;
-            toastMessage.textContent = message;
-            
-            // Update icon based on type
-            const icon = toast.querySelector('i');
-            if (type === 'success') {
-                icon.className = 'fas fa-check-circle';
-            } else if (type === 'error') {
-                icon.className = 'fas fa-exclamation-circle';
-            } else {
-                icon.className = 'fas fa-info-circle';
-            }
-            
-            // Hide after 3 seconds
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
-        }
-
-        // Create order card HTML
-        function createOrderCard(order) {
-            const statusText = order.status.charAt(0).toUpperCase() + order.status.slice(1);
-            const initials = getInitials(order.customer_full_name);
-            
-            // Calculate total amount directly from the price field
-            const totalAmount = order.items.reduce((sum, item) => sum + (parseFloat(item.product_price) * parseInt(item.quantity)), 0).toFixed(2);
-            
-            // Determine actions based on status
-            let actions = '';
-            if (order.status === 'pending') {
-                actions = `
-                    <button class="btn btn-outline" onclick="viewOrderDetails('${order.id}')">
-                        <i class="fas fa-eye"></i> View
-                    </button>
-                    <button class="btn btn-primary" onclick="confirmOrder('${order.id}')">
-                        <i class="fas fa-check"></i> Confirm
-                    </button>
-                    <button class="btn btn-danger" onclick="cancelOrder('${order.id}')">
-                        <i class="fas fa-times"></i> Cancel
-                    </button>
-                `;
-            } else if (order.status === 'confirmed' || order.status === 'cancelled') {
-                actions = `
-                    <button class="btn btn-outline" onclick="viewOrderDetails('${order.id}')">
-                        <i class="fas fa-eye"></i> View
-                    </button>
-                `;
-            }
-            
-            // Create items list HTML
-            const itemsHtml = order.items.map(item => `
-                <div class="order-item">
-                    <div>
-                        <div class="order-item-name">${item.product_name}</div>
-                        <div class="order-item-qty">${item.product_dosage} • Qty: ${item.quantity}</div>
-                    </div>
-                    <div>$${(parseFloat(item.product_price) * parseInt(item.quantity)).toFixed(2)}</div>
+        const itemsHtml = order.items.map(item => `
+            <div class="order-item">
+                <div>
+                    <div class="order-item-name">${item.product_name}</div>
+                    <div class="order-item-qty">${item.product_dosage} • Qty: ${item.quantity}</div>
                 </div>
-            `).join('');
-            
-            return `
-                <div class="order-card" data-status="${order.status}" data-id="${order.id}" data-search="${order.id.toLowerCase()} ${order.customer_full_name.toLowerCase()} ${order.customer_pharmacy_name.toLowerCase()}">
-                    <div class="order-status status-${order.status}">${statusText}</div>
-                    <div class="order-header">
-                        <h3 class="order-id">${order.id.substring(0, 8)}...</h3>
-                        <p class="order-date">${formatDate(order.created_at)}</p>
-                    </div>
-                    <div class="order-body">
-                        <div class="order-customer">
-                            <div class="customer-avatar">${initials}</div>
-                            <div class="customer-info">
-                                <h4>${order.customer_full_name}</h4>
-                                <p>${order.customer_pharmacy_name}</p>
-                            </div>
-                        </div>
-                        <div class="order-items">
-                            ${itemsHtml}
-                        </div>
-                        <div class="order-total">
-                            <span>Total:</span>
-                            <span>$${totalAmount}</span>
+                <div>$${(parseFloat(item.product_price) * parseInt(item.quantity)).toFixed(2)}</div>
+            </div>
+        `).join('');
+
+        return `
+            <div class="order-card" data-status="${order.status}" data-id="${order.id}" data-search="${order.id.toLowerCase()} ${order.customer_full_name.toLowerCase()} ${order.customer_pharmacy_name.toLowerCase()}">
+                <div class="order-status status-${order.status}">${statusText}</div>
+                <div class="order-header">
+                    <h3 class="order-id">${order.id.substring(0, 8)}...</h3>
+                    <p class="order-date">${formatDate(order.created_at)}</p>
+                </div>
+                <div class="order-body">
+                    <div class="order-customer">
+                        <div class="customer-avatar">${initials}</div>
+                        <div class="customer-info">
+                            <h4>${order.customer_full_name}</h4>
+                            <p>${order.customer_pharmacy_name}</p>
                         </div>
                     </div>
-                    <div class="order-footer">
-                        ${actions}
-                    </div>
+                    <div class="order-items">${itemsHtml}</div>
+                    <div class="order-total"><span>Total:</span><span>$${totalAmount}</span></div>
+                </div>
+                <div class="order-footer">${actions}</div>
+            </div>
+        `;
+    }
+
+    function renderOrders(orders, limit = 3) {
+        ordersContainer.innerHTML = '';
+        viewMoreContainer.style.display = 'none';
+
+        if (orders.length === 0) {
+            ordersContainer.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon"><i class="fas fa-box-open"></i></div>
+                    <h3 class="empty-title">No Orders Found</h3>
+                    <p class="empty-text">There are currently no orders matching your criteria.</p>
                 </div>
             `;
+            return;
         }
 
-        // Filter and render orders
-        function renderOrders(orders, limit = 3) {
-            ordersContainer.innerHTML = '';
+        const ordersToDisplay = orders.slice(0, limit);
+        ordersToDisplay.forEach(order => ordersContainer.innerHTML += createOrderCard(order));
+
+        if (orders.length > limit) viewMoreContainer.style.display = 'block';
+
+        // Add event listeners for confirm/cancel buttons
+        document.querySelectorAll('.order-action-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const orderId = btn.dataset.id;
+                const action = btn.dataset.action;
+                const actionText = action === 'confirm' ? 'confirm' : 'cancel';
+
+                if (!confirm(`Are you sure you want to ${actionText} this order?`)) return;
+
+                btn.disabled = true;
+                btn.textContent = 'Processing...';
+
+                try {
+                    const updatedOrder = await updateOrderStatus(orderId, action === 'confirm' ? 'confirmed' : 'cancelled');
+                    showToast(`Order ${orderId.substring(0, 8)}... ${actionText}ed successfully`, 'success');
+                    allOrders = allOrders.map(order => order.id === orderId ? updatedOrder : order);
+                    filterOrders();
+                } catch (err) {
+                    showToast(`Failed to ${actionText} order ${orderId.substring(0, 8)}...`, 'error');
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = action === 'confirm' ? '<i class="fas fa-check"></i> Confirm' : '<i class="fas fa-times"></i> Cancel';
+                }
+            });
+        });
+    }
+
+    function filterOrders() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const statusFilterValue = statusFilter.value;
+        const filtered = allOrders.filter(order => {
+            const matchesStatus = statusFilterValue === 'all' || order.status === statusFilterValue;
+            const matchesSearch = order.id.toLowerCase().includes(searchTerm) ||
+                                  order.customer_full_name.toLowerCase().includes(searchTerm) ||
+                                  order.customer_pharmacy_name.toLowerCase().includes(searchTerm);
+            return matchesStatus && matchesSearch;
+        });
+        renderOrders(filtered);
+    }
+
+    async function fetchOrders() {
+        try {
+            const response = await fetch('/orders/');
+            if (!response.ok) throw new Error('Failed to fetch orders');
+            return await response.json();
+        } catch (err) {
+            console.error(err);
+            showToast('Failed to load orders. Please try again.', 'error');
+            return [];
+        }
+    }
+
+    async function updateOrderStatus(orderId, newStatus) {
+        const response = await fetch(`/orders/${orderId}/`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+            body: JSON.stringify({ status: newStatus })
+        });
+        if (!response.ok) throw new Error('Failed to update order status');
+        return await response.json();
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let cookie of cookies) {
+                cookie = cookie.trim();
+                if (cookie.startsWith(name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    async function initialize() {
+        allOrders = await fetchOrders();
+        renderOrders(allOrders);
+
+        searchInput.addEventListener('input', filterOrders);
+        statusFilter.addEventListener('change', filterOrders);
+
+        document.getElementById('view-all-orders').addEventListener('click', (e) => {
+            e.preventDefault();
+            renderOrders(allOrders, allOrders.length);
             viewMoreContainer.style.display = 'none';
+        });
+    }
 
-            // Check if there are no orders and display a message
-            if (orders.length === 0) {
-                ordersContainer.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-icon">
-                            <i class="fas fa-box-open"></i>
-                        </div>
-                        <h3 class="empty-title">No Orders Found</h3>
-                        <p class="empty-text">There are currently no orders matching your criteria.</p>
-                    </div>
-                `;
-                // Add a simple "No Orders" text as an alternative, but the empty state is better
-                // ordersContainer.innerHTML = '<p>No orders.</p>'; 
-                return;
-            }
-            
-            const ordersToDisplay = orders.slice(0, limit);
-            ordersToDisplay.forEach(order => {
-                ordersContainer.innerHTML += createOrderCard(order);
-            });
+    initialize();
 
-            if (orders.length > limit) {
-                viewMoreContainer.style.display = 'block';
-            }
-        }
-
-        // Filter orders based on search and status
-        function filterOrders() {
-            const searchTerm = searchInput.value.toLowerCase();
-            const statusFilterValue = statusFilter.value;
-            
-            const filtered = allOrders.filter(order => {
-                const matchesStatus = statusFilterValue === 'all' || order.status === statusFilterValue;
-                const matchesSearch = 
-                    order.id.toLowerCase().includes(searchTerm) ||
-                    order.customer_full_name.toLowerCase().includes(searchTerm) ||
-                    order.customer_pharmacy_name.toLowerCase().includes(searchTerm);
-                
-                return matchesStatus && matchesSearch;
-            });
-            
-            renderOrders(filtered);
-        }
-
-        // Fetch orders from API
-        async function fetchOrders() {
-            try {
-                const response = await fetch('/orders/');
-                if (!response.ok) {
-                    throw new Error('Failed to fetch orders');
-                }
-                const orders = await response.json();
-                return orders;
-            } catch (error) {
-                console.error('Error fetching orders:', error);
-                showToast('Failed to load orders. Please try again.', 'error');
-                return [];
-            }
-        }
-
-        // Update order status
-        async function updateOrderStatus(orderId, newStatus) {
-            try {
-                const response = await fetch(`/orders/${orderId}/`, {
-                    method: 'PATCH',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': getCookie('csrftoken'),
-                    },
-                    body: JSON.stringify({ status: newStatus })
-                });
-                
-                if (!response.ok) {
-                    throw new Error('Failed to update order status');
-                }
-                
-                return await response.json();
-            } catch (error) {
-                console.error('Error updating order status:', error);
-                throw error;
-            }
-        }
-
-        // Get CSRF token
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let cookie of cookies) {
-                    cookie = cookie.trim();
-                    if (cookie.startsWith(name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        }
-
-        // Initial load
-        async function initialize() {
-            allOrders = await fetchOrders();
-            renderOrders(allOrders); // Call renderOrders regardless of whether orders exist
-            
-            // Set up event listeners
-            searchInput.addEventListener('input', filterOrders);
-            statusFilter.addEventListener('change', filterOrders);
-
-            // Add an event listener for the "View All Orders" button
-            document.getElementById('view-all-orders').addEventListener('click', (e) => {
-                e.preventDefault();
-                renderOrders(allOrders, allOrders.length);
-                viewMoreContainer.style.display = 'none';
-            });
-        }
-
-        // Initialize the page
-        initialize();
-
-        window.viewOrderDetails = function(orderId) {
-            const detailUrl = `/order/${orderId}/`;
-            window.location.href = detailUrl;
-            showToast(`Loading order details...`, 'info');
-        };
-
-        window.confirmOrder = async function(orderId) {
-            try {
-                const updatedOrder = await updateOrderStatus(orderId, 'confirmed');
-                showToast(`Order ${orderId.substring(0, 8)}... confirmed successfully`, 'success');
-                
-                allOrders = allOrders.map(order => order.id === orderId ? updatedOrder : order);
-                filterOrders();
-            } catch (error) {
-                showToast(`Failed to confirm order ${orderId.substring(0, 8)}...`, 'error');
-            }
-        };
-
-        window.cancelOrder = async function(orderId) {
-            if (!confirm('Are you sure you want to cancel this order?')) return;
-            
-            try {
-                const updatedOrder = await updateOrderStatus(orderId, 'cancelled');
-                showToast(`Order ${orderId.substring(0, 8)}... cancelled successfully`, 'success');
-                
-                allOrders = allOrders.map(order => order.id === orderId ? updatedOrder : order);
-                filterOrders();
-            } catch (error) {
-                showToast(`Failed to cancel order ${orderId.substring(0, 8)}...`, 'error');
-            }
-        };
-    });
+    window.viewOrderDetails = function(orderId) {
+        window.location.href = `/order/${orderId}/`;
+        showToast('Loading order details...', 'info');
+    };
+});
 </script>
 {% endblock script %}

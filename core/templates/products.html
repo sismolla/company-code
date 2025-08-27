@@ -1211,7 +1211,7 @@ function toggleBulkUploadDetails() {
             <div class="modal-body product-details-view">
                 ${product.image ? `<div class="product-image-container"><img src="${product.image}" alt="Product Image" class="product-image"></div>` : ''}
                 <div class="detail-item"><strong>Name:</strong> <span>${product.name}</span></div>
-                <div class="detail-item"><strong>Dosage Form:</strong> <span>${getDosageFormName(product.dosage_form)}</span></div>
+                <div class="detail-item"><strong>Dosage Form:</strong> <span>this${getDosageFormName(product.dosage_form)}</span></div>
                 <div class="detail-item"><strong>Strength:</strong> <span>${product.strength}</span></div>
                 <div class="detail-item"><strong>Price:</strong> <span>$${product.price}</span></div>
                 <div class="detail-item"><strong>Stock Quantity:</strong> <span>${product.stock_quantity}</span></div>

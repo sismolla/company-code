@@ -24,6 +24,7 @@ from django.db import transaction
 import openpyxl
 from django.core.files.storage import default_storage
 from dateutil import parser
+from .utils import send_order_email,notify_user
 
 
 def logout_view(request):
@@ -388,6 +389,7 @@ class OrderCreateView(generics.CreateAPIView):
             recipient=supplier_user,
             message=f"You have a new order from {order.customer_full_name}."
         )
+        send_order_email(order)
 
         return Response(
             {
@@ -410,6 +412,32 @@ class UserOrderDetailUpdateView(generics.RetrieveUpdateAPIView):
 
     def get_queryset(self):
         return Order.objects.filter(supplier=self.request.user.id)
+    
+    def update(self, request, *args, **kwargs):
+        order = self.get_object()
+        old_status = order.status
+
+        try:
+            with transaction.atomic():
+                # Perform the update
+                response = super().update(request, *args, **kwargs)
+
+                # Refresh to get new status
+                order.refresh_from_db()
+                new_status = order.status
+
+                # Send email only if status changed
+                if old_status != new_status:
+                    notify_user(order, new_status)
+
+        except Exception as e:
+            # Rollback happens automatically if an exception occurs
+            return Response(
+                {"detail": f"Could not update order: {str(e)}"},
+                status=400
+            )
+
+        return response
     
 class SupplierOrderPage(LoginRequiredMixin, TemplateView):
     login_url = '/user/signup/'

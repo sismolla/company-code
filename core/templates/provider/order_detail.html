@@ -549,222 +549,154 @@
 
 {% block script %}
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const loadingState = document.getElementById('loading-state');
-        const orderContent = document.getElementById('order-content');
-        const toast = document.getElementById('toast-notification');
-        const toastMessage = document.getElementById('toast-message');
-        
-        // Extract order ID from URL
-        const pathParts = window.location.pathname.split('/').filter(Boolean);
-        const orderId = pathParts[pathParts.length - 1];
-        
-        // Format date
-        function formatDate(dateString) {
-            const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-            return new Date(dateString).toLocaleDateString('en-US', options);
-        }
-        
-        // Format currency
-        function formatCurrency(amount) {
-            return '$' + parseFloat(amount);
-        }
-        
-        // Show toast notification
-        function showToast(message, type = 'success') {
-            toast.className = `toast toast-${type} show`;
-            toastMessage.textContent = message;
-            
-            // Update icon based on type
-            const icon = toast.querySelector('i');
-            if (type === 'success') {
-                icon.className = 'fas fa-check-circle';
-            } else if (type === 'error') {
-                icon.className = 'fas fa-exclamation-circle';
-            } else {
-                icon.className = 'fas fa-info-circle';
-            }
-            
-            // Hide after 3 seconds
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
-        }
-        
-        // Update order status
-        async function updateOrderStatus(newStatus) {
-            try {
-                const response = await fetch(`/orders/${orderId}/`, {
-                    method: 'PATCH',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': getCookie('csrftoken'),
-                    },
-                    body: JSON.stringify({ status: newStatus })
-                });
-                
-                if (!response.ok) {
-                    throw new Error('Failed to update order status');
+document.addEventListener('DOMContentLoaded', function() {
+    const loadingState = document.getElementById('loading-state');
+    const orderContent = document.getElementById('order-content');
+    const toast = document.getElementById('toast-notification');
+    const toastMessage = document.getElementById('toast-message');
+
+    const pathParts = window.location.pathname.split('/').filter(Boolean);
+    const orderId = pathParts[pathParts.length - 1];
+
+    function formatDate(dateString) {
+        const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+        return new Date(dateString).toLocaleDateString('en-US', options);
+    }
+
+    function formatCurrency(amount) {
+        return '$' + parseFloat(amount).toFixed(2);
+    }
+
+    function showToast(message, type = 'success') {
+        toast.className = `toast toast-${type} show`;
+        toastMessage.textContent = message;
+
+        const icon = toast.querySelector('i');
+        icon.className = type === 'success' ? 'fas fa-check-circle' : type === 'error' ? 'fas fa-exclamation-circle' : 'fas fa-info-circle';
+
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            document.cookie.split(';').forEach(cookie => {
+                cookie = cookie.trim();
+                if (cookie.startsWith(name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                 }
-                
-                const updatedOrder = await response.json();
-                return updatedOrder;
-            } catch (error) {
-                console.error('Error updating order status:', error);
-                throw error;
-            }
-        }
-        
-        // Get CSRF token
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let cookie of cookies) {
-                    cookie = cookie.trim();
-                    if (cookie.startsWith(name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        }
-        
-        // Render order details
-        function renderOrderDetails(order) {
-            // Basic order info
-            document.getElementById('order-id').textContent = order.id.substring(0, 8) + '...';
-            document.getElementById('order-status').textContent = order.status.charAt(0).toUpperCase() + order.status.slice(1);
-            document.getElementById('order-status').className = `order-status-badge status-${order.status}`;
-            document.getElementById('customer-name').textContent = order.customer_full_name;
-            document.getElementById('customer-email').textContent = order.customer_email_address;
-            document.getElementById('customer-phone').textContent = order.customer_phone;
-            document.getElementById('pharmacy-name').textContent = order.customer_pharmacy_name;
-            document.getElementById('delivery-address').textContent = order.customer_delivery_address;
-            document.getElementById('order-date').textContent = formatDate(order.created_at);
-            
-            // Order items and total calculation
-            const itemsList = document.getElementById('items-list');
-            itemsList.innerHTML = '';
-            
-            let totalAmount = 0;
-            order.items.forEach(item => {
-                const itemTotal = parseFloat(item.product_price) * parseInt(item.quantity);
-                totalAmount += itemTotal;
-                
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>
-                        <div class="item-name">${item.product_name}</div>
-                        <div class="item-dosage">${item.product_dosage}</div>
-                    </td>
-                    <td class="item-qty">${item.product_dosage}</td>
-                    <td class="item-price">${formatCurrency(item.product_price)}</td>
-                    <td class="item-qty">${item.quantity}</td>
-                    <td class="item-price">${formatCurrency(itemTotal)}</td>
-                `;
-                itemsList.appendChild(row);
             });
-            
-            // Only show the total price
-            document.getElementById('total').textContent = formatCurrency(totalAmount);
-            
-            // Action buttons based on status
-            const orderActions = document.getElementById('order-actions');
-            orderActions.innerHTML = '';
-            
-            if (order.status === 'pending') {
-                orderActions.innerHTML = `
-                    <button class="btn btn-primary" onclick="confirmOrder()">
-                        <i class="fas fa-check"></i> Confirm Order
+        }
+        return cookieValue;
+    }
+
+    async function updateOrderStatus(newStatus) {
+        const response = await fetch(`/orders/${orderId}/`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+            body: JSON.stringify({ status: newStatus })
+        });
+        if (!response.ok) throw new Error('Failed to update order status');
+        return await response.json();
+    }
+
+    async function fetchOrderDetails() {
+        const response = await fetch(`/orders/${orderId}/`);
+        if (!response.ok) {
+            throw new Error(response.status === 404 ? 'Order not found' : 'Failed to fetch order details');
+        }
+        return await response.json();
+    }
+
+    function renderOrderDetails(order) {
+        document.getElementById('order-id').textContent = order.id.substring(0, 8) + '...';
+        const statusEl = document.getElementById('order-status');
+        statusEl.textContent = order.status.charAt(0).toUpperCase() + order.status.slice(1);
+        statusEl.className = `order-status-badge status-${order.status}`;
+        document.getElementById('customer-name').textContent = order.customer_full_name;
+        document.getElementById('customer-email').textContent = order.customer_email_address;
+        document.getElementById('customer-phone').textContent = order.customer_phone;
+        document.getElementById('pharmacy-name').textContent = order.customer_pharmacy_name;
+        document.getElementById('delivery-address').textContent = order.customer_delivery_address;
+        document.getElementById('order-date').textContent = formatDate(order.created_at);
+
+        const itemsList = document.getElementById('items-list');
+        itemsList.innerHTML = '';
+        let totalAmount = 0;
+        order.items.forEach(item => {
+            const itemTotal = parseFloat(item.product_price) * parseInt(item.quantity);
+            totalAmount += itemTotal;
+
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${item.product_name} <br><small>${item.product_dosage}</small></td>
+                <td>${item.quantity}</td>
+                <td>${formatCurrency(item.product_price)}</td>
+                <td>${formatCurrency(itemTotal)}</td>
+            `;
+            itemsList.appendChild(row);
+        });
+
+        document.getElementById('total').textContent = formatCurrency(totalAmount);
+
+        const actionsEl = document.getElementById('order-actions');
+        actionsEl.innerHTML = '';
+        if (order.status === 'pending') {
+            actionsEl.innerHTML = `
+                <button class="btn btn-primary" id="confirm-btn"><i class="fas fa-check"></i> Confirm Order</button>
+                <button class="btn btn-danger" id="cancel-btn"><i class="fas fa-times"></i> Cancel Order</button>
+            `;
+
+            document.getElementById('confirm-btn').addEventListener('click', async () => {
+                if (!confirm('Are you sure you want to confirm this order?')) return;
+                const btn = document.getElementById('confirm-btn');
+                btn.disabled = true; btn.textContent = 'Processing...';
+                try {
+                    const updatedOrder = await updateOrderStatus('confirmed');
+                    showToast('Order confirmed successfully', 'success');
+                    renderOrderDetails(updatedOrder);
+                } catch (err) {
+                    showToast('Failed to confirm order', 'error');
+                } finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-check"></i> Confirm Order'; }
+            });
+
+            document.getElementById('cancel-btn').addEventListener('click', async () => {
+                if (!confirm('Are you sure you want to cancel this order?')) return;
+                const btn = document.getElementById('cancel-btn');
+                btn.disabled = true; btn.textContent = 'Processing...';
+                try {
+                    const updatedOrder = await updateOrderStatus('cancelled');
+                    showToast('Order cancelled successfully', 'success');
+                    renderOrderDetails(updatedOrder);
+                } catch (err) {
+                    showToast('Failed to cancel order', 'error');
+                } finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-times"></i> Cancel Order'; }
+            });
+        }
+    }
+
+    async function initialize() {
+        try {
+            const order = await fetchOrderDetails();
+            renderOrderDetails(order);
+            loadingState.style.display = 'none';
+            orderContent.style.display = 'block';
+        } catch (err) {
+            loadingState.innerHTML = `
+                <div class="error-state">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <h2>Error Loading Order</h2>
+                    <p>${err.message}</p>
+                    <button class="btn btn-primary" onclick="window.location.reload()">
+                        <i class="fas fa-sync-alt"></i> Try Again
                     </button>
-                    <button class="btn btn-danger" onclick="cancelOrder()">
-                        <i class="fas fa-times"></i> Cancel Order
-                    </button>
-                `;
-            }
+                </div>
+            `;
+            console.error(err);
         }
-        
-        // Fetch order details
-        async function fetchOrderDetails() {
-            try {
-                const response = await fetch(`/orders/${orderId}/`);
-                
-                if (!response.ok) {
-                    if (response.status === 404) {
-                        throw new Error('Order not found');
-                    } else {
-                        throw new Error('Failed to fetch order details');
-                    }
-                }
-                
-                const order = await response.json();
-                return order;
-            } catch (error) {
-                console.error('Error fetching order details:', error);
-                throw error;
-            }
-        }
-        
-        // Initialize the page
-        async function initialize() {
-            try {
-                const order = await fetchOrderDetails();
-                renderOrderDetails(order);
-                
-                loadingState.style.display = 'none';
-                orderContent.style.display = 'block';
-            } catch (error) {
-                loadingState.innerHTML = `
-                    <div class="error-state">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <h2>Error Loading Order</h2>
-                        <p>${error.message}</p>
-                        <button class="btn btn-primary" onclick="window.location.reload()">
-                            <i class="fas fa-sync-alt"></i> Try Again
-                        </button>
-                    </div>
-                `;
-                console.error('Initialization error:', error);
-            }
-        }
-        
-        // Global functions for buttons
-        window.confirmOrder = async function() {
-            try {
-                const updatedOrder = await updateOrderStatus('confirmed');
-                showToast('Order confirmed successfully', 'success');
-                renderOrderDetails(updatedOrder);
-            } catch (error) {
-                showToast('Failed to confirm order', 'error');
-            }
-        };
-        
-        window.cancelOrder = async function() {
-            if (!confirm('Are you sure you want to cancel this order?')) return;
-            
-            try {
-                const updatedOrder = await updateOrderStatus('cancelled');
-                showToast('Order cancelled', 'success');
-                renderOrderDetails(updatedOrder);
-            } catch (error) {
-                showToast('Failed to cancel order', 'error');
-            }
-        };
-        
-        window.markAsShipped = async function() {
-            try {
-                const updatedOrder = await updateOrderStatus('shipped');
-                showToast('Order marked as shipped and the stock quantity updated until you upload another the users see the updated one only', 'success');
-                renderOrderDetails(updatedOrder);
-            } catch (error) {
-                showToast('Failed to update order status', 'error');
-            }
-        };
-        
-        // Start the page
-        initialize();
-    });
+    }
+
+    initialize();
+});
 </script>
 {% endblock script %}

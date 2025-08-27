@@ -20,6 +20,7 @@ from django.urls import path,include
 from django.conf.urls.static import static
 from django.views.generic import TemplateView
 from django.conf.urls import handler404
+from django.contrib.auth import views as auth_views
 
 handler404 = 'core.views.handler404'
 
@@ -42,6 +43,37 @@ urlpatterns = [
 
     path("robots.txt", robots_txt, name="robots_txt"),
     path("sitemap.xml", sitemap, {"sitemaps": sitemaps}, name="sitemap"),
+
+    # Password reset
+    path('password-reset/', 
+         auth_views.PasswordResetView.as_view(
+             template_name='accounts/password_reset.html',
+             email_template_name='accounts/password_reset_email.html',
+             subject_template_name='accounts/password_reset_subject.txt',
+             success_url='/password-reset/done/'
+         ), 
+         name='password_reset'),
+
+    path('password-reset/done/', 
+         auth_views.PasswordResetDoneView.as_view(
+             template_name='accounts/password_reset_done.html'
+         ), 
+         name='password_reset_done'),
+
+    path('reset/<uidb64>/<token>/', 
+         auth_views.PasswordResetConfirmView.as_view(
+             template_name='accounts/password_reset_confirm.html',
+             success_url='/reset/done/'
+         ), 
+         name='password_reset_confirm'),
+
+    path('reset/done/', 
+         auth_views.PasswordResetCompleteView.as_view(
+             template_name='accounts/password_reset_complete.html'
+         ), 
+         name='password_reset_complete'),
+
+
 
 ]
 

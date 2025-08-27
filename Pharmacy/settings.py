@@ -89,12 +89,12 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'Pharmacy.wsgi.application'
 
-# DATABASES = {
-#    'default': {
-#        'ENGINE': 'django.db.backends.sqlite3',
-#        'NAME': BASE_DIR / 'db.sqlite3',
-#    }
-# }
+DATABASES = {
+   'default': {
+       'ENGINE': 'django.db.backends.sqlite3',
+       'NAME': BASE_DIR / 'db.sqlite3',
+   }
+}
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
@@ -111,16 +111,16 @@ WSGI_APPLICATION = 'Pharmacy.wsgi.application'
 #     }
 # else:
 
-DATABASES = {
-        'default': {
-        'ENGINE': os.getenv('POSTGRES_ENGINE'),
-        'NAME': os.getenv('POSTGRES_DB'),
-        'USER': os.getenv('POSTGRES_USER'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
-        'HOST': os.getenv('POSTGRES_HOST'),
-        'PORT': os.getenv('POSTGRES_PORT'),
-    }
-}
+# DATABASES = {
+#         'default': {
+#         'ENGINE': os.getenv('POSTGRES_ENGINE'),
+#         'NAME': os.getenv('POSTGRES_DB'),
+#         'USER': os.getenv('POSTGRES_USER'),
+#         'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+#         'HOST': os.getenv('POSTGRES_HOST'),
+#         'PORT': os.getenv('POSTGRES_PORT'),
+#     }
+# }
     
 
 if not DEBUG:
@@ -219,3 +219,19 @@ PWA_APP_SCREENSHOTS = [
 
 
 PWA_SERVICE_WORKER_PATH = os.path.join(BASE_DIR, 'static', 'serviceworker.js')
+
+
+"""
+email backend
+"""
+
+
+# Email Backend
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = os.getenv('EMAIL_HOST')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
+PASSWORD_RESET_TIMEOUT = 3600  

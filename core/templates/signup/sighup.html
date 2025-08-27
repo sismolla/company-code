@@ -318,6 +318,21 @@
                 gap: 1rem;
             }
         }
+
+        .forgot-password-link {
+    display: block;
+    text-align: right;
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: #007bff; /* Blue for a link, typical for a primary action */
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.forgot-password-link:hover {
+    color: #0056b3; /* A slightly darker blue on hover */
+    text-decoration: underline;
+}
     </style>
 </head>
 <body>
@@ -361,8 +376,8 @@
                         <i class="fas fa-sign-in-alt"></i> Log In
                     </button>
                     
-                    <div class="auth-footer">
-                        <a href="#" id="switchToForgot">Forgot password?</a>
+                    <div class="forgot-password-container">
+                        <a href="http://127.0.0.1:8000/password-reset/" class="forgot-password-link">Forgot password?</a>
                     </div>
                 </form>
                 

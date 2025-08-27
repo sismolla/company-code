@@ -67,6 +67,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     reviews = ReviewSerializer(many=True, read_only=True)
     average_rating = serializers.SerializerMethodField()
     supplier = SupplierSerializer(read_only=True)
+    dosage_form_name = serializers.CharField(source='dosage_form.name', read_only=True)
     dosage_form = serializers.PrimaryKeyRelatedField(queryset=DosageForm.objects.all())
     userproduct_id = serializers.SerializerMethodField()
     class Meta:
@@ -79,6 +80,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
             'price',
             'stock_quantity',
             'dosage_form',
+            'dosage_form_name',
             'average_rating',
             'image',
             'reviews',

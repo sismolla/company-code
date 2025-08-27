@@ -1238,7 +1238,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 throw new Error(errData.detail||errData.message||`Order failed (${res.status})`);
             }
 
-            showMessage('Order submitted successfully! Track via email or contact the wholesaler.', 'success', 10000);
+            showMessage('Order submitted successfully! we will send you the order detail via email or contact the wholesaler.', 'success', 10000);
             cart=[]; updateCartDisplay(); document.querySelectorAll('.quantity-input').forEach(i=>i.value=0);
             document.getElementById('order-form').reset();
 
