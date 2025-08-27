@@ -152,7 +152,6 @@ class Order(models.Model):
     customer_phone = models.IntegerField(blank=False,null=False)
     customer_pharmacy_name = models.CharField(max_length=200,blank=False,null=False)
     customer_delivery_address = models.CharField(max_length=200,blank=False,null=False)
-    expiry_date = models.DateTimeField(null=True, blank=True)
     supplier = models.ForeignKey("Supplier", related_name="orders", on_delete=models.CASCADE)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)

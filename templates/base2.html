@@ -24,6 +24,71 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+
+            /* Mobile menu styles */
+    @media (max-width: 767px) {
+        .nav-links-container {
+            position: fixed;
+            top: 0;
+            right: -300px;
+            width: 280px;
+            height: 100vh;
+            background-color: white;
+            flex-direction: column;
+            padding: 5rem 2rem 2rem;
+            box-shadow: -5px 0 25px rgba(0, 0, 0, 0.15);
+            transition: right 0.4s ease;
+            z-index: 1000;
+            overflow-y: auto;
+            display: flex;
+            gap: 1.5rem;
+        }
+        
+        .nav-links-container.active {
+            right: 0;
+        }
+        
+        /* Overlay when menu is open */
+        .nav-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 999;
+        }
+        
+        .nav-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* Hamburger button animation when menu is active */
+        .hamburger-menu.active {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%) !important;
+        }
+        
+        .hamburger-menu.active .fa-bars {
+            opacity: 0;
+            transform: rotate(180deg);
+        }
+        
+        .hamburger-menu.active .fa-times {
+            opacity: 1 !important;
+            transform: rotate(0deg) !important;
+        }
+    }
+    
+    /* Hide hamburger on larger screens */
+    @media (min-width: 768px) {
+        .hamburger-menu {
+            display: none !important;
+        }
+    }
         /* --- Base Styles for the Logo Container --- */
         .navbar .logo {
             display: flex; /* Use Flexbox for easy alignment */
@@ -57,11 +122,6 @@
         @media (max-width: 768px) {
             .navbar .logo {
                 gap: 0; /* Removes the space between the logo image and text */
-            }
-
-            .navbar .logo span {
-                /* Hides the text on smaller screens to save space */
-                display: none;
             }
 
             .navbar .logo img {
@@ -98,6 +158,69 @@
     gap: 15px;
     flex-wrap: wrap;
 }
+
+/* Loader container */
+#custom-loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    font-family: 'Arial', sans-serif;
+}
+
+/* Animated circle */
+.loader-circle {
+    width: 120px;
+    height: 120px;
+    border: 6px solid #e0e0e0;
+    border-top: 6px solid #3498db;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: spin 1.5s linear infinite;
+}
+
+/* Letters inside */
+.loader-text {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #3498db;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Subtitle */
+.loader-subtitle {
+    margin-top: 20px;
+    font-size: 1rem;
+    color: #444;
+    animation: fadeIn 2s ease-in-out infinite alternate;
+}
+
+/* Animations */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); color: #3498db; }
+    50% { transform: scale(1.2); color: #2ecc71; }
+    100% { transform: scale(1); color: #3498db; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0.4; }
+    to { opacity: 1; }
+}
+
 
 .contact-info a,
 .social-links a {
@@ -140,6 +263,18 @@
     {% block style %}{% endblock style %}
 </head>
 <body>
+
+<!-- Custom Loader -->
+<div id="custom-loader">
+    <div class="loader-circle">
+        <span class="loader-text">Pገ</span>
+    </div>
+    <p class="loader-subtitle">Pharma ገበያ is loading...</p>
+</div>
+
+<!-- App container (hidden until load finishes) -->
+<div id="app" style="display:none;">
+
     <div class="top-bar">
     <div class="contact-info">
         <a href="mailto:info@pharmagebeya.com">
@@ -152,10 +287,9 @@
         </a>
     </div>
     <div class="social-links">
-        <a href="#"><i class="fab fa-facebook-f"></i></a>
-        <a href="#"><i class="fab fa-telegram"></i></a>
-        <a href="#"><i class="fab fa-linkedin-in"></i></a>
-        <a href="#"><i class="fab fa-instagram"></i></a>
+        <a href="https://web.facebook.com/share/g/1F7Qi6wXsg/" target="_blank"><i class="fab fa-facebook-f"></i></a>
+        <a href="https://t.me/+l1QESCr3BpM3MTNk" target="_blank"><i class="fab fa-telegram"></i></a>
+        <a href="https://www.linkedin.com/company/pharma-%E1%8C%88%E1%89%A0%E1%8B%AB/" target="_blank"><i class="fab fa-linkedin-in"></i></a>
     </div>
 </div>
 <header>
@@ -209,6 +343,7 @@
 </header>
 
 {% block content %}
+
 {% endblock content %}
 
 <footer class="bg-gray-900 text-white py-12">
@@ -249,9 +384,10 @@
             <div class="footer-section">
                 <h4>Stay Connected</h4>
                 <div class="social-icons">
-                    <a href="#"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#"><i class="fab fa-telegram"></i></a>
-                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="https://web.facebook.com/share/g/1F7Qi6wXsg/" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://t.me/+l1QESCr3BpM3MTNk" target="_blank"><i class="fab fa-telegram"></i></a>
+                    <a href="https://www.linkedin.com/company/pharma-%E1%8C%88%E1%89%A0%E1%8B%AB/" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+
                 </div>
                 <p class="mt-2">Join our Pages for updates.</p>
             </div>
@@ -261,29 +397,51 @@
         </div>
     </div>
 </footer>
+</div>
+
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', function() {
         const hamburgerMenu = document.getElementById('hamburger-menu');
         const navLinksContainer = document.getElementById('nav-links-container');
-        const searchInput = document.getElementById('search-input'); // Get the search input
-        const searchButton = document.getElementById('search-button'); // Get the search button
-
-        hamburgerMenu.addEventListener('click', () => {
+        
+        // Create overlay element
+        const navOverlay = document.createElement('div');
+        navOverlay.className = 'nav-overlay';
+        document.body.appendChild(navOverlay);
+        
+        // Toggle menu function
+        function toggleMenu() {
+            hamburgerMenu.classList.toggle('active');
             navLinksContainer.classList.toggle('active');
-        });
-
-        // Add a keydown event listener to the search input
-        searchInput.addEventListener('keydown', (event) => {
-            // Check if the key pressed is "Enter"
-            if (event.key === 'Enter') {
-                // Prevent the default form submission behavior (if it was inside a form)
-                event.preventDefault();
-                // Trigger a click event on the search button
-                searchButton.click();
-            }
+            navOverlay.classList.toggle('active');
+            document.body.style.overflow = navLinksContainer.classList.contains('active') ? 'hidden' : '';
+        }
+        
+        // Add event listeners
+        hamburgerMenu.addEventListener('click', toggleMenu);
+        navOverlay.addEventListener('click', toggleMenu);
+        
+        // Close menu when a link is clicked
+        document.querySelectorAll('.nav-links-container a').forEach(link => {
+            link.addEventListener('click', () => {
+                hamburgerMenu.classList.remove('active');
+                navLinksContainer.classList.remove('active');
+                navOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            });
         });
     });
 </script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Hide loader when everything is ready
+    window.onload = () => {
+        document.getElementById("custom-loader").style.display = "none";
+        document.getElementById("app").style.display = "block";
+    };
+});
+</script>
+
 
 {% block script %}
 

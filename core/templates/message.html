@@ -4,103 +4,55 @@
 {% block title %}Messages{% endblock title %}
 
 {% block style %}
-    <style>
-        /* New styling for the logo image */
-        .conversation-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 50%;
+        <style>
+        :root {
+            --primary-color: #0088cc;
+            --secondary-color: #005580;
+            --light-bg: #f0f2f5;
+            --white: #ffffff;
+            --dark-text: #333333;
+            --light-text: #707579;
+            --border-color: #e0e0e0;
+            --primary-light: rgba(0, 136, 204, 0.1);
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12);
+            --transition: all 0.2s ease;
         }
 
-        .conversation-content {
-            flex: 1;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light-bg);
+            color: var(--dark-text);
+            height: 100vh;
             overflow: hidden;
         }
 
-        .conversation-partner {
-            font-weight: 600;
-            margin-bottom: 0.2rem;
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.95rem;
-            align-items: center; /* Vertically align items */
-        }
-
-        .conversation-partner .unread-badge {
-            margin-left: 0.5rem; /* Add some space between name and badge */
-        }
-        
-        .conversation-time {
-            color: var(--light-text);
-            font-size: 0.75rem;
-        }
-
-        .conversation-preview {
-            color: var(--light-text);
-            font-size: 0.85rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .unread-badge {
-            background: var(--primary-color);
-            color: white;
-            font-size: 0.7rem;
-            padding: 0.1rem 0.4rem;
-            border-radius: 10px;
-            margin-left: 0.3rem;
-            display: inline-block; /* Ensures it behaves like a block for padding/sizing */
-            min-width: 20px;
-            text-align: center;
-        }
-
-        .conversation-partner .unread-badge {
-            margin-left: 0.5rem; /* Add some space between name and badge */
-        }
-        
-        .conversation-time {
-            color: var(--light-text);
-            font-size: 0.75rem;
-        }
-
-        .conversation-preview {
-            color: var(--light-text);
-            font-size: 0.85rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .unread-badge {
-            background: var(--primary-color);
-            color: white;
-            font-size: 0.7rem;
-            padding: 0.1rem 0.4rem;
-            border-radius: 10px;
-            margin-left: 0.3rem;
-            display: inline-block; /* Ensures it behaves like a block for padding/sizing */
-            min-width: 20px;
-            text-align: center;
-        }
+        /* Main container */
         .messages-container {
             display: grid;
-            grid-template-columns: 320px 1fr;
+            grid-template-columns: 350px 1fr;
             max-width: 1400px;
             margin: 0 auto;
             background: var(--white);
             height: 100vh;
-            overflow:hidden;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            position: relative;
         }
 
-        /* Conversations List */
+        /* Conversations sidebar */
         .conversations-sidebar {
             border-right: 1px solid var(--border-color);
             overflow-y: auto;
             background-color: var(--white);
             display: flex;
             flex-direction: column;
+            position: relative;
+            z-index: 10;
         }
 
         .conversations-header {
@@ -121,6 +73,28 @@
             color: var(--dark-text);
         }
 
+        /* Message area */
+        .message-area {
+            display: flex;
+            flex-direction: column;
+            height: 88%; /* Ensures it takes up the full height of its parent */
+            background-color: var(--light-bg);
+            position: relative;
+        }
+
+        .message-content {
+            flex-grow: 1; /* This is the key change */
+            padding: 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+        }
+
         .new-chat-btn {
             background: var(--primary-color);
             color: white;
@@ -135,6 +109,7 @@
             transition: var(--transition);
             box-shadow: var(--shadow-sm);
         }
+
         .new-chat-btn:hover {
             background: var(--secondary-color);
             transform: translateY(-1px);
@@ -142,7 +117,6 @@
 
         .conversation-search {
             padding: 1rem 1.5rem;
-            margin-top: 50px;
             border-bottom: 1px solid var(--border-color);
             position: sticky;
             top: 73px;
@@ -154,15 +128,16 @@
             width: 100%;
             padding: 0.625rem 1rem;
             border: 1px solid var(--border-color);
-            border-radius: 8px;
+            border-radius: 20px;
             outline: none;
             transition: var(--transition);
             font-size: 0.875rem;
             background-color: var(--light-bg);
         }
+
         .conversation-search input:focus {
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px var(--primary-light);
+            box-shadow: 0 0 0 2px var(--primary-light);
         }
 
         .conversation-list {
@@ -180,6 +155,7 @@
             display: flex;
             gap: 0.875rem;
             border-left: 3px solid transparent;
+            position: relative;
         }
 
         .conversation-item:hover {
@@ -192,8 +168,8 @@
         }
 
         .conversation-avatar {
-            width: 42px;
-            height: 42px;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
             background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             display: flex;
@@ -202,6 +178,13 @@
             color: var(--white);
             flex-shrink: 0;
             font-size: 1rem;
+            overflow: hidden;
+        }
+
+        .conversation-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .conversation-content {
@@ -233,121 +216,53 @@
             text-overflow: ellipsis;
         }
 
-        /* Message Area */
-    /* ... (keep all your existing styles) ... */
-
-    .messages-container {
-        display: grid;
-        grid-template-columns: 320px 1fr;
-        max-width: 1400px;
-        margin: 0 auto;
-        background: var(--white);
-        height: 100vh;
-        overflow: hidden; /* Keep this to prevent overall scrolling */
-    }
-
-    /* Message Area - Updated for scrollable content */
-    .message-area {
-        display: none;
-        flex-direction: column;
-        height: 100%;
-        background-color: var(--light-bg);
-        position: relative;
-    }
-
-    .message-area.active {
-        display: flex;
-    }
-
-    .message-header {
-        padding: 1.25rem 1.5rem;
-        border-bottom: 1px solid var(--border-color);
-        display: flex;
-        align-items: center;
-        gap: 0.875rem;
-        background: var(--white);
-        z-index: 10;
-        flex-shrink: 0; /* Prevent header from shrinking */
-    }
-
-    /* Updated Message Content Area - Now scrollable */
-    .message-content {
-        flex: 1;
-        padding: 1rem 1.5rem;
-        overflow-y: auto; /* Enable vertical scrolling */
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-        max-width: 800px;
-        margin: 0 auto;
-        box-sizing: border-box;
-        /* Modern scrollbar styling */
-        scrollbar-width: thin;
-        scrollbar-color: var(--border-color) transparent;
-    }
-
-    /* Modern scrollbar for WebKit browsers */
-    .message-content::-webkit-scrollbar {
-        width: 6px;
-    }
-
-    .message-content::-webkit-scrollbar-track {
-        background: transparent;
-    }
-
-    .message-content::-webkit-scrollbar-thumb {
-        background-color: var(--border-color);
-        border-radius: 3px;
-    }
-
-    .message-content::-webkit-scrollbar-thumb:hover {
-        background-color: var(--light-text);
-    }
-
-    .message-input-area {
-        padding: 1rem 1.5rem;
-        border-top: 1px solid var(--border-color);
-        display: flex;
-        gap: 0.75rem;
-        background: var(--white);
-        width: 100%;
-        max-width: 800px;
-        margin: 0 auto;
-        box-sizing: border-box;
-        flex-shrink: 0; /* Prevent input area from shrinking */
-    }
-
-    /* ... (rest of your existing styles) ... */
-
-    /* Responsive Breakpoints */
-    @media (max-width: 992px) {
-        .messages-container {
-            padding-top: 10%;
-            height: 100vh;
+        .message-content {
+            flex-grow: 1; /* This makes the message feed grow and take up all available space */
+            overflow-y: auto; /* This enables vertical scrolling for the message feed */
         }
-        
-        .message-content,
+
         .message-input-area {
-            max-width: 100%;
-            padding: 1rem;
+            flex-shrink: 0; /* Prevents the input area from shrinking */
         }
-    }
 
-    @media (max-width: 768px) {
-        /* ... (keep your existing responsive styles) ... */
-        
-        .message-content {
-            padding: 1rem;
+        .unread-badge {
+            background: var(--primary-color);
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.1rem 0.4rem;
+            border-radius: 10px;
+            display: inline-block;
+            min-width: 18px;
+            text-align: center;
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
         }
-    }
 
-    @media (max-width: 480px) {
-        /* ... (keep your existing responsive styles) ... */
-        
-        .message-content {
-            padding: 0.75rem;
+        /* Message area */
+        .message-area {
+            display: flex;
+            flex-direction: column;
+            height: 800px;
+            background-color: var(--light-bg);
+            position: relative;
         }
-    }
+
+        .message-area.active {
+            display: flex;
+        }
+
+        .message-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 0.875rem;
+            background: var(--white);
+            z-index: 10;
+            flex-shrink: 0;
+        }
 
         .back-btn {
             background: none;
@@ -360,6 +275,7 @@
             border-radius: 6px;
             transition: var(--transition);
         }
+
         .back-btn:hover {
             background: var(--primary-light);
         }
@@ -376,10 +292,9 @@
             font-weight: 500;
         }
 
-        /* Updated Message Content Area */
         .message-content {
             flex: 1;
-            padding: 1rem 1.5rem;
+            padding: 1rem;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
@@ -387,10 +302,29 @@
             max-width: 800px;
             margin: 0 auto;
             box-sizing: border-box;
+            scroll-behavior: smooth;
+        }
+
+        /* Modern scrollbar for WebKit browsers */
+        .message-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .message-content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .message-content::-webkit-scrollbar-thumb {
+            background-color: var(--border-color);
+            border-radius: 3px;
+        }
+
+        .message-content::-webkit-scrollbar-thumb:hover {
+            background-color: var(--light-text);
         }
 
         .message {
-            max-width: 75%;
+            max-width: 80%;
             margin-bottom: 0.75rem;
             display: flex;
             flex-direction: column;
@@ -409,12 +343,12 @@
         }
 
         .message-bubble {
-            padding: 0.75rem 1.25rem;
+            padding: 0.75rem 1rem;
             border-radius: 18px;
             margin-bottom: 0.25rem;
             position: relative;
             font-size: 0.9375rem;
-            line-height: 1.5;
+            line-height: 1.4;
             box-shadow: var(--shadow-sm);
             transition: var(--transition);
             word-break: break-word;
@@ -439,6 +373,7 @@
             font-size: 0.6875rem;
             font-weight: 500;
             padding: 0 0.5rem;
+            margin-top: 2px;
         }
 
         .sent .message-time {
@@ -450,17 +385,16 @@
         }
 
         .message-input-area {
-            padding: 1rem 1.5rem;
+            padding: 1rem;
             border-top: 1px solid var(--border-color);
             display: flex;
             gap: 0.75rem;
             background: var(--white);
-            position: sticky;
-            bottom: 0;
             width: 100%;
             max-width: 800px;
             margin: 0 auto;
             box-sizing: border-box;
+            flex-shrink: 0;
         }
 
         .message-input {
@@ -477,9 +411,10 @@
             min-height: 48px;
             max-height: 120px;
         }
+
         .message-input:focus {
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px var(--primary-light);
+            box-shadow: 0 0 0 2px var(--primary-light);
         }
 
         .send-btn {
@@ -497,6 +432,7 @@
             justify-content: center;
             box-shadow: var(--shadow-sm);
         }
+
         .send-btn:hover {
             background: var(--secondary-color);
             transform: translateY(-1px);
@@ -523,12 +459,13 @@
             color: var(--border-color);
             opacity: 0.6;
         }
+
         .empty-message-state p {
             max-width: 280px;
             font-size: 0.9375rem;
             margin-bottom: 1.5rem;
         }
-        
+
         .loading-indicator {
             display: flex;
             justify-content: center;
@@ -541,8 +478,14 @@
 
         /* Animation for new messages */
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .message {
@@ -552,14 +495,7 @@
         /* Responsive Breakpoints */
         @media (max-width: 992px) {
             .messages-container {
-                padding-top: 10%%;
-                height: 100vh;
-            }
-            
-            .message-content,
-            .message-input-area {
-                max-width: 100%;
-                padding: 1rem;
+                grid-template-columns: 300px 1fr;
             }
         }
 
@@ -567,8 +503,8 @@
             .messages-container {
                 grid-template-columns: 1fr;
             }
-            
-            .conversations-sidebar, .message-area {
+
+            .conversations-sidebar {
                 position: absolute;
                 top: 0;
                 left: 0;
@@ -582,10 +518,20 @@
             .conversations-sidebar.hidden {
                 transform: translateX(-100%);
             }
-            .message-area:not(.active) {
-                transform: translateX(100%);
+
+            .message-area {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 88%;
+                background: var(--white);
+                z-index: 30;
+                display: none;
             }
+
             .message-area.active {
+                display: flex;
                 transform: translateX(0);
             }
 
@@ -602,20 +548,24 @@
             .conversation-item {
                 padding: 0.875rem 1rem;
             }
-            
-            .message-header,
-            .conversations-header {
+
+            .conversations-header,
+            .message-header {
                 padding: 1rem;
             }
-            
+
+            .conversation-search {
+                padding: 0.75rem 1rem;
+            }
+
             .message-content {
                 padding: 0.75rem;
             }
-            
+
             .message-input-area {
                 padding: 0.75rem;
             }
-            
+
             .message-bubble {
                 padding: 0.625rem 1rem;
                 font-size: 0.875rem;
@@ -637,11 +587,11 @@
     <div class="messages-container">
         <div class="conversations-sidebar" id="conversationsSidebar">
             <div class="conversations-header">
-                <div class="conversations-title">Messages</div>
+                <h2 class="conversations-title">Messages</h2>
             </div>
             
-            <div class="conversation-search" style="background-color: #f8f9fa; padding: 10px; border-radius: 8px;">
-                <input type="text" id="searchInput" placeholder="Search conversations..." style="width: 100%; border: 1px solid #ced4da; padding: 8px; border-radius: 5px;">
+            <div class="conversation-search">
+                <input type="text" id="searchInput" placeholder="Search conversations...">
             </div>
             
             <ul class="conversation-list" id="conversationList">
@@ -651,42 +601,38 @@
         
         <div class="message-area" id="messageArea">
             <div class="message-header">
-                <button class="back-btn" id="backBtn">
+                <button class="back-btn" id="backBtn" aria-label="Back to conversations">
                     <i class="fas fa-chevron-left"></i>
                 </button>
                 <div class="conversation-avatar">
                     <img id="messagePartnerLogo" src="" alt="Partner Logo">
                 </div>
                 <div>
-                    <div class="message-partner-name" id="messagePartnerName">Select a chat</div>
-                    <div class="message-partner-status" id="messagePartnerStatus"></div>
+                    <h3 class="message-partner-name" id="messagePartnerName">Select a chat</h3>
+                    <p class="message-partner-status" id="messagePartnerStatus"></p>
                 </div>
             </div>
             
-            <div class="message-content" id="messageContent" 
-            style="max-height: 75%; overflow-y: auto;">
-            <div class="empty-message-state" id="emptyState">
-                <i class="fas fa-comments empty-icon"></i>
-                <p>Select a conversation to start chatting.</p>
+            <div class="message-content" id="messageContent">
+                <div class="empty-message-state" id="emptyState">
+                    <i class="fas fa-comments empty-icon"></i>
+                    <p>Select a conversation to start chatting</p>
+                </div>
             </div>
-        </div>
-
             
             <div class="message-input-area">
                 <textarea class="message-input" id="messageInput" placeholder="Type your message..." rows="1"></textarea>
-                <button class="send-btn" id="sendBtn">
+                <button class="send-btn" id="sendBtn" aria-label="Send message">
                     <i class="fas fa-paper-plane"></i>
                 </button>
             </div>
         </div>
     </div>
-
-
 {% endblock content %}
 
 {% block script %}
-
 <script>
+    
     // === DOM Elements ===
     const conversationList = document.getElementById('conversationList');
     const conversationsSidebar = document.getElementById('conversationsSidebar');
@@ -715,7 +661,7 @@
     // === Fetch All Threads ===
     async function fetchThreads() {
         try {
-            const response = await fetch('/pharmacy/threads/');
+            const response = await fetch('/threads/');
             if (!response.ok) throw new Error('Failed to fetch threads');
 
             const threads = await response.json();
@@ -740,6 +686,7 @@
 
         } catch (error) {
             console.error('Error fetching threads:', error);
+            conversationList.innerHTML = '<li class="loading-indicator">Error loading conversations. Please try again.</li>';
         }
     }
 
@@ -774,14 +721,14 @@
         conversationList.innerHTML = '';
 
         if (!threads || threads.length === 0) {
-            conversationList.innerHTML = '<li class="empty-list">No conversations found.</li>';
+            conversationList.innerHTML = '<li class="empty-message-state"><i class="fas fa-comment-slash"></i><p>No conversations yet</p></li>';
             return;
         }
 
         threads.forEach(thread => {
             const lastMessage = thread.messages.slice(-1)[0];
             const partner = thread.user_1 === currentUser ? thread.user_2 : thread.user_1;
-            const lastMessageText = lastMessage ? lastMessage.message : 'No messages yet';
+            const lastMessageText = lastMessage ? (lastMessage.message.length > 35 ? lastMessage.message.substring(0, 35) + '...' : lastMessage.message) : 'No messages yet';
             const lastMessageTime = lastMessage ? formatTime(lastMessage.timestamp) : '';
             const unreadBadge = thread.unreadCount > 0 ? `<span class="unread-badge">${thread.unreadCount}</span>` : '';
             const logoUrl = thread.supplier_logo || 'https://placehold.co/40x40/f0f8ff/007bff?text=NA';
@@ -789,14 +736,15 @@
             const li = document.createElement('li');
             li.className = 'conversation-item';
             li.dataset.threadId = thread.id;
+            li.tabIndex = 0; // Make focusable for keyboard navigation
             li.innerHTML = `
                 <div class="conversation-avatar">
                     <img src="${logoUrl}" alt="${partner} Logo" onerror="this.onerror=null;this.src='https://placehold.co/40x40/f0f8ff/007bff?text=NA'">
                 </div>
                 <div class="conversation-content">
                     <div class="conversation-partner">
-                        <span>${partner}</span>
-                        <div class="flex items-center">
+                        <span class="partner-name">${partner}</span>
+                        <div style="display: flex; align-items: center;">
                             <span class="conversation-time">${lastMessageTime}</span>
                             ${unreadBadge}
                         </div>
@@ -815,7 +763,6 @@
         activeThreadId = thread.id;
         messageContent.innerHTML = '';
         emptyState.style.display = 'none';
-        messageArea.style.display = 'flex';
 
         const partner = thread.user_1 === currentUser ? thread.user_2 : thread.user_1;
         const logoUrl = thread.supplier_logo || 'https://placehold.co/40x40/f0f8ff/007bff?text=NA';
@@ -830,6 +777,7 @@
             logoElement.alt = `${partner} Logo`;
         }
 
+        // Add messages to content area
         thread.messages.forEach(msg => {
             const div = document.createElement('div');
             div.className = `message ${msg.sender === currentUser ? 'sent' : 'received'}`;
@@ -840,7 +788,10 @@
             messageContent.appendChild(div);
         });
 
-        messageContent.scrollTop = messageContent.scrollHeight;
+        // Scroll to bottom
+        setTimeout(() => {
+            messageContent.scrollTop = messageContent.scrollHeight;
+        }, 100);
     }
 
     // === Search Conversations ===
@@ -849,16 +800,22 @@
         const searchTerm = searchInput.value.toLowerCase();
         if (!searchTerm.trim()) return displayConversationList(allThreads);
 
-        const filtered = allThreads.filter(t => 
-            t.user_1.toLowerCase().includes(searchTerm) || t.user_2.toLowerCase().includes(searchTerm)
-        );
+        const filtered = allThreads.filter(t => {
+            const partner = t.user_1 === currentUser ? t.user_2 : t.user_1;
+            return partner.toLowerCase().includes(searchTerm);
+        });
         displayConversationList(filtered);
     }
 
-    searchInput?.addEventListener('input', performSearch);
-    searchInput?.addEventListener('keydown', e => { if (e.key==='Enter'){e.preventDefault(); performSearch();} });
-
     // === Send Message ===
+    // === Auto-resize textarea ===
+    messageInput?.addEventListener("input", function () {
+        this.style.height = "auto";  // reset
+        this.style.height = Math.min(this.scrollHeight, 120) + "px"; // grow up to 120px
+        messageContent.scrollTop = messageContent.scrollHeight; // keep scroll at bottom
+    });
+
+// === Scroll to bottom after sending ===
     async function sendMessage() {
         if (!messageInput || !activeThreadId) return;
         const text = messageInput.value.trim();
@@ -867,83 +824,117 @@
         const payload = { thread: activeThreadId, sender: currentUser, message: text };
 
         try {
-            const res = await fetch('/pharmacy/messages/create/', {
+            const res = await fetch('/messages/create/', {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCsrfToken()},
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfToken() },
                 body: JSON.stringify(payload)
             });
             if (!res.ok) throw new Error('Failed to send message');
 
             messageInput.value = '';
-            messageInput.style.height = 'auto';
+            messageInput.style.height = "auto";
+
             await fetchThreads();
             const updated = allThreads.find(t => t.id === activeThreadId);
-            if (updated) displayMessages(updated);
+            if (updated) {
+                displayMessages(updated);
 
+                // always scroll to bottom
+                setTimeout(() => {
+                    messageContent.scrollTop = messageContent.scrollHeight;
+                }, 100);
+            }
         } catch (err) {
             console.error(err);
             alert('Failed to send message. Please try again.');
         }
     }
 
-    sendBtn?.addEventListener('click', sendMessage);
-    messageInput?.addEventListener('keydown', e => { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault(); sendMessage();} });
 
     // === Mark Messages as Read ===
     async function markMessagesAsRead(threadId){
         try{
-            await fetch(`/pharmacy/thread/${threadId}/mark-as-read/`, {method:'POST', headers:{'X-CSRFToken':getCsrfToken(),'Content-Type':'application/json'}});
+            await fetch(`/thread/${threadId}/mark-as-read/`, {method:'POST', headers:{'X-CSRFToken':getCsrfToken(),'Content-Type':'application/json'}});
         } catch(err){ console.error('Mark as read failed:', err); }
     }
 
-    // === Conversation Click ===
-    conversationList?.addEventListener('click', e=>{
-        const item = e.target.closest('.conversation-item');
-        if (!item) return;
+    // === Event Listeners ===
+    document.addEventListener('DOMContentLoaded', function() {
+        // Search functionality
+        searchInput?.addEventListener('input', performSearch);
+        
+        // Send message functionality
+        sendBtn?.addEventListener('click', sendMessage);
+        messageInput?.addEventListener('keydown', e => {
+            if(e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+        
+        // Auto-resize textarea
+        messageInput?.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+        
+        // Conversation click
+        conversationList?.addEventListener('click', e => {
+            const item = e.target.closest('.conversation-item');
+            if (!item) return;
 
-        document.querySelectorAll('.conversation-item').forEach(el=>el.classList.remove('active'));
-        item.classList.add('active');
+            document.querySelectorAll('.conversation-item').forEach(el => el.classList.remove('active'));
+            item.classList.add('active');
 
-        const threadId = parseInt(item.dataset.threadId);
-        const thread = allThreads.find(t=>t.id===threadId);
-        if(!thread) return;
+            const threadId = parseInt(item.dataset.threadId);
+            const thread = allThreads.find(t => t.id === threadId);
+            if(!thread) return;
 
-        thread.unreadCount = 0;
-        displayConversationList(allThreads);
-        displayMessages(thread);
-        markMessagesAsRead(threadId);
+            thread.unreadCount = 0;
+            displayConversationList(allThreads);
+            displayMessages(thread);
+            markMessagesAsRead(threadId);
 
-        if(window.innerWidth<=768){
-            conversationsSidebar.classList.add('hidden');
-            messageArea.classList.add('active');
-        }
+            if(window.innerWidth <= 768){
+                conversationsSidebar.classList.add('hidden');
+                messageArea.classList.add('active');
+            }
+        });
+        
+        // Back button
+        backBtn?.addEventListener('click', () => {
+            conversationsSidebar.classList.remove('hidden');
+            messageArea.classList.remove('active');
+            document.querySelectorAll('.conversation-item').forEach(el => el.classList.remove('active'));
+            activeThreadId = null;
+        });
+        
+        // Keyboard navigation for conversations
+        conversationList?.addEventListener('keydown', e => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.target.click();
+                e.preventDefault();
+            }
+        });
+        
+        // Initial load
+        fetchThreads();
     });
 
-    // === Back Button ===
-    backBtn?.addEventListener('click', ()=>{
-        conversationsSidebar.classList.remove('hidden');
-        messageArea.classList.remove('active');
-        document.querySelectorAll('.conversation-item').forEach(el=>el.classList.remove('active'));
-        activeThreadId=null;
-    });
-
-    // === Auto-resize textarea ===
-    messageInput?.addEventListener('input', function(){ this.style.height='auto'; this.style.height=(this.scrollHeight)+'px'; });
-
-    // === Responsive logic ===
-    window.addEventListener('resize', ()=>{
-        if(window.innerWidth>768){
+    window.addEventListener('resize', () => {
+        if(window.innerWidth > 768){
             conversationsSidebar.classList.remove('hidden');
             messageArea.classList.add('active');
         } else {
-            const activeItem=document.querySelector('.conversation-item.active');
-            if(activeItem){ conversationsSidebar.classList.add('hidden'); messageArea.classList.add('active'); }
-            else{ conversationsSidebar.classList.remove('hidden'); messageArea.classList.remove('active'); }
+            const activeItem = document.querySelector('.conversation-item.active');
+            if(activeItem){ 
+                conversationsSidebar.classList.add('hidden'); 
+                messageArea.classList.add('active'); 
+            } else { 
+                conversationsSidebar.classList.remove('hidden'); 
+                messageArea.classList.remove('active'); 
+            }
         }
     });
-
-    // === Initial Load ===
-    fetchThreads();
 </script>
 {% endblock script %}
-

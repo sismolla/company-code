@@ -69,7 +69,7 @@ Contact Us
 
 {% block content %}
     <!-- Hero Section -->
-    <section class="py-16 bg-gradient-to-r from-blue-50 to-indigo-50">
+    <section class="py-16 bg-gradient-to-r from-blue-50" style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);">
         <div class="container mx-auto px-4 text-center">
             <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">Get in <span class="highlight-text">Touch</span></h1>
             <p class="text-xl text-gray-700 max-w-3xl mx-auto">Have questions about showcasing your pharmaceutical products? We're here to help you connect with buyers across Ethiopia.</p>
@@ -254,7 +254,7 @@ Contact Us
 
     const csrftoken = getCookie('csrftoken');
     const form = document.querySelector('form');
-    const apiUrl = '/api/contactus/';
+    const apiUrl = '/user-contactus/';
 
     if (!form) {
         console.error("❌ Form element not found!");
@@ -307,6 +307,13 @@ Contact Us
         form.addEventListener('submit', async function(e) {
             e.preventDefault();
 
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = "Sending..."; // optional UX improvement
+                submitBtn.classList.add("opacity-50", "cursor-not-allowed");
+            }
+
             // Remove any existing error messages
             document.querySelectorAll('.error-message').forEach(el => el.remove());
 
@@ -321,6 +328,11 @@ Contact Us
             } catch (err) {
                 console.error("Form field error:", err);
                 showNotification("Form fields are missing. Please reload the page. ❌");
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = "Send Message";
+                    submitBtn.classList.remove("opacity-50", "cursor-not-allowed");
+                }
                 return;
             }
 
@@ -337,6 +349,12 @@ Contact Us
                     }
                 }
                 showNotification('Please correct the errors in the form. ❌');
+
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = "Send Message";
+                    submitBtn.classList.remove("opacity-50", "cursor-not-allowed");
+                }
                 return;
             }
 
@@ -377,9 +395,16 @@ Contact Us
                 } catch (e) {
                     showNotification('⚠️ Network error. Please check your connection and try again.');
                 }
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = "Send Message";
+                    submitBtn.classList.remove("opacity-50", "cursor-not-allowed");
+                }
             }
         });
-    }
+}
+
 
     // === Mobile Menu Toggle ===
     const menuButton = document.getElementById('mobile-menu-button');

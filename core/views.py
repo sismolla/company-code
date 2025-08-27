@@ -165,7 +165,7 @@ class ChatMessageCreateAPIView(generics.CreateAPIView):
         serializer.save(sender=user)
         Notification.objects.create(
             recipient=thread.user_1 if user != thread.user_1 else thread.user_2,
-            message= 'You have a new Message',
+            message= 'You have a new Message from {}'.format(thread.user_1.username if user != thread.user_2 else thread.user_2.username),
         ).save()
 
 class MarkMessagesAsReadView(APIView):
@@ -415,15 +415,28 @@ class SupplierOrderPage(LoginRequiredMixin, TemplateView):
     login_url = '/user/signup/'
     template_name = 'provider/orders.html'
 
+    def get(self, request):
+        supplier = Supplier.objects.filter(user=request.user.id).first()
+        context = {
+            "logo": supplier.logo if supplier and supplier.logo else None,
+        }
+        return render(request, self.template_name, context)
+
 class SupplierOrderDetailPage(LoginRequiredMixin,View):
     login_url = '/user/signup/'
     template_name = 'provider/order_detail.html'
     
     def get(self, request, pk):
-        # Fetch the order, not the product
+        supplier = Supplier.objects.filter(user=request.user.id).first()
         order = get_object_or_404(Order, pk=pk, supplier=request.user.id)
-        return render(request, self.template_name, {'order': order})
-    
+
+        context = {
+            "logo": supplier.logo if supplier and supplier.logo else None,
+            'order': order
+        }
+
+        return render(request, self.template_name, context)
+
 class ProductBulkUploadView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 

@@ -200,20 +200,6 @@ body {
         margin-top: 1rem;
     }
 
-    .nav-links-container {
-        display: none; /* Hide the links by default on mobile */
-        flex-direction: column;
-        width: 100%;
-        background-color: #ffffff;
-        padding: 1rem;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        position: absolute; /* Positions the menu right under the header */
-        top: 6.5rem; /* Adjust this value to match your header's height */
-        left: 0;
-        z-index: 1000;
-        border-radius: 0 0 10px 10px;
-    }
-
     .nav-links-container.active {
         display: flex; /* Show the links when the 'active' class is added */
     }

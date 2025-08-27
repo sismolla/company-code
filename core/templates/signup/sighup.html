@@ -411,7 +411,7 @@
 
                     <div class="form-group">
                         <label for="whatsapp_link">WhatsApp Contact Link</label>
-                        <input type="url" id="whatsapp_link" name="whatsapp_link" class="form-control" placeholder="https://wa.me/1234567890">
+                        <input type="url" id="whatsapp_link" name="whatsapp_link" class="form-control" placeholder="https://wa.me/2519.......">
                         <span class="error-message" id="whatsapp_link-error"></span>
                     </div>
 
@@ -621,95 +621,105 @@
             }
         });
 
-        // Signup Form Submission
-        signupForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            clearErrors();
+    signupForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        clearErrors();
 
-            let isValid = true;
-            const name = document.getElementById('name');
-            const username = document.getElementById('username');
-            const phone = document.getElementById('phone');
-            const email = document.getElementById('email');
-            const password = document.getElementById('password');
-            const confirmPassword = document.getElementById('confirm_password');
+        let isValid = true;
+        const name = document.getElementById('name');
+        const username = document.getElementById('username');
+        const phone = document.getElementById('phone');
+        const email = document.getElementById('email');
+        const password = document.getElementById('password');
+        const confirmPassword = document.getElementById('confirm_password');
+        const whatsappLink = document.getElementById('whatsapp_link');
+        const telegramLink = document.getElementById('telegram_link');
 
-            // Client-side validation
-            if (name.value.trim() === '') { showError(name, 'Business Name is required.'); isValid = false; }
-            if (username.value.trim() === '') { showError(username, 'Username is required.'); isValid = false; }
-            if (phone.value.trim() === '') { showError(phone, 'Phone number is required.'); isValid = false; }
-            if (email.value.trim() === '') {
-                showError(email, 'Email address is required.');
-                isValid = false;
-            } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email.value)) {
-                showError(email, 'Please enter a valid email address.');
-                isValid = false;
-            }
-            if (password.value.trim().length < 8) { showError(password, 'Password must be at least 8 characters long.'); isValid = false; }
-            if (confirmPassword.value.trim() === '') { showError(confirmPassword, 'Please confirm your password.'); isValid = false; }
-            else if (password.value !== confirmPassword.value) {
-                showError(password, 'Passwords do not match.');
-                showError(confirmPassword, 'Passwords do not match.');
-                isValid = false;
-            }
+        // Validation Regex
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        const urlRegex = /^(https?:\/\/)?([\w\d-]+\.){1,}[\w]{2,}(\/.+)?$/;
 
-            if (!isValid) {
-                showMessageBox('Please correct the errors in the form below.', 'error');
-                return;
-            }
+        // Client-side validation
+        if (name.value.trim() === '') { showError(name, 'Business Name is required.'); isValid = false; }
+        if (username.value.trim() === '') { showError(username, 'Username is required.'); isValid = false; }
+        if (phone.value.trim() === '') { showError(phone, 'Phone number is required.'); isValid = false; }
 
-            signupBtn.disabled = true;
-            signupBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+        if (email.value.trim() === '') {
+            showError(email, 'Email address is required.');
+            isValid = false;
+        } else if (!emailRegex.test(email.value)) {
+            showError(email, 'Please enter a valid email address.');
+            isValid = false;
+        }
 
-            const formData = new FormData(signupForm);
-            const csrftoken = getCookie('csrftoken');
+        if (whatsappLink.value.trim() !== '' && !urlRegex.test(whatsappLink.value)) {
+            showError(whatsappLink, 'Please enter a valid WhatsApp link.');
+            isValid = false;
+        }
 
-            try {
-                const response = await fetch(signupApiUrl, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRFToken': csrftoken,
-                    },
-                });
+        if (telegramLink.value.trim() !== '' && !urlRegex.test(telegramLink.value)) {
+            showError(telegramLink, 'Please enter a valid Telegram link.');
+            isValid = false;
+        }
 
-                if (response.ok) {
-                    const result = await response.json();
-                    console.log('Success:', result);
-                    
-                    // Clear the form fields first
-                    signupForm.reset();
-                    // Then show the success message
-                    showMessageBox(result.message || 'Account created successfully!', 'success');
-                    // Wait a moment before redirecting so the user can see the success message
-                    setTimeout(() => {
-                        window.location.href = '{%url "landing:user-signup"%}';
-                    }, 3000); // Redirect after 3 seconds
-                    
+        if (password.value.trim().length < 8) { showError(password, 'Password must be at least 8 characters long.'); isValid = false; }
+        if (confirmPassword.value.trim() === '') { showError(confirmPassword, 'Please confirm your password.'); isValid = false; }
+        else if (password.value !== confirmPassword.value) {
+            showError(password, 'Passwords do not match.');
+            showError(confirmPassword, 'Passwords do not match.');
+            isValid = false;
+        }
+
+        if (!isValid) {
+            showMessageBox('Please correct the errors in the form below.', 'error');
+            return;
+        }
+
+        signupBtn.disabled = true;
+        signupBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+
+        const formData = new FormData(signupForm);
+        const csrftoken = getCookie('csrftoken');
+
+        try {
+            const response = await fetch(signupApiUrl, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                },
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                signupForm.reset();
+                showMessageBox(result.message || 'Account created successfully!', 'success');
+                setTimeout(() => {
+                    window.location.href = '{%url "landing:user-signup"%}';
+                }, 3000);
+            } else {
+                const errorData = await response.json();
+                if (errorData.detail) {
+                    showMessageBox(errorData.detail, 'error');
                 } else {
-                    const errorData = await response.json();
-                    console.error('Error:', errorData);
-
-                    if (errorData.detail) {
-                        showMessageBox(errorData.detail, 'error');
-                    } else {
-                        showMessageBox('Please correct the errors in the form below.', 'error');
-                        for (const [key, value] of Object.entries(errorData)) {
-                            const inputElement = document.getElementById(key);
-                            if (inputElement && Array.isArray(value) && value.length > 0) {
-                                showError(inputElement, value[0]);
-                            }
+                    showMessageBox('Please correct the errors in the form below.', 'error');
+                    for (const [key, value] of Object.entries(errorData)) {
+                        const inputElement = document.getElementById(key);
+                        if (inputElement && Array.isArray(value) && value.length > 0) {
+                            showError(inputElement, value[0]);
                         }
                     }
                 }
-            } catch (error) {
-                console.error('Network Error:', error);
-                showMessageBox('A network error occurred. Please try again.', 'error');
-            } finally {
-                signupBtn.disabled = false;
-                signupBtn.innerHTML = '<i class="fas fa-user-plus"></i> Create Supplier Account';
             }
-        });
+        } catch (error) {
+            console.error('Network Error:', error);
+            showMessageBox('A network error occurred. Please try again.', 'error');
+        } finally {
+            signupBtn.disabled = false;
+            signupBtn.innerHTML = '<i class="fas fa-user-plus"></i> Create Supplier Account';
+        }
+    });
+
 
     </script>
 </body>

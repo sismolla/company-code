@@ -1,666 +1,617 @@
 {% extends 'base.html' %}
-
 {% load static %}
-{% block title %}Products{% endblock title %}
+
+{% block title %}My Products - Pharmaceutical Management System{% endblock %}
+{% block meta_description %}Manage your pharmaceutical products, inventory, and pricing efficiently with our comprehensive product management system.{% endblock %}
+
 {% block style %}
-<style>
-
-    .styled-modal {
-        max-width: 600px;
-        width: 90%;
-        background: white;
-        border-radius: 8px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-        overflow: hidden;
-        animation: modalFadeIn 0.3s ease-out;
-    }
-
-    .modal-backdrop {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.5);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 1000;
-    }
-
-    .modal-header {
-        padding: 16px 24px;
-        background: #f8f9fa;
-        border-bottom: 1px solid #dee2e6;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .modal-title {
-        margin: 0;
-        font-size: 1.25rem;
-        color: #333;
-    }
-
-    .close-modal-btn {
-        background: none;
-        border: none;
-        font-size: 1.5rem;
-        cursor: pointer;
-        color: #6c757d;
-        padding: 0;
-        line-height: 1;
-    }
-
-    .close-modal-btn:hover {
-        color: #495057;
-    }
-
-    .modal-body {
-        padding: 24px;
-    }
-
-    .product-form {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 16px;
-    }
-
-    .form-group {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-    }
-
-    .form-group label {
-        font-weight: 500;
-        color: #495057;
-    }
-
-    .form-group input,
-    .form-group select {
-        padding: 8px 12px;
-        border: 1px solid #ced4da;
-        border-radius: 4px;
-        font-size: 1rem;
-    }
-
-    .form-group input:focus,
-    .form-group select:focus {
-        outline: none;
-        border-color: #80bdff;
-        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-    }
-
-    .form-hint {
-        font-size: 0.8rem;
-        color: #6c757d;
-    }
-
-    .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 8px;
-        margin-top: 16px;
-    }
-
-    .btn {
-        padding: 8px 16px;
-        border-radius: 4px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.2s;
-    }
-
-    .btn-primary {
-        background-color: #007bff;
-        color: white;
-        border: 1px solid #007bff;
-    }
-
-    .btn-primary:hover {
-        background-color: #0069d9;
-        border-color: #0062cc;
-    }
-
-    .btn-secondary {
-        background-color: #6c757d;
-        color: white;
-        border: 1px solid #6c757d;
-    }
-
-    .btn-secondary:hover {
-        background-color: #5a6268;
-        border-color: #545b62;
-    }
-
-    .message-box {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 12px 16px;
-        border-radius: 4px;
-        color: white;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        z-index: 1100;
-        animation: slideIn 0.3s ease-out;
-    }
-
-    .message-box.success {
-        background-color: #28a745;
-    }
-
-    .message-box.error {
-        background-color: #dc3545;
-    }
-
-    .message-box.info {
-        background-color: #17a2b8;
-    }
-
-    .message-box.fade-out {
-        animation: fadeOut 0.3s ease-out;
-    }
-
-    @keyframes slideIn {
-        from { transform: translateX(100%); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
-    }
-
-    @keyframes fadeOut {
-        from { opacity: 1; }
-        to { opacity: 0; }
-    }
-
-    @keyframes modalFadeIn {
-        from { opacity: 0; transform: translateY(-20px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Mobile Header */
-    .mobile-header {
-        display: none;
-        background: var(--white);
-        padding: 1rem;
-        box-shadow: var(--shadow);
-        position: sticky;
-        top: 0;
-        z-index: 100;
-    }
-    
-    .mobile-menu-btn {
-        background: none;
-        border: none;
-        font-size: 1.2rem;
-        color: var(--primary-color);
-        cursor: pointer;
-    }
-    
-    /* Main Content */
-    .products-main {
-        background: var(--white);
-        padding: 1.5rem;
-        overflow-x: auto;
-    }
-    
-    .products-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1.5rem;
-        flex-wrap: wrap;
-        gap: 1rem;
-    }
-    
-    .products-title {
-        font-size: 1.3rem;
-        color: var(--primary-color);
-    }
-    
-    .products-actions {
-        display: flex;
-        gap: 0.8rem;
-        flex-wrap: wrap;
-    }
-    
-    .btn {
-        padding: 0.7rem 1rem;
-        border-radius: var(--border-radius);
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.9rem;
-    }
-    
-    .btn-primary {
-        background: var(--primary-color);
-        color: var(--white);
-        border: none;
-    }
-    
-    .btn-outline {
-        background: transparent;
-        border: 1px solid var(--primary-color);
-        color: var(--primary-color);
-    }
-    
-    /* Products Table */
-    .products-table {
-        margin: auto;
-        width: 100%;
-        border-collapse: collapse;
-        min-width: 600px;
-    }
-    
-    .products-table th {
-        text-align: left;
-        padding: 0.8rem;
-        background: #f5f9fc;
-        color: var(--light-text);
-        font-weight: 600;
-        font-size: 0.8rem;
-    }
-    
-    .products-table td {
-        padding: 0.8rem;
-        border-bottom: 1px solid #eee;
-        vertical-align: middle;
-        font-size: 0.9rem;
-    }
-    
-    .product-info {
-        display: flex;
-        align-items: center;
-        gap: 0.8rem;
-    }
-    
-    .product-image {
-        width: 40px;
-        height: 40px;
-        background: #f0f0f0;
-        border-radius: 4px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--light-text);
-        flex-shrink: 0;
-    }
-    
-    .product-name {
-        font-weight: 600;
-        margin-bottom: 0.2rem;
-        font-size: 0.9rem;
-    }
-    
-    .product-category {
-        font-size: 0.75rem;
-        color: var(--light-text);
-    }
-    
-    .stock-status {
-        display: inline-block;
-        padding: 0.2rem 0.5rem;
-        border-radius: 4px;
-        font-size: 0.75rem;
-        font-weight: 600;
-    }
-    
-    .in-stock {
-        background: #e8f5e9;
-        color: #2e7d32;
-    }
-    
-    .low-stock {
-        background: #fff8e1;
-        color: #ff8f00;
-    }
-    
-    .out-of-stock {
-        background: #ffebee;
-        color: #c62828;
-    }
-    
-    .action-btn {
-        background: none;
-        border: none;
-        color: var(--light-text);
-        cursor: pointer;
-        font-size: 0.9rem;
-        margin: 0 0.3rem;
-        transition: color 0.3s;
-    }
-    
-    .action-btn:hover {
-        color: var(--primary-color);
-    }
-    
-    /* Mobile Cards (Alternative View) */
-    .mobile-products {
-        display: none;
-    }
-    
-    .product-card {
-        background: var(--white);
-        border-radius: var(--border-radius);
-        box-shadow: var(--shadow);
-        padding: 1rem;
-        margin-bottom: 1rem;
-    }
-        /* Modal Backdrop */
-    .modal-backdrop {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 1000;
-    }
-
-    /* Modal Content */
-    .modal-content {
-        background-color: #fff;
-        padding: 2rem;
-        border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        max-width: 500px;
-        width: 90%;
-        max-height: 80%;
-        overflow-y: auto;
-        position: relative;
-    }
-
-    /* Modal Header and Close Button */
-    .modal-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-bottom: 1px solid #eee;
-        padding-bottom: 1rem;
-        margin-bottom: 1.5rem;
-    }
-
-    .close-modal-btn {
-        background: none;
-        border: none;
-        font-size: 1.5rem;
-        cursor: pointer;
-        color: #888;
-    }
-
-    /* Reviews List and Items (The message panel) */
-    .reviews-list {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
-
-    .review-item {
-        padding: 1rem;
-        border: 1px solid #e0e0e0;
-        border-radius: 6px;
-        margin-bottom: 1rem;
-    }
-
-    .review-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 0.5rem;
-    }
-
-    .star-rating {
-        color: gold;
-    }
-
-    .review-comment {
-        margin: 0.5rem 0;
-    }
-
-    .review-date {
-        font-size: 0.8rem;
-        color: #888;
-    }
-    
-    .product-card-header {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        margin-bottom: 0.5rem;
-    }
-    
-    .product-card-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 0.5rem;
-        margin-top: 0.5rem;
-    }
-
-    .bulk-upload-docs {
-    margin: 20px 0;
-    padding: 20px;
-    border: 2px solid #d9534f;
-    background-color: #f2dede;
-    color: #a94442;
-    border-radius: 8px;
-    font-family: Arial, sans-serif;
-}
-
-.bulk-upload-docs h3, .bulk-upload-docs h4 {
-    margin-top: 10px;
-    margin-bottom: 10px;
-}
-
-.bulk-upload-docs table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
-}
-
-.bulk-upload-docs table th, .bulk-upload-docs table td {
-    border: 1px solid #a94442;
-    padding: 8px;
-    text-align: left;
-}
-
-.bulk-upload-docs ul {
-    margin-top: 0;
-    margin-bottom: 10px;
-}
-
-.highlight {
-    font-weight: bold;
-    text-decoration: underline;
-}
-
-.toggle-details-btn {
-    margin-top: 10px;
-    padding: 6px 12px;
-    background-color: #a94442;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-.toggle-details-btn:hover {
-    background-color: #843534;
-}
-    
-    /* Responsive Breakpoints */
-    @media (max-width: 992px) {
-        .dashboard-container {
-            grid-template-columns: 200px 1fr;
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --success-color: #4cc9f0;
+            --warning-color: #f72585;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --gray-color: #6c757d;
+            --light-gray: #e9ecef;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
         }
-        
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f7fb;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .products-main {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .products-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .products-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark-color);
+        }
+
+        .products-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            outline: none;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background-color: white;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--light-color);
+        }
+
+        .btn-danger {
+            background-color: var(--warning-color);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            opacity: 0.9;
+        }
+
+        .bulk-upload-docs {
+            background-color: #fff8f8;
+            border-left: 4px solid #ff6b6b;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 2rem;
+            box-shadow: var(--box-shadow);
+        }
+
+        .bulk-upload-docs h3 {
+            color: #d63031;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .bulk-upload-details {
+            margin-top: 1.5rem;
+        }
+
+        .bulk-upload-details h4 {
+            margin: 1rem 0 0.5rem;
+            color: var(--dark-color);
+        }
+
+        .bulk-upload-details table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        .bulk-upload-details th, 
+        .bulk-upload-details td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .bulk-upload-details th {
+            background-color: var(--light-color);
+            font-weight: 600;
+        }
+
+        .bulk-upload-details ul {
+            padding-left: 1.5rem;
+            margin: 0.5rem 0;
+        }
+
+        .toggle-details-btn {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            cursor: pointer;
+            font-weight: 500;
+            margin-top: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .highlight {
+            background-color: #fff3cd;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
         .products-table {
-            font-size: 0.85rem;
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--box-shadow);
+            display: table;
         }
-    }
-    
-    @media (max-width: 768px) {
-        .mobile-header {
+
+        .products-table th {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .products-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .products-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .products-table tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .product-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .product-image {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--light-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+        }
+
+        .product-name {
+            font-weight: 500;
+        }
+
+        .product-category {
+            font-size: 0.8rem;
+            color: var(--gray-color);
+        }
+
+        .stock-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .in-stock {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .low-stock {
+            background-color: #fff3e0;
+            color: #ef6c00;
+        }
+
+        .out-of-stock {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            color: var(--gray-color);
+            padding: 0.5rem;
+            border-radius: 4px;
+            transition: var(--transition);
+        }
+
+        .action-btn:hover {
+            background-color: var(--light-color);
+            color: var(--primary-color);
+        }
+
+        .review-link {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            cursor: pointer;
+            text-decoration: underline;
+            font-weight: 500;
+        }
+
+        .mobile-products {
+            display: none;
+        }
+
+        .product-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: var(--box-shadow);
+        }
+
+        .product-card-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .product-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .product-card-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+        }
+
+        .btn-outline {
+            background: none;
+            border: 1px solid var(--light-gray);
+            color: var(--gray-color);
+            padding: 0.5rem;
+            border-radius: 4px;
+        }
+
+        .btn-outline:hover {
+            background-color: var(--light-color);
+        }
+
+        /* Modal Styles */
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 1rem;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: var(--border-radius);
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--box-shadow);
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--light-gray);
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        
-        .dashboard-container {
-            grid-template-columns: 1fr;
-            padding-top: 60px;
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
         }
-        
-        .sidebar {
-            position: fixed;
-            top: 60px;
-            left: 0;
-            width: 250px;
-            height: calc(100vh - 60px);
-            z-index: 90;
-            transform: translateX(-100%);
+
+        .close-modal-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray-color);
         }
-        
-        .sidebar.active {
-            transform: translateX(0);
+
+        .modal-body {
+            padding: 1.5rem;
         }
-        
-        .products-main {
-            padding: 1rem;
+
+        .product-form {
+            display: grid;
+            gap: 1rem;
         }
-        
-        .products-table {
-            display: none;
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
         }
-        
-        .mobile-products {
-            display: block;
+
+        .form-group label {
+            font-weight: 500;
         }
-        
-        .btn {
-            padding: 0.6rem 0.8rem;
+
+        .form-group input,
+        .form-group select {
+            padding: 0.75rem;
+            border: 1px solid var(--light-gray);
+            border-radius: 4px;
+            font-family: inherit;
+        }
+
+        .form-hint {
             font-size: 0.8rem;
+            color: var(--gray-color);
         }
-    }
-    
-    @media (max-width: 480px) {
-        .products-actions {
-            width: 100%;
-        }
-        
-        .btn {
-            flex: 1;
-            justify-content: center;
-        }
-    }
-</style>
 
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
 
-{% endblock style %}
+        .product-details-view {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .detail-item {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .detail-item strong {
+            min-width: 120px;
+        }
+
+        .product-image-container {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .product-image-container img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: var(--border-radius);
+        }
+
+        /* Message Box */
+        .message-box {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: var(--border-radius);
+            color: white;
+            font-weight: 500;
+            z-index: 1100;
+            box-shadow: var(--box-shadow);
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .message-box.success {
+            background-color: #4caf50;
+        }
+
+        .message-box.error {
+            background-color: #f44336;
+        }
+
+        .message-box.info {
+            background-color: #2196f3;
+        }
+
+        .message-box.fade-out {
+            opacity: 0;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 992px) {
+            .products-table {
+                display: none;
+            }
+
+            .mobile-products {
+                display: block;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .products-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .products-actions {
+                width: 100%;
+                flex-wrap: wrap;
+            }
+
+            .product-details {
+                grid-template-columns: 1fr;
+            }
+
+            .bulk-upload-details table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .products-main {
+                padding: 0 1rem;
+            }
+
+            .modal-content {
+                margin: 1rem;
+                width: calc(100% - 2rem);
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+{% endblock %}
 
 {% block content %}
-<main class="products-main">
+<main class="products-main" itemscope itemtype="https://schema.org/ItemList">
     <div class="products-header">
-        <h2 class="products-title">My Products</h2>
+        <h1 class="products-title" itemprop="name">My Products</h1>
         <div class="products-actions">
-            <button class="btn btn-primary" id="newProductBtn">
-                <i class="fas fa-plus"></i> New Product
+            <button class="btn btn-primary" id="newProductBtn" aria-label="Add new product">
+                <i class="fas fa-plus" aria-hidden="true"></i> New Product
             </button>
-            <button class="btn btn-secondary" id="bulkUploadBtn">
-                <i class="fas fa-upload"></i> Bulk Upload
+            <button class="btn btn-secondary" id="bulkUploadBtn" aria-label="Bulk upload products">
+                <i class="fas fa-upload" aria-hidden="true"></i> Bulk Upload
             </button>
-            <input type="file" id="excelFileInput" accept=".xlsx, .xls" style="display: none;">
+            <input type="file" id="excelFileInput" accept=".xlsx, .xls" style="display: none;" aria-hidden="true">
         </div>
     </div>
 
-    <!-- Always-visible Bulk Upload Instructions (Danger/Important Styling) -->
     <!-- Bulk Upload Instructions Section -->
-<div class="bulk-upload-docs">
-    <h3><i class="fas fa-exclamation-triangle"></i> Important: Bulk Upload Instructions</h3>
-    
-    <p><strong>Quick Note:</strong> Required fields: <span class="highlight">name, strength, price, stock quantity, dosage form</span>.</p>
-    
-    <!-- Collapsible detailed section -->
-    <div class="bulk-upload-details" id="bulkUploadDetails" style="display: none;">
-        <h4>1. File Structure</h4>
-        <p>The first row of your Excel must contain headers. Common accepted names:</p>
-        <table>
-            <thead>
-                <tr>
-                    <th>Field</th>
-                    <th>Accepted Header Names Of Your Excel</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr><td>Product Name</td><td>name, product name, product_name</td></tr>
-                <tr><td>Strength</td><td>strength, dose</td></tr>
-                <tr><td>Price</td><td>price, cost, unit price</td></tr>
-                <tr><td>Stock Quantity</td><td>stock_quantity, stock quantity, quantity, stock, stock qty</td></tr>
-                <tr><td>Dosage Form</td><td>dosage_form_id, dosage, dosage form, form</td></tr>
-                <tr><td>Expiration Date (optional)</td><td>expire_date, expiry, expire date, expiry date, expiration date</td></tr>
-            </tbody>
-        </table>
+    <section class="bulk-upload-docs" aria-labelledby="bulk-upload-title">
+        <h3 id="bulk-upload-title"><i class="fas fa-exclamation-triangle" aria-hidden="true"></i> Important: Bulk Upload Instructions</h3>
+        
+        <p><strong>Quick Note:</strong> Required fields: <span class="highlight">name, strength, price, stock quantity, dosage form</span>.</p>
+        
+        <!-- Collapsible detailed section -->
+        <div class="bulk-upload-details" id="bulkUploadDetails" style="display: none;">
+            <h4>1. File Structure</h4>
+            <p>The first row of your Excel must contain headers. Common accepted names:</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Field</th>
+                        <th>Accepted Header Names Of Your Excel</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>Product Name</td><td>name, product name, product_name</td></tr>
+                    <tr><td>Strength</td><td>strength, dose</td></tr>
+                    <tr><td>Price</td><td>price, cost, unit price</td></tr>
+                    <tr><td>Stock Quantity</td><td>stock_quantity, stock quantity, quantity, stock, stock qty</td></tr>
+                    <tr><td>Dosage Form</td><td>dosage_form_id, dosage, dosage form, form</td></tr>
+                    <tr><td>Expiration Date (optional)</td><td>expire_date, expiry, expire date, expiry date, expiration date</td></tr>
+                </tbody>
+            </table>
 
-        <h4>2. Supported Dosage Forms</h4>
-        <p>Only the following dosage forms are accepted (case-insensitive):</p>
-        <strong><ul>
-            <li>Tablet, Capsule, Injection, Syrup, Suspension</li>
-            <li>Cream, Ointment, Gel, Lotion, Suppository</li>
-            <li>Powder, Drops (Eye/Ear/Nasal), Inhaler, Patch, Granules</li>
-            <li>Mouthwash, Lozenge, Solution, Emulsion, Spray</li>
-        </ul></strong>
+            <h4>2. Supported Dosage Forms</h4>
+            <p>Only the following dosage forms are accepted (case-insensitive):</p>
+            <ul>
+                <li>Tablet, Capsule, Injection, Syrup, Suspension</li>
+                <li>Cream, Ointment, Gel, Lotion, Suppository</li>
+                <li>Powder, Drops (Eye/Ear/Nasal), Inhaler, Patch, Granules</li>
+                <li>Mouthwash, Lozenge, Solution, Emulsion, Spray</li>
+            </ul>
 
-        <h4>3. Data Rules</h4>
-        <ul>
-            <li>Required fields: name, strength, price, stock_quantity, dosage_form_id.</li>
-            <li>Dosage Form must match exactly one of the supported forms.</li>
-            <li>Expiration Date is optional; if present, it must be a valid date (YYYY-MM-DD, MM/DD/YYYY).</li>
-        </ul>
+            <h4>3. Data Rules</h4>
+            <ul>
+                <li>Required fields: name, strength, price, stock_quantity, dosage_form_id.</li>
+                <li>Dosage Form must match exactly one of the supported forms.</li>
+                <li>Expiration Date is optional; if present, it must be a valid date (YYYY-MM-DD, MM/DD/YYYY).</li>
+            </ul>
 
-        <h4>4. Upload Behavior</h4>
-        <ul>
-            <li>Existing products (same name, strength, dosage form, supplier) are updated.</li>
-            <li>New products are created if no match exists.</li>
-            <li>Errors are recorded per row; upload continues even if some rows fail.</li>
-        </ul>
+            <h4>4. Upload Behavior</h4>
+            <ul>
+                <li>Existing products (same name, strength, dosage form, supplier) are updated.</li>
+                <li>New products are created if no match exists.</li>
+                <li>Errors are recorded per row; upload continues even if some rows fail.</li>
+            </ul>
 
-        <h4>5. Post-Upload Feedback</h4>
-        <ul>
-            <li>Success: shows how many new products were created and how many existing products were updated.</li>
-            <li>Errors: lists row numbers with problems for easy correction.</li>
-        </ul>
-    </div>
+            <h4>5. Post-Upload Feedback</h4>
+            <ul>
+                <li>Success: shows how many new products were created and how many existing products were updated.</li>
+                <li>Errors: lists row numbers with problems for easy correction.</li>
+            </ul>
+        </div>
 
-    <button class="toggle-details-btn" onclick="toggleBulkUploadDetails()">Show More</button>
-</div>
+        <button class="toggle-details-btn" onclick="toggleBulkUploadDetails()" aria-expanded="false" aria-controls="bulkUploadDetails">
+            Show More
+        </button>
+    </section>
 
-
-    <table class="products-table">
+    <table class="products-table" data-role="product-table">
         <thead>
             <tr>
-                <th>Product</th>
-                <th>Strength</th>
-                <th>Price</th>
-                <th>Stock</th>
-                <th>Expiration Date</th>
-                <th>Reviews</th>
-                <th>Action</th>
+                <th scope="col">Product</th>
+                <th scope="col">Strength</th>
+                <th scope="col">Price</th>
+                <th scope="col">Stock</th>
+                <th scope="col">Expiration Date</th>
+                <th scope="col">Reviews</th>
+                <th scope="col">Actions</th>
             </tr>
         </thead>
-        <tbody id="productTableBody">
+        <tbody id="productTableBody" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+            <!-- Products will be loaded here -->
         </tbody>
     </table>
 
-    <div class="mobile-products" id="mobileProductCards"></div>
+    <div class="mobile-products" id="mobileProductCards" data-role="product-card">
+        <!-- Mobile product cards will be loaded here -->
+    </div>
 </main>
-
-{% endblock content %}
-
+{% endblock %}
 
 {% block script %}
 <script>
@@ -678,7 +629,6 @@ function toggleBulkUploadDetails() {
 </script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Select the HTML elements where we'll render the product data
         const productTableBody = document.getElementById('productTableBody');
         const mobileProductCards = document.getElementById('mobileProductCards');
         const newProductBtn = document.getElementById('newProductBtn');
@@ -1179,30 +1129,53 @@ function toggleBulkUploadDetails() {
 
             // Add event listener for form submission
             const form = modalContent.querySelector('#productForm');
-            form.addEventListener('submit', function(e) {
+            form.addEventListener('submit', async function(e) {
                 e.preventDefault();
+
+                const submitBtn = form.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    const originalText = submitBtn.textContent;
+                    submitBtn.textContent = "Saving...";
+                    submitBtn.classList.add("opacity-50", "cursor-not-allowed");
+                }
+
                 try {
                     const productData = {
-                        // Product ID is disabled for edits, so we get it from the original object
                         name: form.name.value.trim(),
                         price: parseFloat(form.price.value),
                         strength: form.strength.value.trim(),
                         dosage_form: parseInt(form.dosage_form.value),
                         expire_date: form.expire_date.value,
                         stock_quantity: parseInt(form.stock_quantity.value),
-                        image: form.image.files[0] || null, // Get the file object
+                        image: form.image.files[0] || null,
                     };
 
                     if (product) {
-                        putProduct(product.id, productData);
+                        await putProduct(product.id, productData);
                     } else {
-                        postProduct(productData);
+                        await postProduct(productData);
                     }
+
+                    // Close modal only on success
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = product ? "Update Product" : "Add Product";
+                        submitBtn.classList.remove("opacity-50", "cursor-not-allowed");
+                    }
+
                 } catch (error) {
                     console.error('Error processing form:', error);
                     showMessage('error', 'Invalid form data. Please check your inputs.');
+                } finally {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = product ? "Update Product" : "Add Product";
+                        submitBtn.classList.remove("opacity-50", "cursor-not-allowed");
+                    }
                 }
             });
+
 
             // Prevent modal from closing when clicking inside content
             modalContent.addEventListener('click', (e) => {

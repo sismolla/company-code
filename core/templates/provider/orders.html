@@ -701,6 +701,7 @@
             ordersContainer.innerHTML = '';
             viewMoreContainer.style.display = 'none';
 
+            // Check if there are no orders and display a message
             if (orders.length === 0) {
                 ordersContainer.innerHTML = `
                     <div class="empty-state">
@@ -711,6 +712,8 @@
                         <p class="empty-text">There are currently no orders matching your criteria.</p>
                     </div>
                 `;
+                // Add a simple "No Orders" text as an alternative, but the empty state is better
+                // ordersContainer.innerHTML = '<p>No orders.</p>'; 
                 return;
             }
             
@@ -800,9 +803,7 @@
         // Initial load
         async function initialize() {
             allOrders = await fetchOrders();
-            if (allOrders.length > 0) {
-                renderOrders(allOrders);
-            }
+            renderOrders(allOrders); // Call renderOrders regardless of whether orders exist
             
             // Set up event listeners
             searchInput.addEventListener('input', filterOrders);
@@ -811,8 +812,6 @@
             // Add an event listener for the "View All Orders" button
             document.getElementById('view-all-orders').addEventListener('click', (e) => {
                 e.preventDefault();
-                // This is a placeholder. In a real app, you would redirect the user.
-                // For this example, we'll just show all orders.
                 renderOrders(allOrders, allOrders.length);
                 viewMoreContainer.style.display = 'none';
             });
@@ -822,13 +821,8 @@
         initialize();
 
         window.viewOrderDetails = function(orderId) {
-            // Construct the detail page URL using Django's URL pattern
             const detailUrl = `/order/${orderId}/`;
-            
-            // Navigate to the detail page
             window.location.href = detailUrl;
-            
-            // Optional: Show a loading message (will be replaced by the redirect)
             showToast(`Loading order details...`, 'info');
         };
 
@@ -837,7 +831,6 @@
                 const updatedOrder = await updateOrderStatus(orderId, 'confirmed');
                 showToast(`Order ${orderId.substring(0, 8)}... confirmed successfully`, 'success');
                 
-                // Refresh the orders from the updated list
                 allOrders = allOrders.map(order => order.id === orderId ? updatedOrder : order);
                 filterOrders();
             } catch (error) {
@@ -852,7 +845,6 @@
                 const updatedOrder = await updateOrderStatus(orderId, 'cancelled');
                 showToast(`Order ${orderId.substring(0, 8)}... cancelled successfully`, 'success');
                 
-                // Refresh the orders from the updated list
                 allOrders = allOrders.map(order => order.id === orderId ? updatedOrder : order);
                 filterOrders();
             } catch (error) {
