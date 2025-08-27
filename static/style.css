@@ -33,6 +33,29 @@
     height: 100%; /* Ensures cards in a grid have equal height */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+.products-loader {
+    text-align: center;
+    margin: 20px 0;
+    font-weight: bold;
+    color: #555;
+}
+
+.products-loader .spinner {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    border: 3px solid rgba(0,0,0,0.2);
+    border-top-color: #333;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
 
 .product-image {
     background-color: #f8f9fa; /* Light gray background for consistency */
@@ -572,6 +595,8 @@ footer {
     padding: 3rem 2rem;
     margin-top: 2rem;
 }
+
+
 
 .footer-container {
     max-width: 1200px;

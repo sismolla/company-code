@@ -25,6 +25,7 @@ import openpyxl
 from django.core.files.storage import default_storage
 from dateutil import parser
 from .utils import send_order_email,notify_user
+from rest_framework.pagination import PageNumberPagination
 
 
 def logout_view(request):
@@ -33,7 +34,6 @@ def logout_view(request):
 
 class Pharmacy_page(View):
     template_name = 'pharmacy.html'
-
     def get(self, request):
         supplier = Supplier.objects.filter(user=request.user.id).first()
         context = {
@@ -67,7 +67,8 @@ class ProductApiView(generics.ListAPIView):
     serializer_class = ProductSerializerView
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = ProductFilter
-
+    pagination_class = PageNumberPagination
+    
     # Search fields
     search_fields = [
         'name',
@@ -82,7 +83,7 @@ class ProductApiView(generics.ListAPIView):
 class DosageApi(generics.ListAPIView):
     queryset = DosageForm.objects.all()
     serializer_class = DosageFormSerializer
-
+    pagination_class = None
 class ReviewCreateAPIView(generics.CreateAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
@@ -304,7 +305,8 @@ class NotificationApi(generics.ListAPIView):
 class ProductProvider(viewsets.ModelViewSet):
     queryset = UserProducts.objects.all()
     serializer_class = ProductProviderSerializer
-
+    pagination_class = PageNumberPagination
+    
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)

@@ -1,71 +1,91 @@
 {% extends 'base2.html' %}
 {% load static %}
 
-{% block style %}{% endblock style %}
+{% block style %}
+{% endblock style %}
+
 {% block content %}
-    <main class="main-container">
-        <div class="filter-section">
-            <div class="filter-group">
-                <h3>Categories</h3>
-                <div class="filter-options" id="filter-options-container">
-                    <div class="filter-chip active" data-filter-id="">All</div>
+<main class="main-container">
+    <div class="filter-section">
+        <div class="filter-group">
+            <h3>Categories</h3>
+            <div class="filter-options" id="filter-options-container">
+                <div class="filter-chip active" data-filter-id="">All</div>
+            </div>
+        </div>
+        
+        <div class="filter-group">
+            <h3>Price Range ($)</h3>
+            <div class="price-range-container">
+                <div class="price-display">
+                    <span id="min-price-display">$0</span>
+                    <span id="max-price-display">$1000</span>
                 </div>
-            </div>
-            
-            <div class="filter-group">
-                <h3>Price Range ($)</h3>
-                <div class="price-range-container">
-                    <div class="price-display">
-                        <span id="min-price-display">$0</span>
-                        <span id="max-price-display">$1000</span>
-                    </div>
-                    <div class="slider-container">
-                        <div class="slider-track" id="slider-track"></div>
-                        <input type="range" class="range-slider" id="min-price-slider" min="0" max="1000" value="0" step="10">
-                        <input type="range" class="range-slider" id="max-price-slider" min="0" max="1000" value="1000" step="10">
-                    </div>
-                    <button class="btn" id="apply-price-filter">Apply</button>
+                <div class="slider-container" style="position: relative; height: 8px; margin: 10px 0;">
+                    <div id="slider-track" style="position: absolute; height: 8px; background: #3b82f6; border-radius: 4px; left:0; width:100%;"></div>
+                    <input type="range" class="range-slider" id="min-price-slider" min="0" max="1000" value="0" step="10" style="position: absolute; width: 100%; top: -6px; pointer-events: all; background: none;">
+                    <input type="range" class="range-slider" id="max-price-slider" min="0" max="1000" value="1000" step="10" style="position: absolute; width: 100%; top: -6px; pointer-events: all; background: none;">
                 </div>
+                <button class="btn" id="apply-price-filter">Apply</button>
             </div>
         </div>
-        
-        <div class="products-header">
-            <h2>Available Products <span class="products-count" id="products-count">(0 listings)</span></h2>
-            <div class="sort-options">
-                <select id="sort-select">
-                    <option value="">Sort by: Default</option>
-                    <option value="price">Price: Low to High</option>
-                    <option value="-price">Price: High to Low</option>
-                    <option value="name">Name: A-Z</option>
-                    <option value="-name">Name: Z-A</option>
-                    <option value="stock_quantity">Stock: Low to High</option>
-                    <option value="-stock_quantity">Stock: High to Low</option>
-                </select>
-            </div>
-        </div>
-        
-        <div class="products-grid" id="products-grid">
-            <p class="loading-message">Loading products...</p>
-        </div>
-        
-        <div class="pagination">
-            <!-- Pagination links will be generated here -->
-        </div>
-    </main>
+    </div>
     
+    <div class="products-header">
+        <h2>Available Products <span class="products-count" id="products-count">(0 listings)</span></h2>
+        <div class="sort-options">
+            <select id="sort-select">
+                <option value="">Sort by: Default</option>
+                <option value="price">Price: Low to High</option>
+                <option value="-price">Price: High to Low</option>
+                <option value="name">Name: A-Z</option>
+                <option value="-name">Name: Z-A</option>
+                <option value="stock_quantity">Stock: Low to High</option>
+                <option value="-stock_quantity">Stock: High to Low</option>
+            </select>
+        </div>
+    </div>
+    
+    <div class="products-grid" id="products-grid">
+        <p class="loading-message">Loading products...</p>
+    </div>
+
+    <!-- Loader for Infinite Scroll -->
+    <div id="products-loader" style="display:none; text-align:center; margin:20px 0; font-weight:bold; color:#555;">
+        <div style="
+            display:inline-block;
+            width:24px;
+            height:24px;
+            border:3px solid rgba(0,0,0,0.2);
+            border-top-color:#333;
+            border-radius:50%;
+            animation: spin 1s linear infinite;
+            margin-right:8px;
+            vertical-align: middle;
+        "></div>
+        Loading more products...
+    </div>
+</main>
+
+<script>
+    // Inline keyframes for spinner
+    const style = document.createElement('style');
+    style.innerHTML = `
+        @keyframes spin { to { transform: rotate(360deg); } }
+    `;
+    document.head.appendChild(style);
+</script>
 {% endblock content %}
+
 {% block script %}
 <script>
     // === API Endpoints ===
     const PRODUCT_API_URL = 'http://127.0.0.1:8000/product/api/';
     const DOSAGE_API_URL = 'http://127.0.0.1:8000/dosage/api/';
 
-    // === DOM Elements ===
     const productsGrid = document.getElementById('products-grid');
     const productsCountSpan = document.getElementById('products-count');
     const filterOptionsContainer = document.getElementById('filter-options-container');
-    const searchInput = document.getElementById('search-input');
-    const searchButton = document.getElementById('search-button');
     const minPriceSlider = document.getElementById('min-price-slider');
     const maxPriceSlider = document.getElementById('max-price-slider');
     const minPriceDisplay = document.getElementById('min-price-display');
@@ -73,242 +93,132 @@
     const applyPriceFilterButton = document.getElementById('apply-price-filter');
     const sortSelect = document.getElementById('sort-select');
     const sliderTrack = document.getElementById('slider-track');
-
-    if (!productsGrid || !productsCountSpan || !filterOptionsContainer) {
-        console.error('Essential DOM elements are missing. Script will not run correctly.');
-    }
+    const loader = document.getElementById('products-loader');
 
     const priceMin = minPriceSlider ? parseInt(minPriceSlider.min) : 0;
-    const priceMax = minPriceSlider ? parseInt(minPriceSlider.max) : 1000;
+    const priceMax = maxPriceSlider ? parseInt(maxPriceSlider.max) : 1000;
 
-    // === Dosage Form Icons ===
     const dosageFormIcons = {
-        'Tablet': 'fa-tablets icon-tablet',
-        'Capsule': 'fa-capsules icon-capsule',
-        'Syrup': 'fa-prescription-bottle-alt icon-syrup',
-        'Injection': 'fa-syringe icon-injection',
-        'Suspension': 'fa-prescription-bottle-alt icon-syrup',
-        'Cream': 'fa-mortar-pestle icon-cream',
-        'Ointment': 'fa-mortar-pestle icon-cream',
-        'Gel': 'fa-mortar-pestle icon-cream',
-        'Lotion': 'fa-mortar-pestle icon-cream',
-        'Suppository': 'fa-pills icon-default',
-        'Powder': 'fa-pills icon-powder',
-        'Drops (Eye/Ear/Nasal)': 'fa-eyedropper icon-drops',
-        'Inhaler': 'fa-inhaler icon-inhaler',
-        'Patch': 'fa-band-aid icon-patch',
-        'Granules': 'fa-pills icon-default',
-        'Mouthwash': 'fa-bottle-water icon-default',
-        'Lozenge': 'fa-pills icon-default',
-        'Solution': 'fa-prescription-bottle-alt icon-syrup',
-        'Emulsion': 'fa-prescription-bottle-alt icon-syrup',
-        'Spray': 'fa-spray-can icon-default',
-        'default': 'fa-pills icon-default'
+        'Tablet':'fa-tablets','Capsule':'fa-capsules','Syrup':'fa-prescription-bottle-alt',
+        'Injection':'fa-syringe','Suspension':'fa-prescription-bottle-alt','Cream':'fa-mortar-pestle',
+        'Ointment':'fa-mortar-pestle','Gel':'fa-mortar-pestle','Lotion':'fa-mortar-pestle',
+        'Suppository':'fa-pills','Powder':'fa-pills','Drops (Eye/Ear/Nasal)':'fa-eyedropper',
+        'Inhaler':'fa-inhaler','Patch':'fa-band-aid','Granules':'fa-pills','Mouthwash':'fa-bottle-water',
+        'Lozenge':'fa-pills','Solution':'fa-prescription-bottle-alt','Emulsion':'fa-prescription-bottle-alt',
+        'Spray':'fa-spray-can','default':'fa-pills'
     };
 
-    let currentFilters = {
-        dosage_form: '',
-        search: '',
-        price__gte: priceMin,
-        price__lte: priceMax,
-        ordering: 'price'
-    };
+    let currentFilters = { dosage_form:'', search:'', price__gte:priceMin, price__lte:priceMax, ordering:'price' };
+    let currentPage=1, isFetching=false, hasNextPage=true;
 
-    // === Build API URL with Filters ===
-    function buildApiUrl() {
-        const params = new URLSearchParams();
-        if (currentFilters.dosage_form) params.append('dosage_form', currentFilters.dosage_form);
-        if (currentFilters.search) params.append('search', currentFilters.search);
-        if (currentFilters.price__gte !== priceMin) params.append('price__gte', currentFilters.price__gte);
-        if (currentFilters.price__lte !== priceMax) params.append('price__lte', currentFilters.price__lte);
-        if (currentFilters.ordering) params.append('ordering', currentFilters.ordering);
-        const queryString = params.toString();
-        return `${PRODUCT_API_URL}${queryString ? '?' + queryString : ''}`;
+    function buildApiUrl(page=1){
+        const params=new URLSearchParams();
+        if(currentFilters.dosage_form) params.append('dosage_form', currentFilters.dosage_form);
+        if(currentFilters.search) params.append('search', currentFilters.search);
+        if(currentFilters.price__gte!==priceMin) params.append('price__gte', currentFilters.price__gte);
+        if(currentFilters.price__lte!==priceMax) params.append('price__lte', currentFilters.price__lte);
+        if(currentFilters.ordering) params.append('ordering', currentFilters.ordering);
+        params.append('page', page);
+        return `${PRODUCT_API_URL}?${params.toString()}`;
     }
 
-    // === Render Products ===
-    function renderProducts(products) {
-        if (!productsGrid) return;
-        productsGrid.innerHTML = '';
-        productsCountSpan.textContent = `(${products.length || 0} listings)`;
-
-        if (!products || products.length === 0) {
-            productsGrid.innerHTML = '<p class="error-message">No products found for the selected criteria.</p>';
-            return;
+    const searchInput = document.getElementById('search-input');
+        if(searchInput){
+            searchInput.addEventListener('input', (e)=>{
+                currentFilters.search = e.target.value.trim();
+                currentPage = 1;
+                hasNextPage = true;
+                fetchProducts();
+            });
         }
 
-        products.forEach(product => {
-            const imageContent = product.image 
-                ? `<img src="${product.image}" alt="${product.name} Image" class="product-real-image">`
-                : `<i class="fas ${dosageFormIcons[product.dosage_form_name] || dosageFormIcons['default']}"></i>`;
 
-            let reviewHtml = '';
-            if (product.reviews && product.reviews.length > 0) {
-                const totalReviews = product.reviews.length;
-                const sumRatings = product.reviews.reduce((sum, review) => sum + review.rating, 0);
-                const averageRating = (sumRatings / totalReviews).toFixed(1);
-                const starsHtml = '⭐️'.repeat(Math.round(averageRating));
-                reviewHtml = `
-                    <div class="product-reviews">
-                        <span class="average-rating">${averageRating} ${starsHtml}</span>
-                        <span class="review-count">(${totalReviews} reviews)</span>
+    function renderProducts(products, append=false){
+        if(!productsGrid) return;
+        if(!append) productsGrid.innerHTML='';
+        if(!products || products.length===0){ if(!append) productsGrid.innerHTML='<p>No products found.</p>'; return; }
+        products.forEach(p=>{
+            const imgContent=p.image ? `<img src="${p.image}" alt="${p.name}" class="product-real-image">` 
+            : `<i class="fas ${dosageFormIcons[p.dosage_form_name]||dosageFormIcons['default']}"></i>`;
+            const stockClass=p.stock_quantity>0?'':'out-of-stock';
+            const card=`<a href="/product/detail/${p.id}/" class="product-card-link">
+                <div class="product-card">
+                    <div class="product-image">${imgContent}</div>
+                    <div class="product-details">
+                        <div class="product-category">${p.dosage_form_name||''}</div>
+                        <h3 class="product-title">${p.name||''} ${p.strength||''}</h3>
+                        <div class="product-price">$${p.price||0}</div>
+                        <div class="product-meta"><span>Available: ${p.stock_quantity||0}+</span><span class="${stockClass}">${p.stock_quantity>0?'In Stock':'Out of Stock'}</span></div>
                     </div>
-                `;
-            }
-
-            const stockStatusText = product.stock_quantity > 0 ? 'In Stock' : 'Out of Stock';
-            const stockStatusClass = `product-stock${product.stock_quantity <= 0 ? ' out-of-stock' : ''}`;
-
-            const productCardHtml = `
-                <a href="/product/detail/${product.id}/" class="product-card-link">
-                    <div class="product-card">
-                        <div class="product-image">${imageContent}</div>
-                        <div class="product-details">
-                            <div class="product-category">${product.dosage_form_name || ''}</div>
-                            <h3 class="product-title">${product.name || ''} ${product.strength || ''}</h3>
-                            <div class="product-price">$${product.price || '0.00'}</div>
-                            ${reviewHtml}
-                            <div class="product-meta">
-                                <span>Available: ${product.stock_quantity || 0}+</span>
-                                <span class="${stockStatusClass}">${stockStatusText}</span>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-            `;
-            productsGrid.innerHTML += productCardHtml;
+                </div>
+            </a>`;
+            productsGrid.innerHTML+=card;
         });
     }
 
-    // === Fetch Products ===
-    async function fetchProducts() {
-        if (!productsGrid || !productsCountSpan) return;
+    async function fetchProducts(page=1, append=false){
+        if(isFetching || !hasNextPage) return;
+        isFetching=true;
+        if(!append){ productsGrid.innerHTML='<p>Loading products...</p>'; productsCountSpan.textContent='(loading...)'; }
+        else if(loader) loader.style.display='block';
 
-        productsGrid.innerHTML = '<p class="loading-message">Loading products...</p>';
-        productsCountSpan.textContent = '(loading...)';
-
-        try {
-            const url = buildApiUrl();
-            const response = await fetch(url);
-            if (!response.ok) throw new Error('Network response was not ok');
-
-            const products = await response.json();
-            renderProducts(products);
-        } catch (error) {
-            console.error('Error fetching products:', error);
-            productsGrid.innerHTML = '<p class="error-message">Failed to load products. Please try again later.</p>';
-            productsCountSpan.textContent = '(0 listings)';
-        }
+        try{
+            const res=await fetch(buildApiUrl(page));
+            if(!res.ok) throw new Error('Network error');
+            const data=await res.json();
+            renderProducts(data.results, append);
+            productsCountSpan.textContent=`(${data.count||0} listings)`;
+            hasNextPage=!!data.next; currentPage=page;
+        }catch(e){ console.error(e); }
+        finally{ isFetching=false; if(loader) loader.style.display='none'; }
     }
 
-    // === Fetch Dosage Forms and Create Chips ===
-    async function fetchDosageForms() {
-        if (!filterOptionsContainer) return;
+    window.addEventListener('scroll', ()=>{
+        if(window.innerHeight+window.scrollY>=document.body.offsetHeight-150){
+            if(!isFetching && hasNextPage) fetchProducts(currentPage+1,true);
+        }
+    });
 
-        try {
-            const response = await fetch(DOSAGE_API_URL);
-            if (!response.ok) throw new Error('Network response was not ok');
-
-            const dosageForms = await response.json();
-            const allFilterChip = document.querySelector('[data-filter-id=""]');
-            filterOptionsContainer.innerHTML = '';
-            if (allFilterChip) filterOptionsContainer.appendChild(allFilterChip);
-
-            dosageForms.forEach(form => {
-                const chip = document.createElement('div');
-                chip.className = 'filter-chip';
-                chip.textContent = form.name || '';
-                chip.setAttribute('data-filter-id', form.id);
-                chip.addEventListener('click', () => {
-                    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-                    chip.classList.add('active');
-                    currentFilters.dosage_form = form.id;
-                    fetchProducts();
+    async function fetchDosageForms(){
+        if(!filterOptionsContainer) return;
+        try{
+            const res=await fetch(DOSAGE_API_URL);
+            const data=await res.json();
+            const allChip=document.querySelector('[data-filter-id=""]');
+            filterOptionsContainer.innerHTML='';
+            if(allChip) filterOptionsContainer.appendChild(allChip);
+            data.forEach(f=>{
+                const chip=document.createElement('div');
+                chip.className='filter-chip'; chip.textContent=f.name||''; chip.dataset.filterId=f.id;
+                chip.addEventListener('click',()=>{
+                    document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
+                    chip.classList.add('active'); currentFilters.dosage_form=f.id; currentPage=1; hasNextPage=true; fetchProducts();
                 });
                 filterOptionsContainer.appendChild(chip);
             });
-        } catch (error) {
-            console.error('Error fetching dosage forms:', error);
-        }
+        }catch(e){ console.error(e); }
     }
 
-    // === Price Slider Logic ===
-    function updateSliderTrack() {
-        if (!sliderTrack || !minPriceSlider || !maxPriceSlider) return;
-
-        let minVal = parseInt(minPriceSlider.value || priceMin);
-        let maxVal = parseInt(maxPriceSlider.value || priceMax);
-        const minPercent = ((minVal - priceMin) / (priceMax - priceMin)) * 100;
-        const maxPercent = ((maxVal - priceMin) / (priceMax - priceMin)) * 100;
-        sliderTrack.style.left = minPercent + '%';
-        sliderTrack.style.width = (maxPercent - minPercent) + '%';
+    function updateSliderTrack(){
+        if(!sliderTrack || !minPriceSlider || !maxPriceSlider) return;
+        let minVal=parseInt(minPriceSlider.value||priceMin);
+        let maxVal=parseInt(maxPriceSlider.value||priceMax);
+        sliderTrack.style.left=((minVal-priceMin)/(priceMax-priceMin))*100+'%';
+        sliderTrack.style.width=(((maxVal-minVal)/(priceMax-priceMin))*100)+'%';
     }
 
-    function handleMinSlider() {
-        if (!minPriceSlider || !maxPriceSlider || !minPriceDisplay) return;
+    if(minPriceSlider) minPriceSlider.addEventListener('input',()=>{ let minVal=parseInt(minPriceSlider.value); let maxVal=parseInt(maxPriceSlider.value); if(minVal>maxVal) minPriceSlider.value=minVal=maxVal; minPriceDisplay.textContent=`$${minVal}`; updateSliderTrack(); });
+    if(maxPriceSlider) maxPriceSlider.addEventListener('input',()=>{ let maxVal=parseInt(maxPriceSlider.value); let minVal=parseInt(minPriceSlider.value); if(maxVal<minVal) maxPriceSlider.value=maxVal=minVal; maxPriceDisplay.textContent=`$${maxVal}`; updateSliderTrack(); });
 
-        let minVal = parseInt(minPriceSlider.value || priceMin);
-        const maxVal = parseInt(maxPriceSlider.value || priceMax);
-        if (minVal > maxVal) minPriceSlider.value = minVal = maxVal;
-        minPriceDisplay.textContent = `$${minVal}`;
-        updateSliderTrack();
-    }
+    if(applyPriceFilterButton) applyPriceFilterButton.addEventListener('click',()=>{ currentFilters.price__gte=minPriceSlider.value; currentFilters.price__lte=maxPriceSlider.value; currentPage=1; hasNextPage=true; fetchProducts(); });
+    if(sortSelect) sortSelect.addEventListener('change',(e)=>{ currentFilters.ordering=e.target.value; currentPage=1; hasNextPage=true; fetchProducts(); });
 
-    function handleMaxSlider() {
-        if (!minPriceSlider || !maxPriceSlider || !maxPriceDisplay) return;
+    const allChip=document.querySelector('[data-filter-id=""]');
+    if(allChip) allChip.addEventListener('click',e=>{ document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active')); e.target.classList.add('active'); currentFilters.dosage_form=''; currentPage=1; hasNextPage=true; fetchProducts(); });
 
-        let maxVal = parseInt(maxPriceSlider.value || priceMax);
-        const minVal = parseInt(minPriceSlider.value || priceMin);
-        if (maxVal < minVal) maxPriceSlider.value = maxVal = minVal;
-        maxPriceDisplay.textContent = `$${maxVal}`;
-        updateSliderTrack();
-    }
-
-    if (minPriceSlider) minPriceSlider.addEventListener('input', handleMinSlider);
-    if (maxPriceSlider) maxPriceSlider.addEventListener('input', handleMaxSlider);
-
-    // === Search Event ===
-    if (searchButton && searchInput) {
-        searchButton.addEventListener('click', () => {
-            currentFilters.search = searchInput.value || '';
-            fetchProducts();
-        });
-    }
-
-    // === All Filter Chip ===
-    const allChip = document.querySelector('[data-filter-id=""]');
-    if (allChip) {
-        allChip.addEventListener('click', (e) => {
-            document.querySelectorAll('.filter-chip').forEach(chip => chip.classList.remove('active'));
-            e.target.classList.add('active');
-            currentFilters.dosage_form = '';
-            fetchProducts();
-        });
-    }
-
-    // === Price Filter Button ===
-    if (applyPriceFilterButton) {
-        applyPriceFilterButton.addEventListener('click', () => {
-            currentFilters.price__gte = minPriceSlider ? minPriceSlider.value : priceMin;
-            currentFilters.price__lte = maxPriceSlider ? maxPriceSlider.value : priceMax;
-            fetchProducts();
-        });
-    }
-
-    // === Sort Select ===
-    if (sortSelect) {
-        sortSelect.addEventListener('change', (e) => {
-            currentFilters.ordering = e.target.value || 'price';
-            fetchProducts();
-        });
-    }
-
-    // === Initialize Page ===
-    window.addEventListener('load', async () => {
-        await fetchDosageForms();
-        await fetchProducts();
-        updateSliderTrack();
-    });
+    window.addEventListener('load',async()=>{ await fetchDosageForms(); await fetchProducts(); updateSliderTrack(); });
 </script>
 {% endblock script %}
+
+
    
