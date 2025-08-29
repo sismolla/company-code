@@ -127,7 +127,6 @@
     <div class="flex flex-wrap justify-center gap-4 mb-12">
         <button class="faq-category-button px-4 py-2 bg-blue-600 text-white rounded-full font-medium transition-colors duration-200" data-category="all">All Questions</button>
         <button class="faq-category-button px-4 py-2 bg-white border border-gray-300 rounded-full hover:bg-gray-50 transition-colors duration-200" data-category="ordering">Ordering Process</button>
-        <button class="faq-category-button px-4 py-2 bg-white border border-gray-300 rounded-full hover:bg-gray-50 transition-colors duration-200" data-category="prescriptions">Prescriptions</button>
         <button class="faq-category-button px-4 py-2 bg-white border border-gray-300 rounded-full hover:bg-gray-50 transition-colors duration-200" data-category="payments">Payments</button>
         <button class="faq-category-button px-4 py-2 bg-white border border-gray-300 rounded-full hover:bg-gray-50 transition-colors duration-200" data-category="delivery">Delivery</button>
         <button class="faq-category-button px-4 py-2 bg-white border border-gray-300 rounded-full hover:bg-gray-50 transition-colors duration-200" data-category="account">Account</button>
@@ -140,135 +139,122 @@
                 Ordering Process
             </h2>
 
+
+            <div class="faq-item-container bg-white rounded-xl shadow-sm p-6 active" data-category="ordering">
+                <div class="flex justify-between items-center cursor-pointer">
+                    <h3 class="faq-question text-lg font-semibold text-gray-900">Why should I place my order through Pharmagebeya instead of direct contact?</h3>
+                    <i class="faq-toggle fas fa-chevron-up text-gray-400 transition-transform duration-300"></i>
+                </div>
+                <div class="faq-answer" style="display: block;">
+                    <p class="text-gray-600">Each product listing displays its current stock status:</p>
+                    <ul class="list-disc pl-5 space-y-2 mt-2 text-gray-600">
+                        <li><span class="font-medium">First Come, First Served:</span> Once you place an order in the system, the wholesaler’s product is immediately marked as reserved under your name. This ensures that your order takes priority and must be fulfilled before any other requests made through direct contact or alternative channels.</li>
+
+                        <li><span class="font-medium">Direct Contact:</span> Orders placed through direct contact are not guaranteed. They remain subject to product availability and must receive explicit confirmation from the wholesaler before being considered valid.</li>
+                    </ul>
+                </div>
+            </div>
+
+
             <div class="space-y-4">
-                <div class="faq-item-container bg-white rounded-xl shadow-sm p-6" data-category="ordering">
+                <div class="faq-item-container bg-white rounded-xl shadow-sm p-6 active" data-category="ordering">
                     <div class="flex justify-between items-center cursor-pointer">
-                        <h3 class="faq-question text-lg font-semibold text-gray-900">How do I place an order with a supplier?</h3>
-                        <i class="faq-toggle fas fa-chevron-down text-gray-400 transition-transform duration-300"></i>
+                        <h3 class="faq-question text-lg font-semibold text-gray-900">How do I place an order with a wholesaler?</h3>
+                        <i class="faq-toggle fas fa-chevron-up text-gray-400 transition-transform duration-300"></i>
                     </div>
-                    <div class="faq-answer">
+                    <div class="faq-answer" style="display: block;">
                         <p class="text-gray-600 mt-2">To place an order, follow these simple steps:</p>
                         <ol class="list-decimal pl-5 space-y-2 mt-2 text-gray-600">
-                            <li>Browse the supplier's product catalog.</li>
-                            <li>Select the products and quantities you need.</li>
-                            <li>Go to the supplier page and click the add button to order.</li>
+                            <li>Browse the wholesaler's product catalog.</li>
+                            <li>Select the products and click the product. You will see the "View Wholesaler" button that will lead you to the product wholesaler page where you can place your order.</li>
+                            <li>then click the add button to order.</li>
                             <li>Review your order summary.</li>
                             <li>Upload any required prescription documents.</li>
                             <li>Submit your order request.</li>
+                            <li>then an email including your ordered product will be sent to you.</li>
+
                         </ol>
-                        <p class="text-gray-600 mt-3">The supplier will review your order and contact you to confirm the details and arrange for payment.</p>
+                        <p class="text-gray-600 mt-3">The wholesaler will review your order and contact you to confirm the details and arrange for payment.</p>
                     </div>
                 </div>
 
-                <div class="faq-item-container bg-white rounded-xl shadow-sm p-6" data-category="ordering">
+                <div class="faq-item-container bg-white rounded-xl shadow-sm p-6 active" data-category="ordering">
                     <div class="flex justify-between items-center cursor-pointer">
                         <h3 class="faq-question text-lg font-semibold text-gray-900">Can I modify or cancel my order after submission?</h3>
-                        <i class="faq-toggle fas fa-chevron-down text-gray-400 transition-transform duration-300"></i>
+                        <i class="faq-toggle fas fa-chevron-up text-gray-400 transition-transform duration-300"></i>
                     </div>
-                    <div class="faq-answer">
-                        <p class="text-gray-600">Order modifications or cancellations must be requested directly with the supplier. Please contact them immediately if you need to make changes. Once an order has been sent, it will be available for 7 consecutive days in the system. After this period, orders are no longer active.</p>
+                    <div class="faq-answer" style="display: block;">
+                        <p class="text-gray-600">Order modifications or cancellations must be requested directly with the wholesaler. Please contact them immediately if you need to make changes,. Once an order has been sent, it will be available for 7 consecutive days in the system. After this period, orders are no longer active.</p>
                         <div class="highlight-box p-4 mt-4 rounded-r-lg">
+                            <p class="text-sm font-medium"><i class="fas fa-info-circle text-blue-600 mr-2"></i>The wholesaler has the authority to either confirm or cancel the order, and once this occurs, an immediate email will be sent to you at your provided email address.</p>
+
                             <p class="text-sm font-medium"><i class="fas fa-info-circle text-blue-600 mr-2"></i> Most Wholesalers can accommodate changes if requested before order processing begins.</p>
                         </div>
                     </div>
                 </div>
 
-                <div class="faq-item-container bg-white rounded-xl shadow-sm p-6" data-category="ordering">
+                <div class="faq-item-container bg-white rounded-xl shadow-sm p-6 active" data-category="ordering">
                     <div class="flex justify-between items-center cursor-pointer">
                         <h3 class="faq-question text-lg font-semibold text-gray-900">How do I know if a product is in stock?</h3>
-                        <i class="faq-toggle fas fa-chevron-down text-gray-400 transition-transform duration-300"></i>
+                        <i class="faq-toggle fas fa-chevron-up text-gray-400 transition-transform duration-300"></i>
                     </div>
-                    <div class="faq-answer">
+                    <div class="faq-answer" style="display: block;">
                         <p class="text-gray-600">Each product listing displays its current stock status:</p>
                         <ul class="list-disc pl-5 space-y-2 mt-2 text-gray-600">
                             <li><span class="font-medium">Stock Quantity:</span> The available quantity in stock.</li>
                             <li><span class="font-medium">Out of Stock:</span> The product is currently unavailable or has been reserved by a customer on a first-come, first-served basis.</li>
                         </ul>
-                        <p class="text-gray-600 mt-3">For critical medications, we recommend contacting the supplier directly to confirm availability before placing your order.</p>
+                        <p class="text-gray-600 mt-3">For critical medications, we recommend contacting the wholesaler directly to confirm availability before placing your order.</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div id="prescriptions-section" class="faq-section mb-12" style="display: none;">
-            <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
-                <i class="fas fa-file-prescription text-blue-600 mr-3"></i>
-                Prescriptions
-            </h2>
-            <div class="space-y-4">
-                <div class="faq-item-container bg-white rounded-xl shadow-sm p-6" data-category="prescriptions">
-                    <div class="flex justify-between items-center cursor-pointer">
-                        <h3 class="faq-question text-lg font-semibold text-gray-900">Do I need to upload a prescription for every order?</h3>
-                        <i class="faq-toggle fas fa-chevron-down text-gray-400 transition-transform duration-300"></i>
-                    </div>
-                    <div class="faq-answer">
-                        <p class="text-gray-600">Prescriptions are required only for products classified as prescription medications. Our system will prompt you to upload the necessary document during the checkout process. This ensures compliance with all pharmaceutical regulations.</p>
-                    </div>
-                </div>
-                <div class="faq-item-container bg-white rounded-xl shadow-sm p-6" data-category="prescriptions">
-                    <div class="flex justify-between items-center cursor-pointer">
-                        <h3 class="faq-question text-lg font-semibold text-gray-900">What is a valid prescription?</h3>
-                        <i class="faq-toggle fas fa-chevron-down text-gray-400 transition-transform duration-300"></i>
-                    </div>
-                    <div class="faq-answer">
-                        <p class="text-gray-600">A valid prescription must be issued by a licensed medical professional and include the following:</p>
-                        <ul class="list-disc pl-5 space-y-2 mt-2 text-gray-600">
-                            <li>Patient's full name and address.</li>
-                            <li>Prescriber's full name, address, and license number.</li>
-                            <li>Date of issue.</li>
-                            <li>Name, strength, and quantity of the medication.</li>
-                            <li>Dosage Form.</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div id="payments-section" class="faq-section mb-12" style="display: none;">
+        <div id="payments-section" class="faq-section mb-12">
             <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
                 <i class="fas fa-credit-card text-blue-600 mr-3"></i>
                 Payments
             </h2>
             <div class="space-y-4">
-                <div class="faq-item-container bg-white rounded-xl shadow-sm p-6" data-category="payments">
+                <div class="faq-item-container bg-white rounded-xl shadow-sm p-6 active" data-category="payments">
                     <div class="flex justify-between items-center cursor-pointer">
                         <h3 class="faq-question text-lg font-semibold text-gray-900">What payment methods are accepted?</h3>
-                        <i class="faq-toggle fas fa-chevron-down text-gray-400 transition-transform duration-300"></i>
+                        <i class="faq-toggle fas fa-chevron-up text-gray-400 transition-transform duration-300"></i>
                     </div>
-                    <div class="faq-answer">
-                        <p class="text-gray-600">Payments are handled directly between the supplier and the customer. PharmacyConnect does not process or manage any payment gateways. We strongly recommend using secure and common payment methods.</p>
+                    <div class="faq-answer" style="display: block;">
+                        <p class="text-gray-600">Payments are handled directly between the wholesaler and the customer. PharmacyConnect does not process or manage any payment gateways. We strongly recommend using secure and common payment methods.</p>
                         <ul class="list-disc pl-5 space-y-2 mt-2 text-gray-600">
                             <li>Avoid unconventional payment methods.</li>
-                            <li>Always confirm payment details directly with the supplier before transferring funds.</li>
+                            <li>Always confirm payment details directly with the wholesaler before transferring funds.</li>
                             <li>We do not recommend making payments based solely on trust without verified contact information.</li>
                         </ul>
                     </div>
                 </div>
-                <div class="faq-item-container bg-white rounded-xl shadow-sm p-6" data-category="payments">
+                <div class="faq-item-container bg-white rounded-xl shadow-sm p-6 active" data-category="payments">
                     <div class="flex justify-between items-center cursor-pointer">
                         <h3 class="faq-question text-lg font-semibold text-gray-900">Is my payment information secure?</h3>
-                        <i class="faq-toggle fas fa-chevron-down text-gray-400 transition-transform duration-300"></i>
+                        <i class="faq-toggle fas fa-chevron-up text-gray-400 transition-transform duration-300"></i>
                     </div>
-                    <div class="faq-answer">
-                        <p class="text-gray-600">Since all payments are handled directly with the supplier, your payment security depends on the method and platform you use. We advise you to use established and reputable payment services and to verify the supplier's payment instructions carefully. PharmacyConnect does not store or have access to any of your financial information.</p>
+                    <div class="faq-answer" style="display: block;">
+                        <p class="text-gray-600">Since all payments are handled directly with the wholesaler, your payment security depends on the method and platform you use. We advise you to use established and reputable payment services and to verify the wholesaler's payment instructions carefully. PharmacyConnect does not store or have access to any of your financial information.</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div id="delivery-section" class="faq-section mb-12" style="display: none;">
+        <div id="delivery-section" class="faq-section mb-12">
             <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
                 <i class="fas fa-truck text-blue-600 mr-3"></i>
                 Delivery
             </h2>
 
             <div class="space-y-4">
-                <div class="faq-item-container bg-white rounded-xl shadow-sm p-6" data-category="delivery">
+                <div class="faq-item-container bg-white rounded-xl shadow-sm p-6 active" data-category="delivery">
                     <div class="flex justify-between items-center cursor-pointer">
                         <h3 class="faq-question text-lg font-semibold text-gray-900">What are the delivery options and timeframes?</h3>
-                        <i class="faq-toggle fas fa-chevron-down text-gray-400 transition-transform duration-300"></i>
+                        <i class="faq-toggle fas fa-chevron-up text-gray-400 transition-transform duration-300"></i>
                     </div>
-                    <div class="faq-answer">
+                    <div class="faq-answer" style="display: block;">
                         <p class="text-gray-600">Delivery options and timeframes are managed by the individual Wholesalers and you should contact them directly to confirm details. However, typical options may include:</p>
                         <table class="min-w-full mt-3 text-gray-600">
                             <thead class="bg-gray-100">
@@ -296,39 +282,39 @@
                     </div>
                 </div>
 
-                <div class="faq-item-container bg-white rounded-xl shadow-sm p-6" data-category="delivery">
+                <div class="faq-item-container bg-white rounded-xl shadow-sm p-6 active" data-category="delivery">
                     <div class="flex justify-between items-center cursor-pointer">
                         <h3 class="faq-question text-lg font-semibold text-gray-900">How can I track my order?</h3>
-                        <i class="faq-toggle fas fa-chevron-down text-gray-400 transition-transform duration-300"></i>
+                        <i class="faq-toggle fas fa-chevron-up text-gray-400 transition-transform duration-300"></i>
                     </div>
-                    <div class="faq-answer">
-                        <p class="text-gray-600">Once your order has been confirmed and shipped by the supplier, they will provide you with available information.</p>
+                    <div class="faq-answer" style="display: block;">
+                        <p class="text-gray-600">Once your order has been confirmed and shipped by the wholesaler, they will provide you with available information.</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div id="account-section" class="faq-section mb-12" style="display: none;">
+        <div id="account-section" class="faq-section mb-12">
             <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
                 <i class="fas fa-user-circle text-blue-600 mr-3"></i>
                 Account
             </h2>
             <div class="space-y-4">
-                <div class="faq-item-container bg-white rounded-xl shadow-sm p-6" data-category="account">
+                <div class="faq-item-container bg-white rounded-xl shadow-sm p-6 active" data-category="account">
                     <div class="flex justify-between items-center cursor-pointer">
                         <h3 class="faq-question text-lg font-semibold text-gray-900">How do I create an account?</h3>
-                        <i class="faq-toggle fas fa-chevron-down text-gray-400 transition-transform duration-300"></i>
+                        <i class="faq-toggle fas fa-chevron-up text-gray-400 transition-transform duration-300"></i>
                     </div>
-                    <div class="faq-answer">
+                    <div class="faq-answer" style="display: block;">
                         <p class="text-gray-600">To create an account, click the "Join" button on the top right corner of the homepage. You will need to provide your business information and complete a verification process to ensure you are a licensed healthcare professional or a pharmacy business. This process helps us maintain a secure and professional community.</p>
                     </div>
                 </div>
-                <div class="faq-item-container bg-white rounded-xl shadow-sm p-6" data-category="account">
+                <div class="faq-item-container bg-white rounded-xl shadow-sm p-6 active" data-category="account">
                     <div class="flex justify-between items-center cursor-pointer">
                         <h3 class="faq-question text-lg font-semibold text-gray-900">I forgot my password. How can I reset it?</h3>
-                        <i class="faq-toggle fas fa-chevron-down text-gray-400 transition-transform duration-300"></i>
+                        <i class="faq-toggle fas fa-chevron-up text-gray-400 transition-transform duration-300"></i>
                     </div>
-                    <div class="faq-answer">
+                    <div class="faq-answer" style="display: block;">
                         <p class="text-gray-600">On the login page, click on "Forgot Password?". Enter the email address associated with your account, and we will send you an email with instructions on how to reset your password. If you don't receive the email, please check your spam or junk folder.</p>
                     </div>
                 </div>
@@ -363,94 +349,129 @@
 {% endblock content %}
 {% block script %}
 <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const faqItems = document.querySelectorAll('.faq-item-container');
-            const categoryButtons = document.querySelectorAll('.faq-category-button');
-            const searchInput = document.getElementById('faq-search-input');
-            const faqSections = document.querySelectorAll('.faq-section');
+    document.addEventListener('DOMContentLoaded', function() {
+        const faqItems = document.querySelectorAll('.faq-item-container');
+        const categoryButtons = document.querySelectorAll('.faq-category-button');
+        const searchInput = document.getElementById('faq-search-input');
+        const faqSections = document.querySelectorAll('.faq-section');
 
-            // FAQ toggle functionality
-            faqItems.forEach(item => {
-                const questionDiv = item.querySelector('.flex.justify-between');
-                questionDiv.addEventListener('click', function() {
-                    const isActive = item.classList.contains('active');
+        // Initial setup for the chevron icons on page load
+        faqItems.forEach(item => {
+            const toggleIcon = item.querySelector('.faq-toggle');
+            if (item.classList.contains('active')) {
+                toggleIcon.classList.remove('fa-chevron-down');
+                toggleIcon.classList.add('fa-chevron-up');
+            }
+        });
 
-                    // Close all other open FAQ items
-                    faqItems.forEach(otherItem => {
-                        if (otherItem.classList.contains('active')) {
-                            otherItem.classList.remove('active');
-                        }
-                    });
+        // FAQ toggle functionality
+        faqItems.forEach(item => {
+            const questionDiv = item.querySelector('.flex.justify-between');
+            questionDiv.addEventListener('click', function() {
+                const isActive = item.classList.contains('active');
+                const answerDiv = item.querySelector('.faq-answer');
+                const toggleIcon = item.querySelector('.faq-toggle');
 
-                    // Toggle current item only if it wasn't already active
-                    if (!isActive) {
-                        item.classList.add('active');
-                    }
-                });
+                if (isActive) {
+                    item.classList.remove('active');
+                    answerDiv.style.display = 'none';
+                    toggleIcon.classList.remove('fa-chevron-up');
+                    toggleIcon.classList.add('fa-chevron-down');
+                } else {
+                    item.classList.add('active');
+                    answerDiv.style.display = 'block';
+                    toggleIcon.classList.remove('fa-chevron-down');
+                    toggleIcon.classList.add('fa-chevron-up');
+                }
             });
+        });
 
-            // FAQ category filter functionality
-            categoryButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const category = this.dataset.category;
+        // FAQ category filter functionality
+        categoryButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const category = this.dataset.category;
 
-                    // Update button styling
-                    categoryButtons.forEach(btn => {
-                        btn.classList.remove('bg-blue-600', 'text-white');
-                        btn.classList.add('bg-white', 'border', 'border-gray-300', 'hover:bg-gray-50');
-                    });
-                    this.classList.remove('bg-white', 'border', 'border-gray-300', 'hover:bg-gray-50');
-                    this.classList.add('bg-blue-600', 'text-white');
-
-                    // Filter and display FAQ sections/items
-                    faqSections.forEach(section => {
-                        section.style.display = 'none';
-                    });
-
-                    if (category === 'all') {
-                        faqSections.forEach(section => {
-                            section.style.display = 'block';
-                        });
-                    } else {
-                        const targetSection = document.getElementById(category + '-section');
-                        if (targetSection) {
-                            targetSection.style.display = 'block';
-                        }
-                    }
-
-                    // Reset search input
-                    searchInput.value = '';
-                });
-            });
-
-            // FAQ search functionality
-            searchInput.addEventListener('input', function() {
-                const searchTerm = this.value.toLowerCase().trim();
-
-                // Deselect all category buttons
+                // Update button styling
                 categoryButtons.forEach(btn => {
                     btn.classList.remove('bg-blue-600', 'text-white');
                     btn.classList.add('bg-white', 'border', 'border-gray-300', 'hover:bg-gray-50');
                 });
+                this.classList.remove('bg-white', 'border', 'border-gray-300', 'hover:bg-gray-50');
+                this.classList.add('bg-blue-600', 'text-white');
 
-                // Show all sections for searching
+                // Filter and display FAQ sections/items
                 faqSections.forEach(section => {
-                    section.style.display = 'block';
+                    section.style.display = 'none';
                 });
 
-                faqItems.forEach(item => {
-                    const question = item.querySelector('.faq-question').textContent.toLowerCase();
-                    const answer = item.querySelector('.faq-answer').textContent.toLowerCase();
-                    const matchesSearch = question.includes(searchTerm) || answer.includes(searchTerm);
+                if (category === 'all') {
+                    faqSections.forEach(section => {
+                        section.style.display = 'block';
+                    });
+                } else {
+                    const targetSection = document.getElementById(category + '-section');
+                    if (targetSection) {
+                        targetSection.style.display = 'block';
+                    }
+                }
 
-                    // Toggle visibility based on search term
-                    if (searchTerm === '' || matchesSearch) {
+                // Reset search input and open all items in the selected category
+                searchInput.value = '';
+                faqItems.forEach(item => {
+                    const answerDiv = item.querySelector('.faq-answer');
+                    const toggleIcon = item.querySelector('.faq-toggle');
+                    if (category === 'all' || item.dataset.category === category) {
                         item.style.display = 'block';
+                        item.classList.add('active');
+                        answerDiv.style.display = 'block';
+                        toggleIcon.classList.remove('fa-chevron-down');
+                        toggleIcon.classList.add('fa-chevron-up');
                     } else {
                         item.style.display = 'none';
+                        item.classList.remove('active');
+                        answerDiv.style.display = 'none';
+                        toggleIcon.classList.remove('fa-chevron-up');
+                        toggleIcon.classList.add('fa-chevron-down');
                     }
                 });
             });
         });
-    </script>
+
+        // FAQ search functionality
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase().trim();
+
+            // Deselect all category buttons
+            categoryButtons.forEach(btn => {
+                btn.classList.remove('bg-blue-600', 'text-white');
+                btn.classList.add('bg-white', 'border', 'border-gray-300', 'hover:bg-gray-50');
+            });
+            document.querySelector('.faq-category-button[data-category="all"]').classList.add('bg-blue-600', 'text-white');
+            document.querySelector('.faq-category-button[data-category="all"]').classList.remove('bg-white', 'border', 'border-gray-300', 'hover:bg-gray-50');
+
+
+            // Show all sections for searching
+            faqSections.forEach(section => {
+                section.style.display = 'block';
+            });
+
+            faqItems.forEach(item => {
+                const question = item.querySelector('.faq-question').textContent.toLowerCase();
+                const answer = item.querySelector('.faq-answer').textContent.toLowerCase();
+                const matchesSearch = question.includes(searchTerm) || answer.includes(searchTerm);
+
+                // Toggle visibility based on search term and open the matching items
+                if (searchTerm === '' || matchesSearch) {
+                    item.style.display = 'block';
+                    item.classList.add('active');
+                    item.querySelector('.faq-answer').style.display = 'block';
+                    item.querySelector('.faq-toggle').classList.remove('fa-chevron-down');
+                    item.querySelector('.faq-toggle').classList.add('fa-chevron-up');
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+    });
+</script>
 {%endblock script%}

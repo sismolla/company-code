@@ -33,6 +33,14 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',  # default
 ]
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+    }
+}
+
+
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend',
@@ -125,7 +133,7 @@ DATABASES = {
 #     }
 # }
     
-
+LOGIN_REDIRECT_URL = '/dashboard'
 if not DEBUG:
 
     SECURE_HSTS_SECONDS = 31536000  # 1 year in seconds

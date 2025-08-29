@@ -778,13 +778,16 @@ function toggleBulkUploadDetails() {
                 const errorData = await response.json().catch(() => ({}));
                 throw new Error(errorData.detail || 'Network response was not ok');
             }
-            const products = await response.json();
+            
+            // Correctly access the 'results' array from the JSON object
+            const data = await response.json();
+            const products = data.results; 
             
             // Clear any existing content to prevent duplicates on refresh
             productTableBody.innerHTML = '';
             mobileProductCards.innerHTML = '';
             
-            // Iterate through each product and render it
+            // Now 'products' is an array, and .forEach() will work
             products.forEach(product => {
                 const tableRow = createProductTableRow(product, products);
                 productTableBody.appendChild(tableRow);
@@ -1370,7 +1373,7 @@ function toggleBulkUploadDetails() {
             <div class="product-details">
                 <div><strong>Price:</strong> $${product.price}</div>
                 <div><strong>Stock:</strong> <span class="stock-status ${getStockStatusClass(product.stock_quantity)}">
-                    ${getStockStatusText(product.stock_quantity)}
+                    ${product.stock_quantity}
                 </span></div>
                 <div><strong>Exp. Date:</strong> ${new Date(product.expire_date).toLocaleDateString()}</div>
                 <div>
@@ -1406,12 +1409,6 @@ function toggleBulkUploadDetails() {
         return card;
     }
     
-    // Helper function to determine stock status text
-    function getStockStatusText(stock) {
-        if (stock > 50) return 'In Stock';
-        if (stock > 0) return 'Low Stock';
-        return 'Out of Stock';
-    }
 
     // Helper function to determine stock status CSS class
     function getStockStatusClass(stock) {

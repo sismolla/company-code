@@ -1,5 +1,6 @@
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse_lazy
 from django.views import View
 from rest_framework.permissions import AllowAny
 from rest_framework import generics
@@ -88,12 +89,26 @@ class ReviewCreateAPIView(generics.CreateAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     
-    def get(self,request):
-        message = 'You just got a new review!!'
-        user = self.request.user
-        Notification.objects.create(recipient=user,
-                                    message= message
-                                    )
+    def perform_create(self, serializer):
+        review = serializer.save()
+
+        # Get the product's supplier
+        product_supplier = review.product.supplier  
+
+        # Customize the notification message
+        message = (
+            f"🎉 New Review Alert! \n\n"
+            f"Product: {review.product.name}\n"
+            f"Reviewer: {review.reviewer_name}\n"
+            f"Rating: {review.rating}⭐\n"
+            f"Comment: {review.comment}"
+        )
+
+        # Create notification for the supplier
+        Notification.objects.create(
+            recipient=product_supplier.user,  # Assuming Supplier model has a OneToOneField to User
+            message=message
+        )
 
 class ProductDetailAPIView(generics.RetrieveAPIView):
     queryset = Product.objects.all()
@@ -144,6 +159,8 @@ class ChatThreadCreateAPIView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(user_1=self.request.user)
+
+    
 
 class ChatThreadListAPIView(generics.ListAPIView):
     serializer_class = ChatThreadSerializer
@@ -258,6 +275,15 @@ class SupplierSignupAPIView(generics.CreateAPIView):
         return response
 
 class UserLoginAPIView(APIView):
+    def get_success_url(self):
+        # 1. Respect `next` parameter if it exists
+        next_url = self.get_redirect_url()
+        print('this is the next url', next_url)
+        if next_url:
+            return next_url
+        # 2. Otherwise go to messages page
+        return reverse_lazy("landing:message-view")
+    
     def post(self, request):
         email = request.data.get('email')
         password = request.data.get('password')

@@ -632,7 +632,6 @@
 
 {% block script %}
 <script>
-    
     // === DOM Elements ===
     const conversationList = document.getElementById('conversationList');
     const conversationsSidebar = document.getElementById('conversationsSidebar');
@@ -647,8 +646,8 @@
     const sendBtn = document.getElementById('sendBtn');
     const logoElement = document.getElementById('messagePartnerLogo');
 
-    // Current logged-in user
-    const currentUser = '{{ request.user.username }}'; 
+    // Current logged-in user (Make sure this is passed correctly from your Django template)
+    const currentUser = '{{ request.user.username }}';
     let allThreads = [];
     let activeThreadId = null;
 
@@ -664,7 +663,9 @@
             const response = await fetch('/threads/');
             if (!response.ok) throw new Error('Failed to fetch threads');
 
-            const threads = await response.json();
+            const threadsData = await response.json();
+            const threads = threadsData.results; // Correctly access the results array
+
             allThreads = threads.map(thread => {
                 const unreadCount = thread.messages.filter(msg => msg.sender !== currentUser && !msg.is_read).length;
                 return { ...thread, unreadCount };
@@ -674,8 +675,8 @@
 
             // Auto-load first thread on large screens
             if (window.innerWidth > 768 && allThreads.length > 0) {
-                const threadToDisplay = activeThreadId 
-                    ? allThreads.find(t => t.id === activeThreadId) 
+                const threadToDisplay = activeThreadId
+                    ? allThreads.find(t => t.id === activeThreadId)
                     : allThreads[0];
                 if (threadToDisplay) {
                     displayMessages(threadToDisplay);
@@ -695,7 +696,7 @@
         if (!timestamp) return '';
         const date = new Date(timestamp);
         const now = new Date();
-        const diffDays = Math.floor((now - date) / (1000*60*60*24));
+        const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
 
         if (diffDays === 0) return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         if (diffDays === 1) return 'Yesterday';
@@ -706,7 +707,7 @@
     function formatLastSeen(date) {
         if (!date) return 'Offline';
         const now = new Date();
-        const diffMins = Math.floor((now - date) / (1000*60));
+        const diffMins = Math.floor((now - date) / (1000 * 60));
         if (diffMins < 1) return 'just now';
         if (diffMins < 60) return `${diffMins} min ago`;
         const diffHours = Math.floor(diffMins / 60);
@@ -769,7 +770,7 @@
         messagePartnerName.textContent = partner;
 
         const lastActivity = thread.partner_last_activity ? new Date(thread.partner_last_activity) : null;
-        let statusText = lastActivity && (new Date() - lastActivity <= 5*60*1000) ? 'Active now' : formatLastSeen(lastActivity);
+        let statusText = lastActivity && (new Date() - lastActivity <= 5 * 60 * 1000) ? 'Active now' : formatLastSeen(lastActivity);
         messagePartnerStatus.textContent = statusText;
 
         if (logoElement) {
@@ -815,7 +816,6 @@
         messageContent.scrollTop = messageContent.scrollHeight; // keep scroll at bottom
     });
 
-// === Scroll to bottom after sending ===
     async function sendMessage() {
         if (!messageInput || !activeThreadId) return;
         const text = messageInput.value.trim();
@@ -834,6 +834,7 @@
             messageInput.value = '';
             messageInput.style.height = "auto";
 
+            // Refetch all threads to get the latest messages and updated unread counts
             await fetchThreads();
             const updated = allThreads.find(t => t.id === activeThreadId);
             if (updated) {
@@ -852,32 +853,41 @@
 
 
     // === Mark Messages as Read ===
-    async function markMessagesAsRead(threadId){
-        try{
-            await fetch(`/thread/${threadId}/mark-as-read/`, {method:'POST', headers:{'X-CSRFToken':getCsrfToken(),'Content-Type':'application/json'}});
-        } catch(err){ console.error('Mark as read failed:', err); }
+    async function markMessagesAsRead(threadId) {
+        try {
+            const response = await fetch(`/thread/${threadId}/mark-as-read/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCsrfToken(),
+                    'Content-Type': 'application/json'
+                }
+            });
+            if (!response.ok) {
+                 throw new Error('Failed to mark as read');
+            }
+            // Once messages are marked as read, you can refetch or update the UI.
+            // A simple refetch is fine here to ensure consistency.
+            fetchThreads();
+
+        } catch (err) {
+            console.error('Mark as read failed:', err);
+        }
     }
 
     // === Event Listeners ===
     document.addEventListener('DOMContentLoaded', function() {
         // Search functionality
         searchInput?.addEventListener('input', performSearch);
-        
+
         // Send message functionality
         sendBtn?.addEventListener('click', sendMessage);
         messageInput?.addEventListener('keydown', e => {
-            if(e.key === 'Enter' && !e.shiftKey) {
+            if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 sendMessage();
             }
         });
-        
-        // Auto-resize textarea
-        messageInput?.addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = (this.scrollHeight) + 'px';
-        });
-        
+
         // Conversation click
         conversationList?.addEventListener('click', e => {
             const item = e.target.closest('.conversation-item');
@@ -888,19 +898,22 @@
 
             const threadId = parseInt(item.dataset.threadId);
             const thread = allThreads.find(t => t.id === threadId);
-            if(!thread) return;
+            if (!thread) return;
 
-            thread.unreadCount = 0;
-            displayConversationList(allThreads);
+            // Display messages first
             displayMessages(thread);
+            // Then, mark the messages as read on the server
             markMessagesAsRead(threadId);
+            // And update the UI locally to remove the badge immediately
+            const unreadBadge = item.querySelector('.unread-badge');
+            if(unreadBadge) unreadBadge.style.display = 'none';
 
-            if(window.innerWidth <= 768){
+            if (window.innerWidth <= 768) {
                 conversationsSidebar.classList.add('hidden');
                 messageArea.classList.add('active');
             }
         });
-        
+
         // Back button
         backBtn?.addEventListener('click', () => {
             conversationsSidebar.classList.remove('hidden');
@@ -908,7 +921,7 @@
             document.querySelectorAll('.conversation-item').forEach(el => el.classList.remove('active'));
             activeThreadId = null;
         });
-        
+
         // Keyboard navigation for conversations
         conversationList?.addEventListener('keydown', e => {
             if (e.key === 'Enter' || e.key === ' ') {
@@ -916,23 +929,23 @@
                 e.preventDefault();
             }
         });
-        
+
         // Initial load
         fetchThreads();
     });
 
     window.addEventListener('resize', () => {
-        if(window.innerWidth > 768){
+        if (window.innerWidth > 768) {
             conversationsSidebar.classList.remove('hidden');
             messageArea.classList.add('active');
         } else {
             const activeItem = document.querySelector('.conversation-item.active');
-            if(activeItem){ 
-                conversationsSidebar.classList.add('hidden'); 
-                messageArea.classList.add('active'); 
-            } else { 
-                conversationsSidebar.classList.remove('hidden'); 
-                messageArea.classList.remove('active'); 
+            if (activeItem) {
+                conversationsSidebar.classList.add('hidden');
+                messageArea.classList.add('active');
+            } else {
+                conversationsSidebar.classList.remove('hidden');
+                messageArea.classList.remove('active');
             }
         }
     });

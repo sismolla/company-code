@@ -617,8 +617,16 @@
                     const result = await response.json();
                     console.log('Login Success:', result);
                     showMessageBox(result.message || 'Login successful!', 'success');
-                    // Redirect to dashboard or home page after successful login
-                    window.location.href = '{%url "landing:dashboard"%}';
+
+                    // Check for "next" param in URL
+                    const params = new URLSearchParams(window.location.search);
+                    const nextUrl = params.get("next");
+
+                    if (nextUrl) {
+                        window.location.href = nextUrl;
+                    } else {
+                        window.location.href = '{% url "landing:dashboard" %}';
+                    }
                 } else {
                     const errorData = await response.json();
                     console.error('Login Error:', errorData);

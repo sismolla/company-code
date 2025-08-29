@@ -82,8 +82,17 @@
                                 <td style="padding: 12px 15px;">{{product.stock_quantity}}</td>
                                 <td style="padding: 12px 15px;">${{product.price}}</td>
                                 <td style="padding: 12px 15px;">
-                                    <span style="background: #e8f5e9; color: #2ecc71; padding: 5px 10px; border-radius: 20px; font-size: 0.8rem;">In Stock</span>
-                                </td>
+                                {% if product.stock_quantity > 0 %}
+                                    <span style="background: #e8f5e9; color: #2ecc71; padding: 5px 10px; border-radius: 20px; font-size: 0.8rem;">
+                                        In Stock
+                                    </span>
+                                {% else %}
+                                    <span style="background: #fdecea; color: #e74c3c; padding: 5px 10px; border-radius: 20px; font-size: 0.8rem;">
+                                        Out of Stock
+                                    </span>
+                                {% endif %}
+                            </td>
+
                             </tr>
                             {%endfor%}
                         {% else %}
