@@ -149,7 +149,6 @@ if not DEBUG:
 
 
 
-
 # Password validation MvKl1O3ilxZhfnz7
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 

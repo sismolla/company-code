@@ -10,261 +10,533 @@
     <meta name="description" content="Pharma ገበያ is Ethiopia’s trusted pharmacy wholesale marketplace. We connect verified wholesalers with pharmacies and bulk buyers for affordable, reliable medical supplies." />
     {% endblock meta %}
 
-    <title>Pharma ገበያ | {% block title %}        
-        Ethiopia’s Pharmacy Wholesale Marketplace
-        
-        {% endblock title %}</title>
+    <title>Pharma ገበያ | {% block title %} Ethiopia’s Pharmacy Wholesale Marketplace {% endblock title %}</title>
     
-     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="{%static 'style.css'%}">
-    <!-- Google Font: Inter -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
+        /* CSS Variables for consistent styling */
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2980b9;
+            --text-color: #212529;
+            --gray-text: #6c757d;
+            --light-gray: #e9ecef;
+            --white-color: #fff;
+            --shadow-light: 0 4px 10px rgba(52, 152, 219, 0.3);
+            --shadow-dropdown: 0 8px 24px rgba(0, 0, 0, 0.1);
+            --transition-timing: 0.3s ease;
+        }
 
-            /* Mobile menu styles */
-    @media (max-width: 767px) {
-        .nav-links-container {
-            position: fixed;
-            top: 0;
-            right: -300px;
-            width: 280px;
-            height: 100vh;
-            background-color: white;
-            flex-direction: column;
-            padding: 5rem 2rem 2rem;
-            box-shadow: -5px 0 25px rgba(0, 0, 0, 0.15);
-            transition: right 0.4s ease;
-            z-index: 1000;
-            overflow-y: auto;
+        /* Navbar & General Layout */
+        .navbar {
             display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background-color: var(--white-color);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            flex-wrap: wrap;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .logo img {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            object-fit: cover;
+            transition: transform var(--transition-timing);
+        }
+        
+        .logo:hover img {
+            transform: scale(1.05);
+        }
+
+        .logo span {
+            margin-left: 10px;
+            font-weight: bold;
+            font-size: 1.2em;
+            color: var(--text-color);
+        }
+        
+        .search-bar {
+            display: flex;
+            align-items: center;
+            width: 400px;
+            max-width: 100%;
+            border: 1px solid var(--light-gray);
+            border-radius: 30px;
+            overflow: hidden;
+            transition: box-shadow var(--transition-timing);
+        }
+        
+        .search-bar:focus-within {
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        
+        .search-bar input {
+            border: none;
+            outline: none;
+            padding: 0.75rem 1.5rem;
+            flex-grow: 1;
+            font-size: 1rem;
+        }
+        
+        .search-bar button {
+            background-color: var(--primary-color);
+            border: none;
+            color: var(--white-color);
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            transition: background-color var(--transition-timing);
+        }
+        
+        .search-bar button:hover {
+            background-color: var(--secondary-color);
+        }
+
+        /* Nav Links */
+        .nav-links-container {
+            display: flex;
+            align-items: center;
             gap: 1.5rem;
         }
         
-        .nav-links-container.active {
-            right: 0;
+        .nav-link {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+            padding: 8px 0;
+            position: relative;
+            transition: all var(--transition-timing);
         }
         
-        /* Overlay when menu is open */
-        .nav-overlay {
+        .nav-link span:first-child {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .nav-link span:last-child {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background: var(--primary-color);
+            transition: width var(--transition-timing);
+        }
+        
+        .nav-link:hover {
+            color: var(--secondary-color);
+        }
+        
+        .nav-link:hover span:last-child {
+            width: 100%;
+        }
+
+        /* Join Button */
+        .btn-join {
+            padding: 10px 22px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: var(--white-color);
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: 600;
+            transition: all var(--transition-timing);
+            box-shadow: var(--shadow-light);
+        }
+
+        .btn-join:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        /* Dropdown */
+        .user-dropdown-container {
+            position: relative;
+        }
+
+        .user-avatar {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background-color: #f0f0f0;
+            border: 2px solid #ddd;
+            transition: border-color var(--transition-timing);
+        }
+        
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .user-avatar i {
+            color: var(--gray-text);
+            font-size: 1.2rem;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 110%;
+            right: 0;
+            min-width: 250px;
+            background-color: var(--white-color);
+            border-radius: 8px;
+            box-shadow: var(--shadow-dropdown);
+            list-style-type: none;
+            padding: 1rem;
+            margin: 0;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: opacity var(--transition-timing), transform var(--transition-timing);
+        }
+        
+        .dropdown-menu.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        .dropdown-menu a {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: #495057;
+            text-decoration: none;
+            font-weight: 500;
+            border-radius: 6px;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        .dropdown-menu a:hover {
+            background-color: #f8f9fa;
+            color: var(--primary-color);
+        }
+        
+        .dropdown-menu .user-info {
+            padding: 0.5rem 1rem;
+            border-bottom: 1px solid #e9ecef;
+            margin-bottom: 0.5rem;
+        }
+
+        .dropdown-menu .user-info h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #212529;
+            margin: 0;
+        }
+        
+        .dropdown-menu .user-info p {
+            font-size: 0.9rem;
+            color: var(--gray-text);
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .dropdown-menu hr {
+            border: none;
+            border-bottom: 1px solid var(--light-gray);
+            margin: 0.5rem 0;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background-color: #f8f9fa;
+            color: #555;
+            padding: 8px 20px;
+            font-size: 0.9em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e9ecef;
+            flex-wrap: wrap;
+        }
+
+        .contact-info, .social-links {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .contact-info a, .social-links a {
+            color: #555;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            transition: color var(--transition-timing);
+        }
+
+        .contact-info a:hover, .social-links a:hover {
+            color: var(--primary-color);
+        }
+        
+        .contact-info i {
+            margin-right: 5px;
+        }
+        
+        /* Hamburger & Mobile Menu */
+        .hamburger-menu {
+            display: none; /* Hidden on desktop */
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 1001;
+            color: var(--primary-color);
+            transition: all var(--transition-timing);
+            position: relative;
+        }
+
+        /* Hide hamburger and show close icon when active */
+        .hamburger-menu.active .fa-bars {
+            display: none;
+        }
+        
+        .hamburger-menu.active .fa-times {
+            display: inline-block;
+        }
+        
+        .hamburger-menu .fa-times {
+            display: none; /* Hide close icon by default */
+        }
+
+        /* Loader */
+        #custom-loader {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-            z-index: 999;
-        }
-        
-        .nav-overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
-        
-        /* Hamburger button animation when menu is active */
-        .hamburger-menu.active {
-            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%) !important;
-        }
-        
-        .hamburger-menu.active .fa-bars {
-            opacity: 0;
-            transform: rotate(180deg);
-        }
-        
-        .hamburger-menu.active .fa-times {
-            opacity: 1 !important;
-            transform: rotate(0deg) !important;
-        }
-    }
-    
-    /* Hide hamburger on larger screens */
-    @media (min-width: 768px) {
-        .hamburger-menu {
-            display: none !important;
-        }
-    }
-        /* --- Base Styles for the Logo Container --- */
-        .navbar .logo {
-            display: flex; /* Use Flexbox for easy alignment */
-            align-items: center; /* Vertically centers the logo image and text */
-            gap: 10px; /* Creates space between the image and the text */
-            text-decoration: none; /* Removes the underline from the link */
-            color: #2c3e50; /* A dark, professional color for the text */
-            font-size: 1.2rem; /* Sets a base font size */
-            font-weight: 600; /* Makes the text bold */
-            transition: transform 0.3s ease; /* Adds a smooth hover effect */
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            font-family: 'Arial', sans-serif;
         }
 
-        .navbar .logo:hover {
-            transform: scale(1.05); /* Slightly scales up the logo on hover for a subtle effect */
+        .loader-circle {
+            width: 120px;
+            height: 120px;
+            border: 6px solid #e0e0e0;
+            border-top: 6px solid var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: spin 1.5s linear infinite;
         }
 
-        /* --- Styles for the Logo Image --- */
-        .navbar .logo img {
-            height: 100px; /* Sets a fixed height for the logo */
-            width: auto; /* Maintains the original aspect ratio */
-            display: block; /* Removes any default bottom margin on the image */
+        .loader-text {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            animation: pulse 1.5s ease-in-out infinite;
         }
 
-        /* --- Styles for the Logo Text --- */
-        .navbar .logo span {
-            white-space: nowrap; /* Prevents the text from wrapping to a new line */
-            transition: opacity 0.3s ease; /* Smooth transition for when the text is hidden */
+        .loader-subtitle {
+            margin-top: 20px;
+            font-size: 1rem;
+            color: #444;
+            animation: fadeIn 2s ease-in-out infinite alternate;
         }
 
-        /* --- Responsive Styles for Smaller Screens --- */
-        @media (max-width: 768px) {
-            .navbar .logo {
-                gap: 0; /* Removes the space between the logo image and text */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); color: var(--primary-color); }
+            50% { transform: scale(1.2); color: #2ecc71; }
+            100% { transform: scale(1); color: var(--primary-color); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0.4; }
+            to { opacity: 1; }
+        }
+        
+        /* Footer */
+        .footer-section h4 {
+            font-weight: 600;
+        }
+        
+        .footer-section .social-icons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .footer-section .social-icons a {
+            color: #cbd5e1;
+            transition: color var(--transition-timing);
+            font-size: 1.25rem;
+        }
+
+        .footer-section .social-icons a:hover {
+            color: var(--primary-color);
+        }
+
+        /* Media Queries for Responsiveness */
+        @media (max-width: 992px) {
+            .navbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .search-bar {
+                width: 100%;
+                margin-top: 1rem;
+                order: 3;
+            }
+        
+            .nav-links-container {
+                display: none;
+                flex-direction: column;
+                align-items: center;
+                width: 100%;
+                gap: 1rem;
+                margin-top: 1rem;
+            }
+            
+            .nav-links-container.active {
+                display: flex;
             }
 
-            .navbar .logo img {
-                height: 100px; /* Slightly shrinks the logo on smaller screens */
+            .user-dropdown-container {
+                width: 100%;
+                text-align: center;
+                margin-top: 1rem;
+            }
+            
+            .dropdown-menu {
+                position: static;
+                top: auto;
+                right: auto;
+                width: 100%;
+                box-shadow: none;
+                border-radius: 0;
+                padding: 0;
+                margin-top: 0.5rem;
+                opacity: 1;
+                visibility: visible;
+                transform: none;
             }
         }
+        
+        @media (max-width: 767px) {
+            .navbar {
+                padding: 1rem;
+                align-items: center;
+                flex-direction: row;
+                flex-wrap: nowrap;
+            }
 
-        .footer-links a,
-        .footer-section a {
-            color: #64748b;
-            margin-right: 1.5rem;
-            transition: color 0.2s;
+            .search-bar {
+                display: none;
+            }
+            
+            .hamburger-menu {
+                display: block;
+                margin-left: auto; /* Pushes the hamburger to the right */
+            }
+
+            .nav-links-container {
+                position: fixed;
+                top: 0;
+                right: -300px;
+                width: 280px;
+                height: 100vh;
+                background-color: var(--white-color);
+                flex-direction: column;
+                padding: 5rem 2rem 2rem;
+                box-shadow: -5px 0 25px rgba(0, 0, 0, 0.15);
+                transition: right 0.4s ease;
+                z-index: 1000;
+                overflow-y: auto;
+                gap: 1.5rem;
+                display: flex; /* Keep this as flex for the column layout */
+            }
+            
+            .nav-links-container.active {
+                right: 0;
+            }
+            
+            .nav-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.3s ease;
+                z-index: 999;
+            }
+            
+            .nav-overlay.active {
+                opacity: 1;
+                visibility: visible;
+            }
+            
+            .user-dropdown-container {
+                width: 100%;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .user-avatar {
+                margin: 0 auto 1rem;
+            }
         }
+        
+        @media (max-width: 576px) {
+            .top-bar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+                text-align: left;
+            }
 
-        .footer-links a:hover,
-        .footer-section a:hover {
-            color: #3b82f6;
+            .contact-info {
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .social-links {
+                justify-content: flex-start;
+            }
         }
-        .top-bar {
-    background-color: #f8f9fa;
-    color: #555;
-    padding: 8px 20px;
-    font-size: 0.9em;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid #e9ecef;
-    flex-wrap: wrap; /* allows wrapping on small screens */
-}
-
-.contact-info,
-.social-links {
-    display: flex;
-    gap: 15px;
-    flex-wrap: wrap;
-}
-
-/* Loader container */
-#custom-loader {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: #ffffff;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-    font-family: 'Arial', sans-serif;
-}
-
-/* Animated circle */
-.loader-circle {
-    width: 120px;
-    height: 120px;
-    border: 6px solid #e0e0e0;
-    border-top: 6px solid #3498db;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    animation: spin 1.5s linear infinite;
-}
-
-/* Letters inside */
-.loader-text {
-    font-size: 2rem;
-    font-weight: bold;
-    color: #3498db;
-    animation: pulse 1.5s ease-in-out infinite;
-}
-
-/* Subtitle */
-.loader-subtitle {
-    margin-top: 20px;
-    font-size: 1rem;
-    color: #444;
-    animation: fadeIn 2s ease-in-out infinite alternate;
-}
-
-/* Animations */
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-@keyframes pulse {
-    0% { transform: scale(1); color: #3498db; }
-    50% { transform: scale(1.2); color: #2ecc71; }
-    100% { transform: scale(1); color: #3498db; }
-}
-
-@keyframes fadeIn {
-    from { opacity: 0.4; }
-    to { opacity: 1; }
-}
-
-
-.contact-info a,
-.social-links a {
-    color: #555;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    transition: color 0.3s ease;
-}
-
-.contact-info i {
-    margin-right: 5px;
-}
-
-/* Hover effect */
-.contact-info a:hover,
-.social-links a:hover {
-    color: #007bff;
-}
-
-/* Responsive styles */
-@media (max-width: 768px) {
-    .top-bar {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
-        text-align: left;
-    }
-
-    .contact-info {
-        flex-direction: column;
-        gap: 5px;
-    }
-
-    .social-links {
-        justify-content: flex-start;
-    }
-}
     </style>
     {% block style %}{% endblock style %}
 </head>
 <body>
 
-<!-- Custom Loader -->
 <div id="custom-loader">
     <div class="loader-circle">
         <span class="loader-text">Pገ</span>
@@ -272,179 +544,193 @@
     <p class="loader-subtitle">Pharma ገበያ is loading...</p>
 </div>
 
-<!-- App container (hidden until load finishes) -->
 <div id="app" style="display:none;">
 
     <div class="top-bar">
-    <div class="contact-info">
-        <a href="mailto:info@pharmagebeya.com">
-            <i class="fas fa-envelope"></i>
-            <span>info@pharmagebeya.com</span>
-        </a>
-        <a href="tel:+251912345678">
-            <i class="fas fa-phone-alt"></i>
-            <span>+251 978 539 445</span>
-        </a>
-    </div>
-    <div class="social-links">
-        <a href="https://web.facebook.com/share/g/1F7Qi6wXsg/" target="_blank"><i class="fab fa-facebook-f"></i></a>
-        <a href="https://t.me/+l1QESCr3BpM3MTNk" target="_blank"><i class="fab fa-telegram"></i></a>
-        <a href="https://www.linkedin.com/company/pharma-%E1%8C%88%E1%89%A0%E1%8B%AB/" target="_blank"><i class="fab fa-linkedin-in"></i></a>
-    </div>
-</div>
-<header>
-    <nav class="navbar">
-    <a href="/" class="logo" style="display: flex; align-items: center; text-decoration: none;">
-        <img src="{%static 'logo.svg'%}" alt="Pharma Gebeya Logo" style="width: 70px; height: 70px; border-radius: 50%; object-fit: cover;">
-        <span style="margin-left: 10px; font-weight: bold; font-size: 1.2em; color: #000;">Pharma ገበያ</span>
-    </a>
-
-        <div class="search-bar">
-            <input type="text" placeholder="Search medicine name..." id="search-input">
-            <button id="search-button"><i class="fas fa-search"></i></button>
+        <div class="contact-info">
+            <a href="mailto:info@pharmagebeya.com">
+                <i class="fas fa-envelope"></i>
+                <span>info@pharmagebeya.com</span>
+            </a>
+            <a href="tel:+251978539445">
+                <i class="fas fa-phone-alt"></i>
+                <span>+251 978 539 445</span>
+            </a>
         </div>
+        <div class="social-links">
+            <a href="https://web.facebook.com/share/g/1F7Qi6wXsg/" target="_blank"><i class="fab fa-facebook-f"></i></a>
+            <a href="https://t.me/+l1QESCr3BpM3MTNk" target="_blank"><i class="fab fa-telegram"></i></a>
+            <a href="https://www.linkedin.com/company/pharma-%E1%8C%88%E1%89%A0%E1%8B%AB/" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+        </div>
+    </div>
+    <header>
+        <nav class="navbar">
+            <a href="/" class="logo">
+                <img src="{%static 'logo.svg'%}" alt="Pharma Gebeya Logo">
+                <span>Pharma ገበያ</span>
+            </a>
 
-        <button class="hamburger-menu" id="hamburger-menu">
-            <i class="fas fa-bars"></i>
-        </button>
-    <div class="nav-links-container" id="nav-links-container">
-                <a href="/aboutus" style="color: #3498db; text-decoration: none; font-weight: 600; padding: 8px 0; position: relative; transition: all 0.3s ease;">
-                    <span style="position: relative; z-index: 1;">About us</span>
-                    <span style="position: absolute; bottom: 0; left: 0; width: 0; height: 3px; background: #3498db; transition: width 0.3s ease;"></span>
+            <div class="search-bar">
+                <input type="text" placeholder="Search medicine name..." id="search-input">
+                <button id="search-button"><i class="fas fa-search"></i></button>
+            </div>
+
+            <button class="hamburger-menu" id="hamburger-menu">
+                <i class="fas fa-bars"></i>
+                <i class="fas fa-times"></i>
+            </button>
+
+            <div class="nav-links-container" id="nav-links-container">
+                <a href="/aboutus" class="nav-link">
+                    <span>About us</span>
+                    <span class="underline"></span>
                 </a>
-                <a href="/contactus" style="color: #3498db; text-decoration: none; font-weight: 600; padding: 8px 0; position: relative; transition: all 0.3s ease;">
-                    <span style="position: relative; z-index: 1;">Contact us</span>
-                    <span style="position: absolute; bottom: 0; left: 0; width: 0; height: 3px; background: #3498db; transition: width 0.3s ease;"></span>
+                <a href="/contactus" class="nav-link">
+                    <span>Contact us</span>
+                    <span class="underline"></span>
                 </a>
-                <a href="http://127.0.0.1:8000/list" style="color: #3498db; text-decoration: none; font-weight: 600; padding: 8px 0; position: relative; transition: all 0.3s ease;">
-                    <span style="position: relative; z-index: 1;">Wholesalers</span>
-                    <span style="position: absolute; bottom: 0; left: 0; width: 0; height: 3px; background: #3498db; transition: width 0.3s ease;"></span>
+                <a href="http://127.0.0.1:8000/list" class="nav-link">
+                    <span>Wholesalers</span>
+                    <span class="underline"></span>
                 </a>
-                <a href="http://127.0.0.1:8000/faq/" style="color: #3498db; text-decoration: none; font-weight: 600; padding: 8px 0; position: relative; transition: all 0.3s ease;">
-                    <span style="position: relative; z-index: 1;">FAQ</span>
-                    <span style="position: absolute; bottom: 0; left: 0; width: 0; height: 3px; background: #3498db; transition: width 0.3s ease;"></span>
+                <a href="http://127.0.0.1:8000/faq/" class="nav-link">
+                    <span>FAQ</span>
+                    <span class="underline"></span>
                 </a>
 
-                <!-- User section -->
                 {% if user.is_authenticated %}
-                <div style="display: flex; align-items: center; gap: 15px; margin-left: 10px;">
-                    <a href="{% url 'landing:dashboard' %}" style="display: flex; align-items: center; justify-content: center; height: 45px; width: 45px; border-radius: 50%; background-color: #f8f9fa; color: #3498db; text-decoration: none; transition: all 0.3s ease; border: 2px solid #e9ecef;">
-                        <i class="fas fa-user" style="font-size: 18px;"></i>
-                    </a>
-
-                    {%else%}
-                    <a href="{% url 'landing:user-signup' %}" style="padding: 10px 22px; background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: white; text-decoration: none; border-radius: 30px; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);">
-                        Join
-                    </a>
+                <div class="user-dropdown-container">
+                    <div class="user-avatar" id="avatarBtn">
+                        {% if logo %}
+                            <img src="{{ logo.url }}" alt="Wholesaler Logo">
+                        {% else %}
+                            <i class="fas fa-user"></i>
+                        {% endif %}
+                    </div>
+                    <ul class="dropdown-menu" id="dropdownMenu">
+                        <li class="user-info">
+                            <h3>Welcome back,</h3>
+                            <p>{{ request.user.username }}</p>
+                        </li>
+                        <hr>
+                        <li><a href="{% url 'landing:dashboard' %}" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
+                        <li><a href="{% url 'landing:user-products' %}"><i class="fas fa-shopping-cart"></i> My Products</a></li>
+                        <li><a href="{% url 'landing:order-view' %}"><i class="fas fa-clipboard-list"></i> Manage Orders</a></li>
+                        <li><a href="{% url 'landing:message-view' %}"><i class="fas fa-comments"></i> Messages</a></li>
+                        <li><a href="{% url 'landing:profile' %}" ><i class="fas fa-cog"></i> Account Settings</a></li>
+                        <li><a href="{% url 'landing:help' %}"><i class="fas fa-question-circle"></i> Help Center</a></li>
+                        <li><a href="{% url 'landing:logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                    </ul>
                 </div>
-                {%endif%}
+                {% else %}
+                <a href="{% url 'landing:user-signup' %}" class="btn-join">Join</a>
+                {% endif %}
             </div>
-    </nav>
-</header>
+        </nav>
+    </header>
 
-{% block content %}
+    {% block content %}
+    {% endblock content %}
 
-{% endblock content %}
-
-<footer class="bg-gray-900 text-white py-12">
-    <div class="container mx-auto px-4">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-                <h3 class="text-xl font-bold mb-4">Pharma ገበያ</h3>
-                <p class="text-gray-400">Connecting healthcare providers with trusted pharmaceutical Wholesalers In Ethiopia.</p>
-            </div>
-            <div>
-                <h4 class="font-semibold mb-4">Quick Links</h4>
-                <ul class="space-y-2">
-                    <li><a href="/pharmacy" class="text-gray-400 hover:text-white">Home</a></li>
-                    <li><a href="/aboutus" class="text-gray-400 hover:text-white">About us</a></li>
-                    <li><a href="/contactus" class="text-gray-400 hover:text-white">contact us</a></li>
-                    <li><a href="/list" class="text-gray-400 hover:text-white">Wholesalers</a></li>
-                    <li><a href="/dashboard" class="text-gray-400 hover:text-white">My Account</a></li>
-                    <li><a href="/orders/view/" class="text-gray-400 hover:text-white">Order History</a></li>
-                </ul>
-            </div>
-            <div>
-                <h4 class="font-semibold mb-4">Resources</h4>
-                <ul class="space-y-2">
-
-                    <li><a href="/faq" class="text-gray-400 hover:text-white">FAQs</a></li>
-                    <li><a href="/terms" class="text-gray-400 hover:text-white">Terms and services</a></li>
-                    <li><a href="/privacy" class="text-gray-400 hover:text-white">Privacy Policy</a></li>
-                </ul>
-            </div>
-            <div>
-                <h4 class="font-semibold mb-4">Contact Us</h4>
-                <ul class="space-y-2">
-                    <li class="flex items-center text-gray-400"><i class="fas fa-phone-alt mr-3"></i> +251978539445</li>
-                    <li class="flex items-center text-gray-400"><i class="fas fa-envelope mr-3"></i> msisay967@gmail.com</li>
-                </ul>
-            </div>
-
-            <div class="footer-section">
-                <h4>Stay Connected</h4>
-                <div class="social-icons">
-                    <a href="https://web.facebook.com/share/g/1F7Qi6wXsg/" target="_blank"><i class="fab fa-facebook-f"></i></a>
-                    <a href="https://t.me/+l1QESCr3BpM3MTNk" target="_blank"><i class="fab fa-telegram"></i></a>
-                    <a href="https://www.linkedin.com/company/pharma-%E1%8C%88%E1%89%A0%E1%8B%AB/" target="_blank"><i class="fab fa-linkedin-in"></i></a>
-
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Pharma ገበያ</h3>
+                    <p class="text-gray-400">Connecting healthcare providers with trusted pharmaceutical Wholesalers In Ethiopia.</p>
                 </div>
-                <p class="mt-2">Join our Pages for updates.</p>
+                <div>
+                    <h4 class="font-semibold mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="/pharmacy" class="text-gray-400 hover:text-white">Home</a></li>
+                        <li><a href="/aboutus" class="text-gray-400 hover:text-white">About us</a></li>
+                        <li><a href="/contactus" class="text-gray-400 hover:text-white">contact us</a></li>
+                        <li><a href="/list" class="text-gray-400 hover:text-white">Wholesalers</a></li>
+                        <li><a href="/dashboard" class="text-gray-400 hover:text-white">My Account</a></li>
+                        <li><a href="/orders/view/" class="text-gray-400 hover:text-white">Order History</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Resources</h4>
+                    <ul class="space-y-2">
+                        <li><a href="/faq" class="text-gray-400 hover:text-white">FAQs</a></li>
+                        <li><a href="/terms" class="text-gray-400 hover:text-white">Terms and services</a></li>
+                        <li><a href="/privacy" class="text-gray-400 hover:text-white">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Contact Us</h4>
+                    <ul class="space-y-2">
+                        <li class="flex items-center text-gray-400"><i class="fas fa-phone-alt mr-3"></i> +251978539445</li>
+                        <li class="flex items-center text-gray-400"><i class="fas fa-envelope mr-3"></i> msisay967@gmail.com</li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Stay Connected</h4>
+                    <div class="social-icons">
+                        <a href="https://web.facebook.com/share/g/1F7Qi6wXsg/" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                        <a href="https://t.me/+l1QESCr3BpM3MTNk" target="_blank"><i class="fab fa-telegram"></i></a>
+                        <a href="https://www.linkedin.com/company/pharma-%E1%8C%88%E1%89%A0%E1%8B%AB/" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                    <p class="mt-2">Join our Pages for updates.</p>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>© 2023 Pharma ገበያ. All rights reserved.</p>
             </div>
         </div>
-        <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>© 2023 Pharma ገበያ. All rights reserved.</p>
-        </div>
-    </div>
-</footer>
+    </footer>
 </div>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const hamburgerMenu = document.getElementById('hamburger-menu');
         const navLinksContainer = document.getElementById('nav-links-container');
+        const avatarBtn = document.getElementById('avatarBtn');
+        const dropdownMenu = document.getElementById('dropdownMenu');
         
-        // Create overlay element
+        // Create and append overlay element for mobile menu
         const navOverlay = document.createElement('div');
         navOverlay.className = 'nav-overlay';
         document.body.appendChild(navOverlay);
         
-        // Toggle menu function
-        function toggleMenu() {
-            hamburgerMenu.classList.toggle('active');
+        // Toggle mobile menu and overlay
+        function toggleMobileMenu() {
             navLinksContainer.classList.toggle('active');
             navOverlay.classList.toggle('active');
+            hamburgerMenu.classList.toggle('active'); // Toggle hamburger/close icon
             document.body.style.overflow = navLinksContainer.classList.contains('active') ? 'hidden' : '';
         }
         
-        // Add event listeners
-        hamburgerMenu.addEventListener('click', toggleMenu);
-        navOverlay.addEventListener('click', toggleMenu);
+        if (hamburgerMenu) {
+            hamburgerMenu.addEventListener('click', toggleMobileMenu);
+            navOverlay.addEventListener('click', toggleMobileMenu);
+        }
         
-        // Close menu when a link is clicked
-        document.querySelectorAll('.nav-links-container a').forEach(link => {
-            link.addEventListener('click', () => {
-                hamburgerMenu.classList.remove('active');
-                navLinksContainer.classList.remove('active');
-                navOverlay.classList.remove('active');
-                document.body.style.overflow = '';
+        // Toggle user dropdown
+        if (avatarBtn) {
+            avatarBtn.addEventListener('click', function(event) {
+                event.stopPropagation();
+                dropdownMenu.classList.toggle('show');
             });
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            if (dropdownMenu && !dropdownMenu.contains(event.target) && !avatarBtn.contains(event.target)) {
+                dropdownMenu.classList.remove('show');
+            }
         });
+
+        // Hide loader when the page is fully loaded
+        window.onload = function() {
+            document.getElementById("custom-loader").style.display = "none";
+            document.getElementById("app").style.display = "block";
+        };
     });
 </script>
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-    // Hide loader when everything is ready
-    window.onload = () => {
-        document.getElementById("custom-loader").style.display = "none";
-        document.getElementById("app").style.display = "block";
-    };
-});
-</script>
-
 
 {% block script %}
-
 {% endblock script %}
 
 </body>

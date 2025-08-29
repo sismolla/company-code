@@ -473,7 +473,6 @@ body {
     font-size: 16px;
     font-weight: 500;
     color: white; /* Or your desired text color */
-    background-color: #2a7fba; /* Or your desired button color */
     border-radius: 8px; /* Rounded corners */
     text-decoration: none; /* Removes the underline */
     transition: background-color 0.2s ease-in-out;

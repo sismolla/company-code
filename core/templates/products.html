@@ -7,509 +7,677 @@
 {% block style %}
     <style>
         :root {
-            --primary-color: #4361ee;
-            --secondary-color: #3f37c9;
-            --success-color: #4cc9f0;
-            --warning-color: #f72585;
-            --light-color: #f8f9fa;
-            --dark-color: #212529;
-            --gray-color: #6c757d;
-            --light-gray: #e9ecef;
-            --border-radius: 8px;
-            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            --transition: all 0.3s ease;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f5f7fb;
-            color: #333;
-            line-height: 1.6;
-        }
-
-        .products-main {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 1.5rem;
-        }
-
-        .products-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .products-title {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--dark-color);
-        }
-
-        .products-actions {
-            display: flex;
-            gap: 1rem;
-        }
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1.5rem;
-            border-radius: var(--border-radius);
-            font-weight: 500;
-            cursor: pointer;
-            transition: var(--transition);
-            border: none;
-            outline: none;
-            font-size: 0.9rem;
-        }
-
-        .btn-primary {
-            background-color: var(--primary-color);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background-color: var(--secondary-color);
-            transform: translateY(-2px);
-        }
-
-        .btn-secondary {
-            background-color: white;
-            color: var(--primary-color);
-            border: 1px solid var(--primary-color);
-        }
-
-        .btn-secondary:hover {
-            background-color: var(--light-color);
-        }
-
-        .btn-danger {
-            background-color: var(--warning-color);
-            color: white;
-        }
-
-        .btn-danger:hover {
-            opacity: 0.9;
-        }
-
-        .bulk-upload-docs {
-            background-color: #fff8f8;
-            border-left: 4px solid #ff6b6b;
-            padding: 1.5rem;
-            border-radius: var(--border-radius);
-            margin-bottom: 2rem;
-            box-shadow: var(--box-shadow);
-        }
-
-        .bulk-upload-docs h3 {
-            color: #d63031;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .bulk-upload-details {
-            margin-top: 1.5rem;
-        }
-
-        .bulk-upload-details h4 {
-            margin: 1rem 0 0.5rem;
-            color: var(--dark-color);
-        }
-
-        .bulk-upload-details table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 1rem 0;
-        }
-
-        .bulk-upload-details th, 
-        .bulk-upload-details td {
-            padding: 0.75rem;
-            text-align: left;
-            border-bottom: 1px solid var(--light-gray);
-        }
-
-        .bulk-upload-details th {
-            background-color: var(--light-color);
-            font-weight: 600;
-        }
-
-        .bulk-upload-details ul {
-            padding-left: 1.5rem;
-            margin: 0.5rem 0;
-        }
-
-        .toggle-details-btn {
-            background: none;
-            border: none;
-            color: var(--primary-color);
-            cursor: pointer;
-            font-weight: 500;
-            margin-top: 1rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .highlight {
-            background-color: #fff3cd;
-            padding: 0.2rem 0.4rem;
-            border-radius: 4px;
-            font-weight: 500;
-        }
-
-        .products-table {
-            width: 100%;
-            border-collapse: collapse;
-            background-color: white;
-            border-radius: var(--border-radius);
-            overflow: hidden;
-            box-shadow: var(--box-shadow);
-            display: table;
-        }
-
-        .products-table th {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 1rem;
-            text-align: left;
-            font-weight: 600;
-        }
-
-        .products-table td {
-            padding: 1rem;
-            border-bottom: 1px solid var(--light-gray);
-        }
-
-        .products-table tr:last-child td {
-            border-bottom: none;
-        }
-
-        .products-table tr:hover {
-            background-color: #f8f9fa;
-        }
-
-        .product-info {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .product-image {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: var(--light-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--primary-color);
-        }
-
-        .product-name {
-            font-weight: 500;
-        }
-
-        .product-category {
-            font-size: 0.8rem;
-            color: var(--gray-color);
-        }
-
-        .stock-status {
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-
-        .in-stock {
-            background-color: #e8f5e9;
-            color: #2e7d32;
-        }
-
-        .low-stock {
-            background-color: #fff3e0;
-            color: #ef6c00;
-        }
-
-        .out-of-stock {
-            background-color: #ffebee;
-            color: #c62828;
-        }
-
-        .action-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 1rem;
-            color: var(--gray-color);
-            padding: 0.5rem;
-            border-radius: 4px;
-            transition: var(--transition);
-        }
-
-        .action-btn:hover {
-            background-color: var(--light-color);
-            color: var(--primary-color);
-        }
-
-        .review-link {
-            background: none;
-            border: none;
-            color: var(--primary-color);
-            cursor: pointer;
-            text-decoration: underline;
-            font-weight: 500;
-        }
-
-        .mobile-products {
-            display: none;
-        }
-
-        .product-card {
-            background-color: white;
-            border-radius: var(--border-radius);
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            box-shadow: var(--box-shadow);
-        }
-
-        .product-card-header {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .product-details {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.75rem;
-            margin-bottom: 1rem;
-        }
-
-        .product-card-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 0.5rem;
-        }
-
-        .btn-outline {
-            background: none;
-            border: 1px solid var(--light-gray);
-            color: var(--gray-color);
-            padding: 0.5rem;
-            border-radius: 4px;
-        }
-
-        .btn-outline:hover {
-            background-color: var(--light-color);
-        }
-
-        /* Modal Styles */
-        .modal-backdrop {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            padding: 1rem;
-        }
-
-        .modal-content {
-            background-color: white;
-            border-radius: var(--border-radius);
-            width: 100%;
-            max-width: 600px;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: var(--box-shadow);
-        }
-
-        .modal-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid var(--light-gray);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-        }
-
-        .close-modal-btn {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: var(--gray-color);
-        }
-
-        .modal-body {
-            padding: 1.5rem;
-        }
-
-        .product-form {
-            display: grid;
-            gap: 1rem;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .form-group label {
-            font-weight: 500;
-        }
-
-        .form-group input,
-        .form-group select {
-            padding: 0.75rem;
-            border: 1px solid var(--light-gray);
-            border-radius: 4px;
-            font-family: inherit;
-        }
-
-        .form-hint {
-            font-size: 0.8rem;
-            color: var(--gray-color);
-        }
-
-        .form-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-
-        .product-details-view {
-            display: grid;
-            gap: 1rem;
-        }
-
-        .detail-item {
-            display: flex;
-            gap: 1rem;
-        }
-
-        .detail-item strong {
-            min-width: 120px;
-        }
-
-        .product-image-container {
-            text-align: center;
-            margin-bottom: 1rem;
-        }
-
-        .product-image-container img {
-            max-width: 100%;
-            max-height: 200px;
-            border-radius: var(--border-radius);
-        }
-
-        /* Message Box */
-        .message-box {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 1rem 1.5rem;
-            border-radius: var(--border-radius);
-            color: white;
-            font-weight: 500;
-            z-index: 1100;
-            box-shadow: var(--box-shadow);
-            opacity: 1;
-            transition: opacity 0.3s ease;
-        }
-
-        .message-box.success {
-            background-color: #4caf50;
-        }
-
-        .message-box.error {
-            background-color: #f44336;
-        }
-
-        .message-box.info {
-            background-color: #2196f3;
-        }
-
-        .message-box.fade-out {
-            opacity: 0;
-        }
-
-        /* Responsive Styles */
-        @media (max-width: 992px) {
-            .products-table {
-                display: none;
-            }
-
-            .mobile-products {
-                display: block;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .products-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .products-actions {
-                width: 100%;
-                flex-wrap: wrap;
-            }
-
-            .product-details {
-                grid-template-columns: 1fr;
-            }
-
-            .bulk-upload-details table {
-                display: block;
-                overflow-x: auto;
-            }
-        }
-
-        @media (max-width: 576px) {
-            .products-main {
-                padding: 0 1rem;
-            }
-
-            .modal-content {
-                margin: 1rem;
-                width: calc(100% - 2rem);
-            }
-
-            .form-actions {
-                flex-direction: column;
-            }
-
-            .btn {
-                width: 100%;
-                justify-content: center;
-            }
-        }
+    --primary-color: #4361ee;
+    --secondary-color: #3f37c9;
+    --success-color: #4cc9f0;
+    --warning-color: #f72585;
+    --light-color: #f8f9fa;
+    --dark-color: #212529;
+    --gray-color: #6c757d;
+    --light-gray: #e9ecef;
+    --border-radius: 8px;
+    --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s ease;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f5f7fb;
+    color: #333;
+    line-height: 1.6;
+}
+
+.products-main {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1.5rem;
+}
+
+.products-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.products-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--dark-color);
+}
+
+.products-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--border-radius);
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    border: none;
+    outline: none;
+    font-size: 0.9rem;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: var(--secondary-color);
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background-color: white;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+}
+
+.btn-secondary:hover {
+    background-color: var(--light-color);
+}
+
+.btn-danger {
+    background-color: var(--warning-color);
+    color: white;
+}
+
+.btn-danger:hover {
+    opacity: 0.9;
+}
+
+/* Filter Section Styles */
+.filter-section {
+    background-color: white;
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--box-shadow);
+}
+
+.filter-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    cursor: pointer;
+}
+
+.filter-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--dark-color);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.filter-content {
+    display: grid;
+    /* This makes the filter groups wrap dynamically */
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.filter-group label {
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: var(--dark-color);
+}
+
+.filter-input,
+.filter-select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--light-gray);
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    background-color: white;
+}
+
+.filter-actions {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-end;
+    flex-wrap: wrap; /* Allows buttons to wrap on smaller screens */
+}
+
+.filter-toggle,
+.filter-reset {
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    cursor: pointer;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.filter-reset {
+    color: var(--gray-color);
+}
+
+.filter-reset:hover {
+    color: var(--primary-color);
+}
+
+.search-box {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.search-input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 3rem;
+    border: 1px solid var(--light-gray);
+    border-radius: var(--border-radius);
+    font-family: inherit;
+    font-size: 1rem;
+}
+
+.search-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--gray-color);
+}
+
+.results-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    background-color: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+}
+
+.results-count {
+    font-weight: 500;
+    color: var(--dark-color);
+}
+
+.sort-select {
+    padding: 0.5rem;
+    border: 1px solid var(--light-gray);
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 0.9rem;
+}
+
+.bulk-upload-docs {
+    background-color: #fff8f8;
+    border-left: 4px solid #ff6b6b;
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    margin-bottom: 2rem;
+    box-shadow: var(--box-shadow);
+}
+
+.bulk-upload-docs h3 {
+    color: #d63031;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.bulk-upload-details {
+    margin-top: 1.5rem;
+}
+
+.bulk-upload-details h4 {
+    margin: 1rem 0 0.5rem;
+    color: var(--dark-color);
+}
+
+.bulk-upload-details table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+}
+
+.bulk-upload-details th,
+.bulk-upload-details td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid var(--light-gray);
+}
+
+.bulk-upload-details th {
+    background-color: var(--light-color);
+    font-weight: 600;
+}
+
+.bulk-upload-details ul {
+    padding-left: 1.5rem;
+    margin: 0.5rem 0;
+}
+
+.toggle-details-btn {
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    cursor: pointer;
+    font-weight: 500;
+    margin-top: 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.highlight {
+    background-color: #fff3cd;
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.products-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: var(--box-shadow);
+    display: table;
+}
+
+.products-table th {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+}
+
+.products-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--light-gray);
+}
+
+.products-table tr:last-child td {
+    border-bottom: none;
+}
+
+.products-table tr:hover {
+    background-color: #f8f9fa;
+}
+
+.product-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.product-image {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--light-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-color);
+}
+
+.product-name {
+    font-weight: 500;
+}
+
+.product-category {
+    font-size: 0.8rem;
+    color: var(--gray-color);
+}
+
+.stock-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.in-stock {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+.low-stock {
+    background-color: #fff3e0;
+    color: #ef6c00;
+}
+
+.out-of-stock {
+    background-color: #ffebee;
+    color: #c62828;
+}
+
+.action-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    color: var(--gray-color);
+    padding: 0.5rem;
+    border-radius: 4px;
+    transition: var(--transition);
+}
+
+.action-btn:hover {
+    background-color: var(--light-color);
+    color: var(--primary-color);
+}
+
+.review-link {
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    cursor: pointer;
+    text-decoration: underline;
+    font-weight: 500;
+}
+
+.mobile-products {
+    display: none;
+}
+
+.product-card {
+    background-color: white;
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: var(--box-shadow);
+}
+
+.product-card-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.product-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.product-card-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+.btn-outline {
+    background: none;
+    border: 1px solid var(--light-gray);
+    color: var(--gray-color);
+    padding: 0.5rem;
+    border-radius: 4px;
+}
+
+.btn-outline:hover {
+    background-color: var(--light-color);
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+    gap: 0.5rem;
+}
+
+.pagination-btn {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--light-gray);
+    border-radius: 4px;
+    background-color: white;
+    color: var(--dark-color);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.pagination-btn:hover {
+    background-color: var(--light-color);
+}
+
+.pagination-btn.active {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+/* Modal Styles */
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 1rem;
+}
+
+.modal-content {
+    background-color: white;
+    border-radius: var(--border-radius);
+    width: 100%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: var(--box-shadow);
+}
+
+.modal-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--light-gray);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.close-modal-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--gray-color);
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.product-form {
+    display: grid;
+    gap: 1rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    font-weight: 500;
+}
+
+.form-group input,
+.form-group select {
+    padding: 0.75rem;
+    border: 1px solid var(--light-gray);
+    border-radius: 4px;
+    font-family: inherit;
+}
+
+.form-hint {
+    font-size: 0.8rem;
+    color: var(--gray-color);
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.product-details-view {
+    display: grid;
+    gap: 1rem;
+}
+
+.detail-item {
+    display: flex;
+    gap: 1rem;
+}
+
+.detail-item strong {
+    min-width: 120px;
+}
+
+.product-image-container {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.product-image-container img {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: var(--border-radius);
+}
+
+/* Message Box */
+.message-box {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 1rem 1.5rem;
+    border-radius: var(--border-radius);
+    color: white;
+    font-weight: 500;
+    z-index: 1100;
+    box-shadow: var(--box-shadow);
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.message-box.success {
+    background-color: #4caf50;
+}
+
+.message-box.error {
+    background-color: #f44336;
+}
+
+.message-box.info {
+    background-color: #2196f3;
+}
+
+.message-box.fade-out {
+    opacity: 0;
+}
+
+/* Responsive Styles */
+@media (max-width: 992px) {
+    .products-table {
+        display: none;
+    }
+
+    .mobile-products {
+        display: block;
+    }
+}
+
+@media (max-width: 768px) {
+    .products-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .products-actions {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+
+    .product-details {
+        grid-template-columns: 1fr;
+    }
+
+    .bulk-upload-details table {
+        display: block;
+        overflow-x: auto;
+    }
+    
+    .results-info {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 576px) {
+    .products-main {
+        padding: 0 1rem;
+    }
+
+    .modal-content {
+        margin: 1rem;
+        width: calc(100% - 2rem);
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .filter-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
     </style>
 {% endblock %}
 
@@ -525,6 +693,89 @@
                 <i class="fas fa-upload" aria-hidden="true"></i> Bulk Upload
             </button>
             <input type="file" id="excelFileInput" accept=".xlsx, .xls" style="display: none;" aria-hidden="true">
+        </div>
+    </div>
+
+    <!-- Search and Filter Section -->
+    <section class="filter-section">
+        <div class="filter-header" id="filterToggle">
+            <h2 class="filter-title"><i class="fas fa-filter"></i> Filter Products</h2>
+            <span class="filter-toggle" id="filterToggleBtn">
+                <i class="fas fa-chevron-down"></i>
+            </span>
+        </div>
+        
+        <div class="search-box">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" class="search-input" id="searchInput" placeholder="Search products by medicine name...">
+        </div>
+        
+        <div class="filter-content" id="filterContent" style="display: none;">
+            <div class="filter-group">
+                <label for="categoryFilter">Category</label>
+                <select class="filter-select" id="categoryFilter">
+                    <option value="">All Categories</option>
+                    <option value="tablet">Tablets</option>
+                    <option value="capsule">Capsules</option>
+                    <option value="syrup">Syrups</option>
+                    <option value="injection">Injections</option>
+                    <option value="cream">Creams</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label for="stockFilter">Stock Status</label>
+                <select class="filter-select" id="stockFilter">
+                    <option value="">All Statuses</option>
+                    <option value="in_stock">In Stock</option>
+                    <option value="low_stock">Low Stock</option>
+                    <option value="out_of_stock">Out of Stock</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label for="priceRange">Price Range</label>
+                <div style="display: flex; gap: 0.5rem;">
+                    <input type="number" class="filter-input" id="minPrice" placeholder="Min" min="0">
+                    <span>-</span>
+                    <input type="number" class="filter-input" id="maxPrice" placeholder="Max" min="0">
+                </div>
+            </div>
+            
+            <div class="filter-group">
+                <label for="expiryFilter">Expiry Status</label>
+                <select class="filter-select" id="expiryFilter">
+                    <option value="">All</option>
+                    <option value="expired">Expired</option>
+                    <option value="expiring_soon">Expiring Soon (30 days)</option>
+                    <option value="valid">Valid</option>
+                </select>
+            </div>
+            
+            <div class="filter-actions">
+                <button class="btn btn-primary" id="applyFilters">Apply Filters</button>
+                <button class="filter-reset" id="resetFilters">
+                    <i class="fas fa-redo"></i> Reset
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Results Info -->
+    <div class="results-info">
+        <div class="results-count">Showing <span id="productsCount">0</span> products</div>
+        <div>
+            <label for="sortSelect">Sort by: </label>
+            <select class="sort-select" id="sortSelect">
+                <option value="name_asc">Name (A-Z)</option>
+                <option value="name_desc">Name (Z-A)</option>
+                <option value="price_asc">Price (Low to High)</option>
+                <option value="price_desc">Price (High to Low)</option>
+                <option value="stock_asc">Stock (Low to High)</option>
+                <option value="stock_desc">Stock (High to Low)</option>
+                <option value="expiry_asc">Expiry (Soonest)</option>
+                <option value="expiry_desc">Expiry (Farthest)</option>
+            </select>
         </div>
     </div>
 
@@ -610,11 +861,75 @@
     <div class="mobile-products" id="mobileProductCards" data-role="product-card">
         <!-- Mobile product cards will be loaded here -->
     </div>
+    
+    <!-- Pagination -->
+    <div class="pagination" id="pagination">
+        <!-- Pagination buttons will be added here -->
+    </div>
 </main>
 {% endblock %}
 
 {% block script %}
 <script>
+// Global variables for product management
+let allProducts = [];
+let filteredProducts = [];
+const DOSAGE_FORMS_MAP = {
+    "Tablet": 1, "Capsule": 2, "Injection": 3, "Syrup": 4, "Suspension": 5,
+    "Cream": 6, "Ointment": 7, "Gel": 8, "Lotion": 9, "Suppository": 10,
+    "Powder": 11, "Drops (Eye/Ear/Nasal)": 12, "Inhaler": 13, "Patch": 14,
+    "Granules": 15, "Mouthwash": 16, "Lozenge": 17, "Solution": 18,
+    "Emulsion": 19, "Spray": 20
+};
+
+// Utility Functions
+function getCsrfToken() {
+    try {
+        const metaTag = document.querySelector('meta[name="csrf-token"]');
+        return metaTag ? metaTag.getAttribute('content') : null;
+    } catch (error) {
+        console.error('Error getting CSRF token:', error);
+        return null;
+    }
+}
+
+function showMessage(type, message, duration = 5000) {
+    try {
+        // Remove any existing message first
+        const existingMessage = document.querySelector('.message-box');
+        if (existingMessage) existingMessage.remove();
+
+        const messageBox = document.createElement('div');
+        messageBox.classList.add('message-box', type);
+        messageBox.textContent = message;
+        document.body.appendChild(messageBox);
+
+        setTimeout(() => {
+            try {
+                messageBox.classList.add('fade-out');
+                setTimeout(() => messageBox.remove(), 300);
+            } catch (e) {
+                console.error('Error removing message:', e);
+            }
+        }, duration);
+    } catch (error) {
+        console.error('Error showing message:', error);
+    }
+}
+
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+// Filter toggle functionality
 function toggleBulkUploadDetails() {
     const details = document.getElementById('bulkUploadDetails');
     const btn = document.querySelector('.toggle-details-btn');
@@ -626,383 +941,519 @@ function toggleBulkUploadDetails() {
         btn.textContent = 'Show More';
     }
 }
-</script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const productTableBody = document.getElementById('productTableBody');
-        const mobileProductCards = document.getElementById('mobileProductCards');
-        const newProductBtn = document.getElementById('newProductBtn');
-        const bulkUploadBtn = document.getElementById('bulkUploadBtn');
-        const excelFileInput = document.getElementById('excelFileInput');
-        // Predefined list of dosage forms and a map for their mock IDs
-        const DOSAGE_FORMS_MAP = {
-            "Tablet": 1, "Capsule": 2, "Injection": 3, "Syrup": 4, "Suspension": 5,
-            "Cream": 6, "Ointment": 7, "Gel": 8, "Lotion": 9, "Suppository": 10,
-            "Powder": 11, "Drops (Eye/Ear/Nasal)": 12, "Inhaler": 13, "Patch": 14,
-            "Granules": 15, "Mouthwash": 16, "Lozenge": 17, "Solution": 18,
-            "Emulsion": 19, "Spray": 20
-        };
 
-        /**
-        * Retrieves the CSRF token from the meta tag in the document's head.
-        * @returns {string | null} The CSRF token or null if not found.
-        */
-        function getCsrfToken() {
-            try {
-                const metaTag = document.querySelector('meta[name="csrf-token"]');
-                return metaTag ? metaTag.getAttribute('content') : null;
-            } catch (error) {
-                console.error('Error getting CSRF token:', error);
-                return null;
+// Filter functionality
+function initFilters() {
+    const filterToggle = document.getElementById('filterToggle');
+    const filterContent = document.getElementById('filterContent');
+    const filterToggleBtn = document.getElementById('filterToggleBtn');
+    const searchInput = document.getElementById('searchInput');
+    const categoryFilter = document.getElementById('categoryFilter');
+    const stockFilter = document.getElementById('stockFilter');
+    const minPrice = document.getElementById('minPrice');
+    const maxPrice = document.getElementById('maxPrice');
+    const expiryFilter = document.getElementById('expiryFilter');
+    const applyFilters = document.getElementById('applyFilters');
+    const resetFilters = document.getElementById('resetFilters');
+    const sortSelect = document.getElementById('sortSelect');
+    
+    // Filter toggle
+    if (filterToggle && filterContent) {
+        filterToggle.addEventListener('click', function() {
+            if (filterContent.style.display === 'none') {
+                filterContent.style.display = 'grid';
+                filterToggleBtn.innerHTML = '<i class="fas fa-chevron-up"></i>';
+            } else {
+                filterContent.style.display = 'none';
+                filterToggleBtn.innerHTML = '<i class="fas fa-chevron-down"></i>';
             }
-        }
-
-        /**
-        * Displays a message to the user in a consistent way.
-        * @param {'success'|'error'|'info'} type The type of message.
-        * @param {string} message The message content.
-        * @param {number} duration The duration in milliseconds to show the message.
-        */
-        function showMessage(type, message, duration = 5000) {
-            try {
-                // Remove any existing message first
-                const existingMessage = document.querySelector('.message-box');
-                if (existingMessage) existingMessage.remove();
-
-                const messageBox = document.createElement('div');
-                messageBox.classList.add('message-box', type);
-                messageBox.textContent = message;
-                document.body.appendChild(messageBox);
-
-                setTimeout(() => {
-                    try {
-                        messageBox.classList.add('fade-out');
-                        setTimeout(() => messageBox.remove(), 300);
-                    } catch (e) {
-                        console.error('Error removing message:', e);
-                    }
-                }, duration);
-            } catch (error) {
-                console.error('Error showing message:', error);
-            }
-        }
-
-        if (bulkUploadBtn && excelFileInput) {
-        bulkUploadBtn.addEventListener('click', () => {
-            excelFileInput.click(); // This programmatically triggers the file input dialog
         });
-        excelFileInput.addEventListener('change', handleExcelUpload);
     }
+    
+    // Event listeners
+    if (applyFilters) {
+        applyFilters.addEventListener('click', filterProducts);
+    }
+    
+    if (resetFilters) {
+        resetFilters.addEventListener('click', function() {
+            searchInput.value = '';
+            categoryFilter.value = '';
+            stockFilter.value = '';
+            minPrice.value = '';
+            maxPrice.value = '';
+            expiryFilter.value = '';
+            sortSelect.value = 'name_asc';
+            localStorage.setItem('currentPage', '1');
+            filteredProducts = [...allProducts];
+            sortProducts();
+            updateProductDisplay();
+            updatePagination();
+            updateResultsCount();
+        });
+    }
+    
+    if (searchInput) {
+        searchInput.addEventListener('keyup', debounce(filterProducts, 300));
+    }
+    
+    if (sortSelect) {
+        sortSelect.addEventListener('change', function() {
+            sortProducts();
+            updateProductDisplay();
+        });
+    }
+}
 
-    // Function to handle the Excel file upload
-    async function handleExcelUpload(event) {
-        const file = event.target.files[0];
-        if (!file) {
-            showMessage('error', 'No file selected.');
+// Filter products based on criteria
+function filterProducts() {
+    const searchInput = document.getElementById('searchInput');
+    const categoryFilter = document.getElementById('categoryFilter');
+    const stockFilter = document.getElementById('stockFilter');
+    const minPrice = document.getElementById('minPrice');
+    const maxPrice = document.getElementById('maxPrice');
+    const expiryFilter = document.getElementById('expiryFilter');
+    
+    const searchTerm = searchInput.value.toLowerCase();
+    const category = categoryFilter.value;
+    const stockStatus = stockFilter.value;
+    const minPriceVal = parseFloat(minPrice.value) || 0;
+    const maxPriceVal = parseFloat(maxPrice.value) || Infinity;
+    const expiryStatus = expiryFilter.value;
+    
+    filteredProducts = allProducts.filter(product => {
+        // Search term filter
+        if (searchTerm && !(
+            product.name.toLowerCase().includes(searchTerm) ||
+            (product.description && product.description.toLowerCase().includes(searchTerm)) ||
+            (product.category && product.category.toLowerCase().includes(searchTerm))
+            (console.log(product.category.toLowerCase().includes(searchTerm)))
+        )) {
+            return false;
+        }
+        
+        // Category filter
+        if (category && product.dosage_form_name !== category) {
+            return false;
+        }
+        
+        // Stock status filter
+        if (stockStatus) {
+            if (stockStatus === 'in_stock' && product.stock_quantity <= 0) return false;
+            if (stockStatus === 'low_stock' && (product.stock_quantity <= 0 || product.stock_quantity > 10)) return false;
+            if (stockStatus === 'out_of_stock' && product.stock_quantity > 0) return false;
+        }
+        
+        // Price range filter
+        if (product.price < minPriceVal || product.price > maxPriceVal) {
+            return false;
+        }
+        
+        // Expiry status filter
+        if (expiryStatus) {
+            const today = new Date();
+            const expiryDate = new Date(product.expire_date);
+            const diffTime = expiryDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (expiryStatus === 'expired' && diffDays >= 0) return false;
+            if (expiryStatus === 'expiring_soon' && (diffDays > 30 || diffDays < 0)) return false;
+            if (expiryStatus === 'valid' && diffDays < 0) return false;
+        }
+        
+        return true;
+    });
+    
+    // Sort products
+    sortProducts();
+    
+    updateProductDisplay();
+    updatePagination();
+    updateResultsCount();
+}
+
+// Sort products based on selected option
+function sortProducts() {
+    const sortSelect = document.getElementById('sortSelect');
+    const sortOption = sortSelect.value;
+    
+    filteredProducts.sort((a, b) => {
+        switch (sortOption) {
+            case 'name_asc':
+                return a.name.localeCompare(b.name);
+            case 'name_desc':
+                return b.name.localeCompare(a.name);
+            case 'price_asc':
+                return a.price - b.price;
+            case 'price_desc':
+                return b.price - a.price;
+            case 'stock_asc':
+                return a.stock_quantity - b.stock_quantity;
+            case 'stock_desc':
+                return b.stock_quantity - a.stock_quantity;
+            case 'expiry_asc':
+                return new Date(a.expire_date) - new Date(b.expire_date);
+            case 'expiry_desc':
+                return new Date(b.expire_date) - new Date(a.expire_date);
+            default:
+                return 0;
+        }
+    });
+}
+
+// Update product display
+function updateProductDisplay() {
+    const productTableBody = document.getElementById('productTableBody');
+    const mobileProductCards = document.getElementById('mobileProductCards');
+    
+    // Clear existing content
+    productTableBody.innerHTML = '';
+    mobileProductCards.innerHTML = '';
+    
+    // Get current page products
+    const currentPage = parseInt(localStorage.getItem('currentPage') || '1');
+    const productsPerPage = 10;
+    const startIndex = (currentPage - 1) * productsPerPage;
+    const endIndex = startIndex + productsPerPage;
+    const currentProducts = filteredProducts.slice(startIndex, endIndex);
+    
+    // Display products
+    if (currentProducts.length === 0) {
+        const noResults = document.createElement('tr');
+        noResults.innerHTML = `
+            <td colspan="7" style="text-align: center; padding: 2rem;">
+                <i class="fas fa-search" style="font-size: 2rem; color: #ccc; margin-bottom: 1rem;"></i>
+                <p>No products found matching your criteria</p>
+            </td>
+        `;
+        productTableBody.appendChild(noResults);
+        
+        const noResultsMobile = document.createElement('div');
+        noResultsMobile.innerHTML = `
+            <div class="product-card" style="text-align: center;">
+                <i class="fas fa-search" style="font-size: 2rem; color: #ccc; margin-bottom: 1rem;"></i>
+                <p>No products found matching your criteria</p>
+            </div>
+        `;
+        mobileProductCards.appendChild(noResultsMobile);
+    } else {
+        currentProducts.forEach(product => {
+            const tableRow = createProductTableRow(product);
+            productTableBody.appendChild(tableRow);
+            
+            const mobileCard = createProductMobileCard(product);
+            mobileProductCards.appendChild(mobileCard);
+        });
+    }
+}
+
+// Update pagination
+function updatePagination() {
+    const pagination = document.getElementById('pagination');
+    pagination.innerHTML = '';
+    
+    const productsPerPage = 10;
+    const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
+    const currentPage = parseInt(localStorage.getItem('currentPage') || '1');
+    
+    if (totalPages <= 1) return;
+    
+    // Previous button
+    if (currentPage > 1) {
+        const prevBtn = document.createElement('button');
+        prevBtn.className = 'pagination-btn';
+        prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
+        prevBtn.addEventListener('click', () => {
+            localStorage.setItem('currentPage', currentPage - 1);
+            updateProductDisplay();
+            updatePagination();
+            window.scrollTo(0, 0);
+        });
+        pagination.appendChild(prevBtn);
+    }
+    
+    // Page buttons
+    for (let i = 1; i <= totalPages; i++) {
+        const pageBtn = document.createElement('button');
+        pageBtn.className = 'pagination-btn';
+        if (i === currentPage) pageBtn.classList.add('active');
+        pageBtn.textContent = i;
+        pageBtn.addEventListener('click', () => {
+            localStorage.setItem('currentPage', i);
+            updateProductDisplay();
+            updatePagination();
+            window.scrollTo(0, 0);
+        });
+        pagination.appendChild(pageBtn);
+    }
+    
+    // Next button
+    if (currentPage < totalPages) {
+        const nextBtn = document.createElement('button');
+        nextBtn.className = 'pagination-btn';
+        nextBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
+        nextBtn.addEventListener('click', () => {
+            localStorage.setItem('currentPage', currentPage + 1);
+            updateProductDisplay();
+            updatePagination();
+            window.scrollTo(0, 0);
+        });
+        pagination.appendChild(nextBtn);
+    }
+}
+
+// Update results count
+function updateResultsCount() {
+    const countElement = document.getElementById('productsCount');
+    if (countElement) {
+        countElement.textContent = filteredProducts.length;
+    }
+}
+
+// Product Management Functions
+async function fetchProducts() {
+    try {
+        const response = await fetch('/api/products/');
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.detail || 'Network response was not ok');
+        }
+        
+        const data = await response.json();
+        allProducts = data.results || [];
+        filteredProducts = [...allProducts];
+        
+        updateProductDisplay();
+        updatePagination();
+        updateResultsCount();
+    } catch (error) {
+        console.error('There was a problem fetching the products:', error);
+        showMessage('error', `Failed to load products: ${error.message}`);
+    }
+}
+
+function validateProductData(productData) {
+    const errors = [];
+
+    if (!productData.name || productData.name.trim() === '') {
+        errors.push('Product name is required.');
+    }
+    
+    if (isNaN(productData.price) || productData.price <= 0) {
+        errors.push('Price must be a positive number.');
+    }
+    
+    if (!productData.strength || productData.strength.trim() === '') {
+        errors.push('Strength is required.');
+    }
+    
+    if (isNaN(productData.dosage_form) || !Object.values(DOSAGE_FORMS_MAP).includes(productData.dosage_form)) {
+        errors.push('Invalid dosage form selected.');
+    }
+    
+    if (!productData.expire_date || productData.expire_date.trim() === '') {
+        errors.push('Expiration date is required.');
+    }
+    
+    if (isNaN(productData.stock_quantity) || productData.stock_quantity < 0) {
+        errors.push('Stock quantity must be a non-negative number.');
+    }
+    
+    return errors.length === 0 ? null : errors.join(' ');
+}
+
+async function postProduct(productData) {
+    try {
+        const validationError = validateProductData(productData);
+        if (validationError) {
+            showMessage('error', validationError);
             return;
         }
 
-        // Validate file type and extension
-        const allowedTypes = [
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            "application/vnd.ms-excel"
-        ];
-        const ext = file.name.split('.').pop().toLowerCase();
-        if (!allowedTypes.includes(file.type) || !['xlsx', 'xls'].includes(ext)) {
-            showMessage('error', 'Invalid file. Only Excel files (.xlsx, .xls) are allowed.');
-            return;
-        }
-
-        // Validate file size (max 5MB)
-        if (file.size > 5 * 1024 * 1024) {
-            showMessage('error', 'File size exceeds the 5MB limit.');
-            return;
-        }
-
-        // CSRF token
         const csrfToken = getCsrfToken();
         if (!csrfToken) {
-            showMessage('error', "CSRF token not found.");
+            showMessage('error', "CSRF token not found. Please ensure a meta tag is present.");
             return;
         }
 
+        // Using FormData to handle both JSON and file uploads
         const formData = new FormData();
-        formData.append('file', file);
-
-        try {
-            showMessage('info', 'Uploading file...', 10000);
-
-            const response = await fetch('/products/bulk-upload/', {
-                method: 'POST',
-                headers: { 'X-CSRFToken': csrfToken },
-                body: formData,
-            });
-
-            let result;
-            try {
-                result = await response.json();
-            } catch (e) {
-                throw new Error("Invalid server response (not JSON).");
+        for (const key in productData) {
+            if (key === 'image' && productData[key]) {
+                formData.append(key, productData[key]);
+            } else if (key !== 'image') {
+                formData.append(key, productData[key]);
             }
-
-            if (response.ok) {
-                // Show summary of saved/updated products
-                let summary = result.message || 'File uploaded successfully.';
-                showMessage('success', summary, 8000);
-
-                // If any errors, display them separately
-                if (result.errors && result.errors.length > 0) {
-                    const errorMsg = 'Successful Operation you see this because some rows failed to import:\n' + result.errors.map(e => `• ${e}`).join('\n');
-                    console.error(errorMsg);
-                    showMessage('error', errorMsg, 10000);
-                }
-
-                fetchProducts(); // Refresh the product list
-            } else {
-                const errorMsg = result.error || 'Failed to upload file.';
-                throw new Error(errorMsg);
-            }
-        } catch (error) {
-            console.error('Error during bulk upload:', error);
-            showMessage('error', `Bulk upload failed: ${error.message}`);
         }
-    }
 
+        const response = await fetch('/api/products/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken,
+            },
+            body: formData // Use formData directly, browser will set Content-Type
+        });
 
-
-
-    async function fetchProducts() {
-        try {
-            const response = await fetch('/api/products/');
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.detail || 'Network response was not ok');
-            }
-            
-            // Correctly access the 'results' array from the JSON object
-            const data = await response.json();
-            const products = data.results; 
-            
-            // Clear any existing content to prevent duplicates on refresh
-            productTableBody.innerHTML = '';
-            mobileProductCards.innerHTML = '';
-            
-            // Now 'products' is an array, and .forEach() will work
-            products.forEach(product => {
-                const tableRow = createProductTableRow(product, products);
-                productTableBody.appendChild(tableRow);
-                
-                const mobileCard = createProductMobileCard(product, products);
-                mobileProductCards.appendChild(mobileCard);
-            });
-
-        } catch (error) {
-            console.error('There was a problem fetching the products:', error);
-            showMessage('error', `Failed to load products: ${error.message}`);
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.detail || errorData.message || 'Failed to add product');
         }
+
+        // Close the modal and refresh the product list on success
+        const modalBackdrop = document.querySelector('.modal-backdrop');
+        if (modalBackdrop) modalBackdrop.remove();
+        
+        showMessage('success', 'Product added successfully!');
+        fetchProducts();
+    } catch (error) {
+        console.error('Error adding product:', error);
+        showMessage('error', error.message);
     }
+}
+
+async function putProduct(productId, productData) {
+    try {
+        const validationError = validateProductData(productData);
+        if (validationError) {
+            showMessage('error', validationError);
+            return;
+        }
+
+        const csrfToken = getCsrfToken();
+        if (!csrfToken) {
+            showMessage('error', "CSRF token not found. Please ensure a meta tag is present.");
+            return;
+        }
+
+        // Using FormData to handle both JSON and file uploads
+        const formData = new FormData();
+        for (const key in productData) {
+            if (key === 'image' && productData[key]) {
+                formData.append(key, productData[key]);
+            } else if (key !== 'image') {
+                formData.append(key, productData[key]);
+            }
+        }
+
+        const response = await fetch(`/api/products/${productId}/`, {
+            method: 'PUT',
+            headers: {
+                'X-CSRFToken': csrfToken,
+            },
+            body: formData // Use formData directly
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.detail || errorData.message || 'Failed to update product');
+        }
+
+        const modalBackdrop = document.querySelector('.modal-backdrop');
+        if (modalBackdrop) modalBackdrop.remove();
+
+        showMessage('success', 'Product updated successfully!');
+        fetchProducts();
+    } catch (error) {
+        console.error('Error updating product:', error);
+        showMessage('error', error.message);
+    }
+}
+
+async function deleteProduct(productId) {
+    try {
+        const csrfToken = getCsrfToken();
+        if (!csrfToken) {
+            showMessage('error', "CSRF token not found. Please ensure a meta tag is present.");
+            return;
+        }
+
+        const response = await fetch(`/api/products/${productId}/`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': csrfToken,
+            },
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.detail || errorData.message || 'Failed to delete product');
+        }
+
+        const modalBackdrop = document.querySelector('.modal-backdrop');
+        if (modalBackdrop) modalBackdrop.remove();
+
+        showMessage('success', 'Product deleted successfully!');
+        fetchProducts();
+    } catch (error) {
+        console.error('Error deleting product:', error);
+        showMessage('error', error.message);
+    }
+}
+
+function createNewProductModal() {
+    if (document.querySelector('.modal-backdrop')) return;
+    createProductFormModal('Add New Product', 'Add Product');
+}
+
+function createUpdateProductModal(product) {
+    if (document.querySelector('.modal-backdrop')) return;
+    createProductFormModal('Update Product', 'Update Product', product);
+}
+
+function createDeleteConfirmationModal(product) {
+    if (document.querySelector('.modal-backdrop')) return;
+
+    const modalBackdrop = document.createElement('div');
+    modalBackdrop.className = 'modal-backdrop';
+
+    const modalContent = document.createElement('div');
+    modalContent.className = 'modal-content styled-modal';
+    modalContent.innerHTML = `
+        <div class="modal-header">
+            <h2 class="modal-title">Confirm Deletion</h2>
+            <button class="close-modal-btn">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure you want to delete the product **${product.name}**?</p>
+            <div class="modal-actions" style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px;">
+                <button type="button" 
+                        class="btn btn-secondary close-modal-btn" 
+                        style="padding: 8px 16px; border-radius: 4px; font-weight: 500; cursor: pointer; transition: all 0.2s; background-color: #f0f0f0; color: #333; border: 1px solid #ccc; min-width: 80px;">
+                    Cancel
+                </button>
+                <button type="button" 
+                        class="btn btn-danger confirm-delete-btn" 
+                        style="padding: 8px 16px; border-radius: 4px; font-weight: 500; cursor: pointer; transition: all 0.2s; background-color: #dc3545; color: white; border: 1px solid #dc3545; min-width: 80px;">
+                    Delete
+                </button>
+            </div>
+        </div>
+    `;
     
-    /**
-     * Validates product data before submission to prevent bad requests.
-     * @param {object} productData The data from the form.
-     * @returns {string|null} An error message string or null if valid.
-     */
-    function validateProductData(productData) {
-        const errors = [];
+    modalBackdrop.appendChild(modalContent);
+    document.body.appendChild(modalBackdrop);
+
+    const closeModal = () => modalBackdrop.remove();
     
-        
-        if (!productData.name || productData.name.trim() === '') {
-            errors.push('Product name is required.');
-        }
-        
-        if (isNaN(productData.price) || productData.price <= 0) {
-            errors.push('Price must be a positive number.');
-        }
-        
-        if (!productData.strength || productData.strength.trim() === '') {
-            errors.push('Strength is required.');
-        }
-        
-        if (isNaN(productData.dosage_form) || !Object.values(DOSAGE_FORMS_MAP).includes(productData.dosage_form)) {
-            errors.push('Invalid dosage form selected.');
-        }
-        
-        if (!productData.expire_date || productData.expire_date.trim() === '') {
-            errors.push('Expiration date is required.');
-        }
-        
-        if (isNaN(productData.stock_quantity) || productData.stock_quantity < 0) {
-            errors.push('Stock quantity must be a non-negative number.');
-        }
-        
-        return errors.length === 0 ? null : errors.join(' ');
-    }
+    modalBackdrop.querySelectorAll('.close-modal-btn').forEach(btn => {
+        btn.addEventListener('click', closeModal);
+    });
 
-    /**
-     * Posts new product data to the API.
-     * @param {object} productData The product data to post.
-     */
-    async function postProduct(productData) {
-        try {
-            const validationError = validateProductData(productData);
-            if (validationError) {
-                showMessage('error', validationError);
-                return;
-            }
+    modalBackdrop.addEventListener('click', (e) => {
+        if (e.target === modalBackdrop) closeModal();
+    });
 
-            const csrfToken = getCsrfToken();
-            if (!csrfToken) {
-                showMessage('error', "CSRF token not found. Please ensure a meta tag is present.");
-                return;
-            }
+    modalContent.querySelector('.confirm-delete-btn').addEventListener('click', () => {
+        deleteProduct(product.id);
+    });
 
-            // Using FormData to handle both JSON and file uploads
-            const formData = new FormData();
-            for (const key in productData) {
-                if (key === 'image' && productData[key]) {
-                    formData.append(key, productData[key]);
-                } else if (key !== 'image') {
-                    formData.append(key, productData[key]);
-                }
-            }
+    modalContent.addEventListener('click', (e) => {
+        e.stopPropagation();
+    });
+}
 
-            const response = await fetch('/api/products/', {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': csrfToken,
-                },
-                body: formData // Use formData directly, browser will set Content-Type
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.detail || errorData.message || 'Failed to add product');
-            }
-
-            // Close the modal and refresh the product list on success
-            const modalBackdrop = document.querySelector('.modal-backdrop');
-            if (modalBackdrop) modalBackdrop.remove();
-            
-            showMessage('success', 'Product added successfully!');
-            fetchProducts();
-        } catch (error) {
-            console.error('Error adding product:', error);
-            showMessage('error', error.message);
-        }
-    }
-
-    /**
-     * Submits an updated product to the API using a PUT request.
-     * @param {string} productId The ID of the product to update.
-     * @param {object} productData The updated product data.
-     */
-    async function putProduct(productId, productData) {
-        try {
-            const validationError = validateProductData(productData);
-            if (validationError) {
-                showMessage('error', validationError);
-                return;
-            }
-
-            const csrfToken = getCsrfToken();
-            if (!csrfToken) {
-                showMessage('error', "CSRF token not found. Please ensure a meta tag is present.");
-                return;
-            }
-
-            // Using FormData to handle both JSON and file uploads
-            const formData = new FormData();
-            for (const key in productData) {
-                if (key === 'image' && productData[key]) {
-                    formData.append(key, productData[key]);
-                } else if (key !== 'image') {
-                    formData.append(key, productData[key]);
-                }
-            }
-
-            const response = await fetch(`/api/products/${productId}/`, {
-                method: 'PUT',
-                headers: {
-                    'X-CSRFToken': csrfToken,
-                },
-                body: formData // Use formData directly
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.detail || errorData.message || 'Failed to update product');
-            }
-
-            const modalBackdrop = document.querySelector('.modal-backdrop');
-            if (modalBackdrop) modalBackdrop.remove();
-
-            showMessage('success', 'Product updated successfully!');
-            fetchProducts();
-        } catch (error) {
-            console.error('Error updating product:', error);
-            showMessage('error', error.message);
-        }
-    }
-    
-    /**
-     * Deletes a product from the database via an API call.
-     * @param {string} productId The ID of the product to delete.
-     */
-    async function deleteProduct(productId) {
-        try {
-            const csrfToken = getCsrfToken();
-            if (!csrfToken) {
-                showMessage('error', "CSRF token not found. Please ensure a meta tag is present.");
-                return;
-            }
-
-            const response = await fetch(`/api/products/${productId}/`, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRFToken': csrfToken,
-                },
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.detail || errorData.message || 'Failed to delete product');
-            }
-
-            const modalBackdrop = document.querySelector('.modal-backdrop');
-            if (modalBackdrop) modalBackdrop.remove();
-
-            showMessage('success', 'Product deleted successfully!');
-            fetchProducts();
-        } catch (error) {
-            console.error('Error deleting product:', error);
-            showMessage('error', error.message);
-        }
-    }
-
-    /**
-     * Creates and displays the product form modal for a new product.
-     */
-    function createNewProductModal() {
-        if (document.querySelector('.modal-backdrop')) return;
-        createProductFormModal('Add New Product', 'Add Product');
-    }
-
-    /**
-     * Creates and displays the product form modal for updating an existing product.
-     * @param {object} product The product object to pre-fill the form with.
-     */
-    function createUpdateProductModal(product) {
-        if (document.querySelector('.modal-backdrop')) return;
-        createProductFormModal('Update Product', 'Update Product', product);
-    }
-    
-    /**
-     * Creates and displays a confirmation modal before deleting a product.
-     * @param {object} product The product to be deleted.
-     */
-    function createDeleteConfirmationModal(product) {
-        if (document.querySelector('.modal-backdrop')) return;
-
+function createProductFormModal(title, submitBtnText, product = null) {
+    try {
         const modalBackdrop = document.createElement('div');
         modalBackdrop.className = 'modal-backdrop';
 
@@ -1010,240 +1461,458 @@ function toggleBulkUploadDetails() {
         modalContent.className = 'modal-content styled-modal';
         modalContent.innerHTML = `
             <div class="modal-header">
-                <h2 class="modal-title">Confirm Deletion</h2>
+                <h2 class="modal-title">${title}</h2>
                 <button class="close-modal-btn">&times;</button>
             </div>
             <div class="modal-body">
-                <p>Are you sure you want to delete the product **${product.name}**?</p>
-                <div class="modal-actions" style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px;">
-                    <button type="button" 
-                            class="btn btn-secondary close-modal-btn" 
-                            style="padding: 8px 16px; border-radius: 4px; font-weight: 500; cursor: pointer; transition: all 0.2s; background-color: #f0f0f0; color: #333; border: 1px solid #ccc; min-width: 80px;">
-                        Cancel
-                    </button>
-                    <button type="button" 
-                            class="btn btn-danger confirm-delete-btn" 
-                            style="padding: 8px 16px; border-radius: 4px; font-weight: 500; cursor: pointer; transition: all 0.2s; background-color: #dc3545; color: white; border: 1px solid #dc3545; min-width: 80px;">
-                        Delete
-                    </button>
-                </div>
+                <form id="productForm" class="product-form" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="name">Name:</label>
+                        <input type="text" id="name" name="name" required value="${product ? product.name : ''}">
+                    </div>
+                    <div class="form-group">
+                        <label for="price">Price ($):</label>
+                        <input type="number" id="price" name="price" step="0.01" min="0.01" required value="${product ? product.price : ''}">
+                    </div>
+                    <div class="form-group">
+                        <label for="strength">Strength:</label>
+                        <input type="text" id="strength" name="strength" required value="${product ? product.strength : ''}">
+                        <span class="form-hint">e.g., 500mg, 10mg/ml</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="dosage_form">Dosage Form:</label>
+                        <select id="dosage_form" name="dosage_form" required>
+                            <option value="" disabled ${!product ? 'selected' : ''}>Select a dosage form</option>
+                            ${Object.keys(DOSAGE_FORMS_MAP).map(form => 
+                                `<option value="${DOSAGE_FORMS_MAP[form]}" ${product && DOSAGE_FORMS_MAP[form] === product.dosage_form ? 'selected' : ''}>${form}</option>`
+                            ).join('')}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="expire_date">Expiration Date:</label>
+                        <input type="date" id="expire_date" name="expire_date" required value="${product ? product.expire_date : ''}">
+                    </div>
+                    <div class="form-group">
+                        <label for="stock_quantity">Stock Quantity:</label>
+                        <input type="number" id="stock_quantity" name="stock_quantity" min="0" required value="${product ? product.stock_quantity : ''}">
+                    </div>
+                    <div class="form-group">
+                        <label for="image">Product Image:</label>
+                        <input type="file" id="image" name="image" accept="image/*">
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary close-modal-btn">Cancel</button>
+                        <button type="submit" class="btn btn-primary">${submitBtnText}</button>
+                    </div>
+                </form>
             </div>
         `;
-        
+
         modalBackdrop.appendChild(modalContent);
         document.body.appendChild(modalBackdrop);
 
+        // Focus on first input field when modal opens
+        modalContent.querySelector('input').focus();
+
+        // Add event listeners to close the modal
         const closeModal = () => modalBackdrop.remove();
-        
         modalBackdrop.querySelectorAll('.close-modal-btn').forEach(btn => {
             btn.addEventListener('click', closeModal);
         });
-
+        
         modalBackdrop.addEventListener('click', (e) => {
             if (e.target === modalBackdrop) closeModal();
         });
 
-        modalContent.querySelector('.confirm-delete-btn').addEventListener('click', () => {
-            deleteProduct(product.id);
-        });
+        // Add event listener for form submission
+        const form = modalContent.querySelector('#productForm');
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
 
-        modalContent.addEventListener('click', (e) => {
-            e.stopPropagation();
-        });
-    }
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                const originalText = submitBtn.textContent;
+                submitBtn.textContent = "Saving...";
+                submitBtn.classList.add("opacity-50", "cursor-not-allowed");
+            }
 
-    /**
-     * Generic function to create and show the product form modal.
-     * @param {string} title The modal title.
-     * @param {string} submitBtnText The text for the submit button.
-     * @param {object} [product] The product object to pre-fill the form (optional).
-     */
-    function createProductFormModal(title, submitBtnText, product = null) {
-        try {
-            const modalBackdrop = document.createElement('div');
-            modalBackdrop.className = 'modal-backdrop';
+            try {
+                const productData = {
+                    name: form.name.value.trim(),
+                    price: parseFloat(form.price.value),
+                    strength: form.strength.value.trim(),
+                    dosage_form: parseInt(form.dosage_form.value),
+                    expire_date: form.expire_date.value,
+                    stock_quantity: parseInt(form.stock_quantity.value),
+                    image: form.image.files[0] || null,
+                };
 
-            const modalContent = document.createElement('div');
-            modalContent.className = 'modal-content styled-modal';
-            modalContent.innerHTML = `
-                <div class="modal-header">
-                    <h2 class="modal-title">${title}</h2>
-                    <button class="close-modal-btn">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <form id="productForm" class="product-form" enctype="multipart/form-data">
-                        <div class="form-group">
-                            <label for="name">Name:</label>
-                            <input type="text" id="name" name="name" required value="${product ? product.name : ''}">
-                        </div>
-                        <div class="form-group">
-                            <label for="price">Price ($):</label>
-                            <input type="number" id="price" name="price" step="0.01" min="0.01" required value="${product ? product.price : ''}">
-                        </div>
-                        <div class="form-group">
-                            <label for="strength">Strength:</label>
-                            <input type="text" id="strength" name="strength" required value="${product ? product.strength : ''}">
-                            <span class="form-hint">e.g., 500mg, 10mg/ml</span>
-                        </div>
-                        <div class="form-group">
-                            <label for="dosage_form">Dosage Form:</label>
-                            <select id="dosage_form" name="dosage_form" required>
-                                <option value="" disabled ${!product ? 'selected' : ''}>Select a dosage form</option>
-                                ${Object.keys(DOSAGE_FORMS_MAP).map(form => 
-                                    `<option value="${DOSAGE_FORMS_MAP[form]}" ${product && DOSAGE_FORMS_MAP[form] === product.dosage_form ? 'selected' : ''}>${form}</option>`
-                                ).join('')}
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="expire_date">Expiration Date:</label>
-                            <input type="date" id="expire_date" name="expire_date" required value="${product ? product.expire_date : ''}">
-                        </div>
-                        <div class="form-group">
-                            <label for="stock_quantity">Stock Quantity:</label>
-                            <input type="number" id="stock_quantity" name="stock_quantity" min="0" required value="${product ? product.stock_quantity : ''}">
-                        </div>
-                        <div class="form-group">
-                            <label for="image">Product Image:</label>
-                            <input type="file" id="image" name="image" accept="image/*">
-                        </div>
-                        <div class="form-actions">
-                            <button type="button" class="btn btn-secondary close-modal-btn">Cancel</button>
-                            <button type="submit" class="btn btn-primary">${submitBtnText}</button>
-                        </div>
-                    </form>
-                </div>
-            `;
+                if (product) {
+                    await putProduct(product.id, productData);
+                } else {
+                    await postProduct(productData);
+                }
 
-            modalBackdrop.appendChild(modalContent);
-            document.body.appendChild(modalBackdrop);
-
-            // Focus on first input field when modal opens
-            modalContent.querySelector('input').focus();
-
-            // Add event listeners to close the modal
-            const closeModal = () => modalBackdrop.remove();
-            modalBackdrop.querySelectorAll('.close-modal-btn').forEach(btn => {
-                btn.addEventListener('click', closeModal);
-            });
-            
-            modalBackdrop.addEventListener('click', (e) => {
-                if (e.target === modalBackdrop) closeModal();
-            });
-
-            // Add event listener for form submission
-            const form = modalContent.querySelector('#productForm');
-            form.addEventListener('submit', async function(e) {
-                e.preventDefault();
-
-                const submitBtn = form.querySelector('button[type="submit"]');
+                // Close modal only on success
                 if (submitBtn) {
-                    submitBtn.disabled = true;
-                    const originalText = submitBtn.textContent;
-                    submitBtn.textContent = "Saving...";
-                    submitBtn.classList.add("opacity-50", "cursor-not-allowed");
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = product ? "Update Product" : "Add Product";
+                    submitBtn.classList.remove("opacity-50", "cursor-not-allowed");
                 }
 
-                try {
-                    const productData = {
-                        name: form.name.value.trim(),
-                        price: parseFloat(form.price.value),
-                        strength: form.strength.value.trim(),
-                        dosage_form: parseInt(form.dosage_form.value),
-                        expire_date: form.expire_date.value,
-                        stock_quantity: parseInt(form.stock_quantity.value),
-                        image: form.image.files[0] || null,
-                    };
-
-                    if (product) {
-                        await putProduct(product.id, productData);
-                    } else {
-                        await postProduct(productData);
-                    }
-
-                    // Close modal only on success
-                    if (submitBtn) {
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = product ? "Update Product" : "Add Product";
-                        submitBtn.classList.remove("opacity-50", "cursor-not-allowed");
-                    }
-
-                } catch (error) {
-                    console.error('Error processing form:', error);
-                    showMessage('error', 'Invalid form data. Please check your inputs.');
-                } finally {
-                    if (submitBtn) {
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = product ? "Update Product" : "Add Product";
-                        submitBtn.classList.remove("opacity-50", "cursor-not-allowed");
-                    }
+            } catch (error) {
+                console.error('Error processing form:', error);
+                showMessage('error', 'Invalid form data. Please check your inputs.');
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = product ? "Update Product" : "Add Product";
+                    submitBtn.classList.remove("opacity-50", "cursor-not-allowed");
                 }
-            });
-
-
-            // Prevent modal from closing when clicking inside content
-            modalContent.addEventListener('click', (e) => {
-                e.stopPropagation();
-            });
-
-        } catch (error) {
-            console.error('Error creating product modal:', error);
-            showMessage('error', 'Failed to open product form. Please try again.');
-        }
-    }
-
-    /**
-     * Creates and displays a read-only modal to view product details.
-     * @param {object} product The product object to display.
-     */
-    function showProductDetailsModal(product) {
-        if (document.querySelector('.modal-backdrop')) return;
-    
-        const modalBackdrop = document.createElement('div');
-        modalBackdrop.className = 'modal-backdrop';
-
-        // Helper function to get the dosage form name from its ID
-        const getDosageFormName = (id) => Object.keys(DOSAGE_FORMS_MAP).find(key => DOSAGE_FORMS_MAP[key] === id) || 'Unknown';
-
-        const modalContent = document.createElement('div');
-        modalContent.className = 'modal-content styled-modal';
-        modalContent.innerHTML = `
-            <div class="modal-header">
-                <h2 class="modal-title">Product Details: ${product.name}</h2>
-                <button class="close-modal-btn">&times;</button>
-            </div>
-            <div class="modal-body product-details-view">
-                ${product.image ? `<div class="product-image-container"><img src="${product.image}" alt="Product Image" class="product-image"></div>` : ''}
-                <div class="detail-item"><strong>Name:</strong> <span>${product.name}</span></div>
-                <div class="detail-item"><strong>Dosage Form:</strong> <span>this${getDosageFormName(product.dosage_form)}</span></div>
-                <div class="detail-item"><strong>Strength:</strong> <span>${product.strength}</span></div>
-                <div class="detail-item"><strong>Price:</strong> <span>$${product.price}</span></div>
-                <div class="detail-item"><strong>Stock Quantity:</strong> <span>${product.stock_quantity}</span></div>
-                <div class="detail-item"><strong>Expiration Date:</strong> <span>${new Date(product.expire_date).toLocaleDateString()}</span></div>
-                <div class="modal-actions" style="display: flex; justify-content: flex-end; margin-top: 20px;">
-                    <button type="button" class="btn btn-secondary close-modal-btn">Close</button>
-                </div>
-            </div>
-        `;
-
-        modalBackdrop.appendChild(modalContent);
-        document.body.appendChild(modalBackdrop);
-
-        const closeModal = () => modalBackdrop.remove();
-        
-        modalBackdrop.querySelectorAll('.close-modal-btn').forEach(btn => {
-            btn.addEventListener('click', closeModal);
+            }
         });
 
-        modalBackdrop.addEventListener('click', (e) => {
-            if (e.target === modalBackdrop) closeModal();
-        });
-
+        // Prevent modal from closing when clicking inside content
         modalContent.addEventListener('click', (e) => {
             e.stopPropagation();
         });
+
+    } catch (error) {
+        console.error('Error creating product modal:', error);
+        showMessage('error', 'Failed to open product form. Please try again.');
+    }
+}
+
+function showProductDetailsModal(product) {
+    if (document.querySelector('.modal-backdrop')) return;
+
+    const modalBackdrop = document.createElement('div');
+    modalBackdrop.className = 'modal-backdrop';
+
+    // Helper function to get the dosage form name from its ID
+    const getDosageFormName = (id) => Object.keys(DOSAGE_FORMS_MAP).find(key => DOSAGE_FORMS_MAP[key] === id) || 'Unknown';
+
+    const modalContent = document.createElement('div');
+    modalContent.className = 'modal-content styled-modal';
+    modalContent.innerHTML = `
+        <div class="modal-header">
+            <h2 class="modal-title">Product Details: ${product.name}</h2>
+            <button class="close-modal-btn">&times;</button>
+        </div>
+        <div class="modal-body product-details-view">
+            ${product.image ? `<div class="product-image-container"><img src="${product.image}" alt="Product Image" class="product-image"></div>` : ''}
+            <div class="detail-item"><strong>Name:</strong> <span>${product.name}</span></div>
+            <div class="detail-item"><strong>Dosage Form:</strong> <span>${getDosageFormName(product.dosage_form)}</span></div>
+            <div class="detail-item"><strong>Strength:</strong> <span>${product.strength}</span></div>
+            <div class="detail-item"><strong>Price:</strong> <span>$${product.price}</span></div>
+            <div class="detail-item"><strong>Stock Quantity:</strong> <span>${product.stock_quantity}</span></div>
+            <div class="detail-item"><strong>Expiration Date:</strong> <span>${new Date(product.expire_date).toLocaleDateString()}</span></div>
+            <div class="modal-actions" style="display: flex; justify-content: flex-end; margin-top: 20px;">
+                <button type="button" class="btn btn-secondary close-modal-btn">Close</button>
+            </div>
+        </div>
+    `;
+
+    modalBackdrop.appendChild(modalContent);
+    document.body.appendChild(modalBackdrop);
+
+    const closeModal = () => modalBackdrop.remove();
+    
+    modalBackdrop.querySelectorAll('.close-modal-btn').forEach(btn => {
+        btn.addEventListener('click', closeModal);
+    });
+
+    modalBackdrop.addEventListener('click', (e) => {
+        if (e.target === modalBackdrop) closeModal();
+    });
+
+    modalContent.addEventListener('click', (e) => {
+        e.stopPropagation();
+    });
+}
+
+function showReviewsModal(product) {
+    // Create the modal backdrop and content
+    const modalBackdrop = document.createElement('div');
+    modalBackdrop.className = 'modal-backdrop';
+    modalBackdrop.style.position = 'fixed';
+    modalBackdrop.style.top = '0';
+    modalBackdrop.style.left = '0';
+    modalBackdrop.style.width = '100%';
+    modalBackdrop.style.height = '100%';
+    modalBackdrop.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+    modalBackdrop.style.display = 'flex';
+    modalBackdrop.style.alignItems = 'center';
+    modalBackdrop.style.justifyContent = 'center';
+    modalBackdrop.style.zIndex = '1000';
+    modalBackdrop.style.padding = '1rem';
+
+    const modalContent = document.createElement('div');
+    modalContent.style.backgroundColor = 'white';
+    modalContent.style.borderRadius = '12px';
+    modalContent.style.width = '100%';
+    modalContent.style.maxWidth = '600px';
+    modalContent.style.maxHeight = '80vh';
+    modalContent.style.overflowY = 'auto';
+    modalContent.style.boxShadow = '0 10px 25px rgba(0, 0, 0, 0.2)';
+    
+    modalContent.innerHTML = `
+        <div class="modal-header" style="padding: 20px; border-bottom: 1px solid #e9ecef; display: flex; justify-content: space-between; align-items: center;">
+            <h2 style="margin: 0; color: #2c3e50; font-size: 24px;">Reviews for ${product.name}</h2>
+            <button class="close-modal-btn" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #6c757d;">&times;</button>
+        </div>
+        <div class="modal-body" style="padding: 20px;">
+            ${product.reviews.length > 0 ? `
+                <ul class="reviews-list" style="list-style: none; padding: 0; margin: 0;">
+                    ${product.reviews.map(review => `
+                        <li class="review-item" style="background: #f8f9fa; border-radius: 8px; padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                            <div class="review-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                                <strong style="font-size: 16px; color: #2c3e50;">${review.reviewer_name}</strong>
+                                <span class="star-rating" style="color: #FFD700; font-size: 18px; letter-spacing: 2px;">${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}</span>
+                            </div>
+                            <p class="review-comment" style="margin: 0 0 12px 0; color: #34495e; line-height: 1.5; font-size: 14px;">${review.comment}</p>
+                            <span class="review-date" style="font-size: 12px; color: #7f8c8d;">${new Date(review.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                        </li>
+                    `).join('')}
+                </ul>
+            ` : `
+                <div style="text-align: center; padding: 40px 20px;">
+                    <div style="font-size: 64px; color: #e9ecef; margin-bottom: 16px;">★</div>
+                    <h3 style="color: #6c757d; margin-bottom: 8px;">No Reviews Yet</h3>
+                    <p style="color: #adb5bd;">This product doesn't have any reviews yet.</p>
+                </div>
+            `}
+        </div>
+        <div class="modal-footer" style="padding: 16px 20px; border-top: 1px solid #e9ecef; text-align: right;">
+            <button class="btn btn-primary close-modal-btn" style="background-color: #4361ee; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 500;">Close</button>
+        </div>
+    `;
+
+    modalBackdrop.appendChild(modalContent);
+    document.body.appendChild(modalBackdrop);
+
+    // Add event listener to close the modal
+    const closeModal = () => {
+        document.body.removeChild(modalBackdrop);
+    };
+    
+    modalBackdrop.querySelectorAll('.close-modal-btn').forEach(btn => {
+        btn.addEventListener('click', closeModal);
+    });
+
+    // Close modal if the user clicks outside of the content
+    modalBackdrop.addEventListener('click', (e) => {
+        if (e.target === modalBackdrop) {
+            closeModal();
+        }
+    });
+}
+
+// Function to create a table row for a product
+function createProductTableRow(product) {
+    const tr = document.createElement('tr');
+    
+    tr.innerHTML = `
+        <td>
+            <div class="product-info">
+                <div class="product-image">
+                    <i class="fas fa-pills"></i> </div>
+                <div>
+                    <div class="product-name">${product.name}</div>
+                    <div class="product-category">${product.dosage_form_name}</div>
+                </div>
+            </div>
+        </td>
+        <td>${product.strength}</td>
+        <td>$${product.price}</td>
+        <td>
+            <span class="stock-status ${getStockStatusClass(product.stock_quantity)}">
+                ${product.stock_quantity}
+            </span>
+        </td>
+        <td>${new Date(product.expire_date).toLocaleDateString()}</td>
+        <td>
+            <button class="show-reviews-btn review-link" data-product-id="${product.id}">${product.reviews.length} reviews</button>
+        </td>
+        <td>
+            <button class="action-btn edit-btn" title="Edit" data-id="${product.id}">
+                <i class="fas fa-edit"></i>
+            </button>
+            <button class="action-btn view-btn" title="View" data-id="${product.id}">
+                <i class="fas fa-eye"></i>
+            </button>
+            <button class="action-btn delete-btn" title="Delete" data-id="${product.id}">
+                <i class="fas fa-trash"></i>
+            </button>
+        </td>
+    `;
+    // Attach the event listeners
+    tr.querySelector('.edit-btn').addEventListener('click', () => {
+        createUpdateProductModal(product);
+    });
+    tr.querySelector('.view-btn').addEventListener('click', () => {
+        showProductDetailsModal(product);
+    });
+    tr.querySelector('.show-reviews-btn').addEventListener('click', () => {
+        showReviewsModal(product);
+    });
+    tr.querySelector('.delete-btn').addEventListener('click', () => {
+        createDeleteConfirmationModal(product);
+    });
+    return tr;
+}
+
+// Function to create a mobile product card
+function createProductMobileCard(product) {
+    const card = document.createElement('div');
+    card.classList.add('product-card');
+
+    card.innerHTML = `
+        <div class="product-card-header">
+            <div class="product-image"><i class="fas fa-pills"></i></div>
+            <div>
+                <div class="product-name">${product.name}</div>
+                <div class="product-category">${product.dosage_form_name}</div>
+            </div>
+        </div>
+        <div class="product-details">
+            <div><strong>Price:</strong> $${product.price}</div>
+            <div><strong>Stock:</strong> <span class="stock-status ${getStockStatusClass(product.stock_quantity)}">
+                ${product.stock_quantity}
+            </span></div>
+            <div><strong>Exp. Date:</strong> ${new Date(product.expire_date).toLocaleDateString()}</div>
+            <div>
+                <strong>Reviews:</strong> 
+                <button class="show-reviews-btn review-link" data-product-id="${product.id}">${product.reviews.length}</button>
+            </div>
+        </div>
+        <div class="product-card-actions">
+            <button class="btn btn-outline edit-btn" style="padding: 0.4rem 0.8rem;" data-id="${product.id}">
+                <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn btn-outline view-btn" style="padding: 0.4rem 0.8rem;" data-id="${product.id}">
+                <i class="fas fa-eye"></i>
+            </button>
+            <button class="btn btn-outline delete-btn" style="padding: 0.4rem 0.8rem; color: var(--accent-color); border-color: var(--accent-color);" data-id="${product.id}">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+    `;
+    // Attach the event listeners
+    card.querySelector('.edit-btn').addEventListener('click', () => {
+        createUpdateProductModal(product);
+    });
+    card.querySelector('.view-btn').addEventListener('click', () => {
+        showProductDetailsModal(product);
+    });
+    card.querySelector('.show-reviews-btn').addEventListener('click', () => {
+        showReviewsModal(product);
+    });
+    card.querySelector('.delete-btn').addEventListener('click', () => {
+        createDeleteConfirmationModal(product);
+    });
+    return card;
+}
+
+// Helper function to determine stock status CSS class
+function getStockStatusClass(stock) {
+    if (stock > 50) return 'in-stock';
+    if (stock > 0) return 'low-stock';
+    return 'out-of-stock';
+}
+
+// Excel Upload Handling
+async function handleExcelUpload(event) {
+    const file = event.target.files[0];
+    if (!file) {
+        showMessage('error', 'No file selected.');
+        return;
     }
 
-    // Attach event listener to the "New Product" button with error handling
+    // Validate file type and extension
+    const allowedTypes = [
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "application/vnd.ms-excel"
+    ];
+    const ext = file.name.split('.').pop().toLowerCase();
+    if (!allowedTypes.includes(file.type) || !['xlsx', 'xls'].includes(ext)) {
+        showMessage('error', 'Invalid file. Only Excel files (.xlsx, .xls) are allowed.');
+        return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+        showMessage('error', 'File size exceeds the 5MB limit.');
+        return;
+    }
+
+    // CSRF token
+    const csrfToken = getCsrfToken();
+    if (!csrfToken) {
+        showMessage('error', "CSRF token not found.");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+        showMessage('info', 'Uploading file...', 10000);
+
+        const response = await fetch('/products/bulk-upload/', {
+            method: 'POST',
+            headers: { 'X-CSRFToken': csrfToken },
+            body: formData,
+        });
+
+        let result;
+        try {
+            result = await response.json();
+        } catch (e) {
+            throw new Error("Invalid server response (not JSON).");
+        }
+
+        if (response.ok) {
+            // Show summary of saved/updated products
+            let summary = result.message || 'File uploaded successfully.';
+            showMessage('success', summary, 8000);
+
+            // If any errors, display them separately
+            if (result.errors && result.errors.length > 0) {
+                const errorMsg = 'Successful Operation you see this because some rows failed to import:\n' + result.errors.map(e => `• ${e}`).join('\n');
+                console.error(errorMsg);
+                showMessage('error', errorMsg, 10000);
+            }
+
+            fetchProducts(); // Refresh the product list
+        } else {
+            const errorMsg = result.error || 'Failed to upload file.';
+            throw new Error(errorMsg);
+        }
+    } catch (error) {
+        console.error('Error during bulk upload:', error);
+        showMessage('error', `Bulk upload failed: ${error.message}`);
+    }
+}
+
+// Initialize everything when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    const newProductBtn = document.getElementById('newProductBtn');
+    const bulkUploadBtn = document.getElementById('bulkUploadBtn');
+    const excelFileInput = document.getElementById('excelFileInput');
+    
+    // Initialize filters
+    initFilters();
+    
+    // Set up event listeners
+    if (bulkUploadBtn && excelFileInput) {
+        bulkUploadBtn.addEventListener('click', () => {
+            excelFileInput.click();
+        });
+        excelFileInput.addEventListener('change', handleExcelUpload);
+    }
+    
     if (newProductBtn) {
         newProductBtn.addEventListener('click', (e) => {
             try {
@@ -1256,170 +1925,9 @@ function toggleBulkUploadDetails() {
     } else {
         console.warn('New product button not found. Please ensure the button with id="newProductBtn" exists.');
     }
-
-    // Function to create and show the reviews modal
-    function showReviewsModal(product) {
-        // Create the modal backdrop and content
-        const modalBackdrop = document.createElement('div');
-        modalBackdrop.className = 'modal-backdrop';
-
-        const modalContent = document.createElement('div');
-        modalContent.className = 'modal-content';
-        modalContent.innerHTML = `
-            <div class="modal-header">
-                <h2>Reviews for ${product.name}</h2>
-                <button class="close-modal-btn">&times;</button>
-            </div>
-            <div class="modal-body">
-                <ul class="reviews-list">
-                    ${product.reviews.map(review => `
-                        <li class="review-item">
-                            <div class="review-header">
-                                <strong>${review.reviewer_name}</strong>
-                                <span class="star-rating">${'★'.repeat(review.rating)}</span>
-                            </div>
-                            <p class="review-comment">${review.comment}</p>
-                            <span class="review-date">${new Date(review.created_at).toLocaleDateString()}</span>
-                        </li>
-                    `).join('')}
-                </ul>
-               ${product?.reviews?.length === 0 ? '<p>No reviews yet.</p>' : ''}
-            </div>
-        `;
-
-        modalBackdrop.appendChild(modalContent);
-        document.body.appendChild(modalBackdrop);
-
-        // Add event listener to close the modal
-        modalBackdrop.querySelector('.close-modal-btn').addEventListener('click', () => {
-            modalBackdrop.remove();
-        });
-
-        // Close modal if the user clicks outside of the content
-        modalBackdrop.addEventListener('click', (e) => {
-            if (e.target === modalBackdrop) {
-                modalBackdrop.remove();
-            }
-        });
-    }
-
-    // Function to create a table row for a product
-    function createProductTableRow(product, allProducts) {
-        const tr = document.createElement('tr');
-        
-        tr.innerHTML = `
-            <td>
-                <div class="product-info">
-                    <div class="product-image">
-                        <i class="fas fa-pills"></i> </div>
-                    <div>
-                        <div class="product-name">${product.name}</div>
-                        <div class="product-category">${product.dosage_form_name}</div>
-                    </div>
-                </div>
-            </td>
-            <td>${product.strength}</td>
-            <td>$${product.price}</td>
-            <td>
-                <span class="stock-status ${product.stock_quantity}">
-                    ${product.stock_quantity}
-                </span>
-            </td>
-            <td>${new Date(product.expire_date).toLocaleDateString()}</td>
-            <td>
-                <button class="show-reviews-btn review-link" data-product-id="${product.id}">${product.reviews.length} reviews</button>
-            </td>
-            <td>
-                <button class="action-btn edit-btn" title="Edit" data-id="${product.id}">
-                    <i class="fas fa-edit"></i>
-                </button>
-                <button class="action-btn view-btn" title="View" data-id="${product.id}">
-                    <i class="fas fa-eye"></i>
-                </button>
-                <button class="action-btn delete-btn" title="Delete" data-id="${product.id}">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </td>
-        `;
-        // Attach the event listeners
-        tr.querySelector('.edit-btn').addEventListener('click', () => {
-            createUpdateProductModal(product);
-        });
-        tr.querySelector('.view-btn').addEventListener('click', () => {
-            showProductDetailsModal(product);
-        });
-        tr.querySelector('.show-reviews-btn').addEventListener('click', () => {
-            showReviewsModal(product);
-        });
-        tr.querySelector('.delete-btn').addEventListener('click', () => {
-            createDeleteConfirmationModal(product);
-        });
-        return tr;
-    }
-
-    // Function to create a mobile product card
-    function createProductMobileCard(product, allProducts) {
-        const card = document.createElement('div');
-        card.classList.add('product-card');
-
-        card.innerHTML = `
-            <div class="product-card-header">
-                <div class="product-image"><i class="fas fa-pills"></i></div>
-                <div>
-                    <div class="product-name">${product.name}</div>
-                    <div class="product-category">${product.dosage_form_name}</div>
-                </div>
-            </div>
-            <div class="product-details">
-                <div><strong>Price:</strong> $${product.price}</div>
-                <div><strong>Stock:</strong> <span class="stock-status ${getStockStatusClass(product.stock_quantity)}">
-                    ${product.stock_quantity}
-                </span></div>
-                <div><strong>Exp. Date:</strong> ${new Date(product.expire_date).toLocaleDateString()}</div>
-                <div>
-                    <strong>Reviews:</strong> 
-                    <button class="show-reviews-btn review-link" data-product-id="${product.id}">${product.reviews.length}</button>
-                </div>
-            </div>
-            <div class="product-card-actions">
-                <button class="btn btn-outline edit-btn" style="padding: 0.4rem 0.8rem;" data-id="${product.id}">
-                    <i class="fas fa-edit"></i>
-                </button>
-                <button class="btn btn-outline view-btn" style="padding: 0.4rem 0.8rem;" data-id="${product.id}">
-                    <i class="fas fa-eye"></i>
-                </button>
-                <button class="btn btn-outline delete-btn" style="padding: 0.4rem 0.8rem; color: var(--accent-color); border-color: var(--accent-color);" data-id="${product.id}">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </div>
-        `;
-        // Attach the event listeners
-        card.querySelector('.edit-btn').addEventListener('click', () => {
-            createUpdateProductModal(product);
-        });
-        card.querySelector('.view-btn').addEventListener('click', () => {
-            showProductDetailsModal(product);
-        });
-        card.querySelector('.show-reviews-btn').addEventListener('click', () => {
-            showReviewsModal(product);
-        });
-        card.querySelector('.delete-btn').addEventListener('click', () => {
-            createDeleteConfirmationModal(product);
-        });
-        return card;
-    }
     
-
-    // Helper function to determine stock status CSS class
-    function getStockStatusClass(stock) {
-        if (stock > 50) return 'in-stock';
-        if (stock > 0) return 'low-stock';
-        return 'out-of-stock';
-    }
-    
-    // Call the fetch function when the page loads
+    // Load products
     fetchProducts();
 });
-
 </script>
 {% endblock script %}
