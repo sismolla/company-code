@@ -386,7 +386,6 @@ class ProductProviderDetailPage(View):
             'product': product,
             'supplier': product.supplier,
             "logo": supplier.logo if supplier and supplier.logo else None,
-
         })
 
 class SupplierProfileViewSet(generics.RetrieveUpdateAPIView):

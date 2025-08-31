@@ -970,9 +970,16 @@ document.addEventListener('DOMContentLoaded', function() {
     let isSubmitting = false;
 
     // Extract supplier ID from URL
+    let supplierId = null;
     const pathParts = window.location.pathname.split('/').filter(Boolean);
-    const supplierId = pathParts[pathParts.length - 1];
+    if (pathParts.length >= 2 && pathParts[0] === 'supplier-detail') {
+        supplierId = pathParts[1]; // get the id
+    }
 
+    if (!supplierId) {
+        console.warn('Supplier ID not found in URL');
+        // show error or redirect
+    }
     // --- Utility Functions ---
 
     // Display status message
