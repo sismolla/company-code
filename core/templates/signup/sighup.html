@@ -597,7 +597,6 @@
             formData.append('email', email.value);
             formData.append('password', password.value);
             const csrftoken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-            console.log(csrftoken)
 
             try {
                 const response = await fetch(loginApiUrl, {

@@ -54,6 +54,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
     ),
 }
+CSRF_TRUSTED_ORIGINS = ['https://pharmagebeya.com','https://www.pharmagebeya.com']
 
 
 INSTALLED_APPS = [
