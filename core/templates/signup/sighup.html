@@ -378,7 +378,7 @@
                     </button>
                     
                     <div class="auth-footer">
-                        <a href="http://127.0.0.1:8000/password-reset/" class="forgot-password-link">Forgot password?</a>
+                        <a href="{% url 'password_reset' %}" class="forgot-password-link">Forgot password?</a>
                     </div>
                 </form>
                 
@@ -472,8 +472,8 @@
 
     <script>
         // Placeholder for API endpoints
-        const loginApiUrl = 'http://127.0.0.1:8000/api/login/';
-        const signupApiUrl = 'http://127.0.0.1:8000/api/signup/';
+        const loginApiUrl = "{%url 'landing:user-login'%}";
+        const signupApiUrl = "{%url 'landing:supplier-signup'%}";
 
         // Get elements
         const tabs = document.querySelectorAll('.auth-tab');
