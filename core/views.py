@@ -380,13 +380,21 @@ class ProductProviderDetailPage(View):
     template_name = 'provider/detail.html'
 
     def get(self, request, pk):
-        product = get_object_or_404(Product, pk=pk)
-        supplier = Supplier.objects.filter(user=request.user.id).first()
+        # Get the UserProducts instance
+        user_product = get_object_or_404(UserProducts, pk=pk)
+        
+        # Get the supplier instance
+        supplier = user_product.supplier
+
+        # Get all products from this supplier
+        products = supplier.products.all()  # QuerySet of Product
+
         return render(request, self.template_name, {
-            'product': product,
-            'supplier': product.supplier,
-            "logo": supplier.logo if supplier and supplier.logo else None,
+            'products': products,     # pass all products
+            'supplier': supplier,     # pass supplier instance
+            'logo': supplier.logo if supplier and supplier.logo else None,
         })
+
 
 class SupplierProfileViewSet(generics.RetrieveUpdateAPIView):
     serializer_class = SupplierUpdateSerializer
