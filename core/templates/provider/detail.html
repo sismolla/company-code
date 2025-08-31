@@ -978,6 +978,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (!supplierId) {
         console.warn('Supplier ID not found in URL');
+        return;
         // show error or redirect
     }
     console.log('Supplier ID:', supplierId);
@@ -1224,7 +1225,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!validateOrderForm()) return showMessage('Please fill all required fields correctly.', 'error');
 
             const payload = {
-                supplier_id: supplierId,
+                supplier_id: parseInt(supplierId),
                 customer_full_name: document.getElementById('customer-name').value.trim(),
                 customer_email_address: document.getElementById('customer-email').value.trim(),
                 customer_phone: document.getElementById('customer-phone').value.trim(),
