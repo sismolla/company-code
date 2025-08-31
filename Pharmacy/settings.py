@@ -17,7 +17,7 @@ from dotenv import load_dotenv
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-load_dotenv()
+load_dotenv(BASE_DIR / '.env')
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
@@ -100,12 +100,12 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'Pharmacy.wsgi.application'
 
-# DATABASES = {
-#    'default': {
-#        'ENGINE': 'django.db.backends.sqlite3',
-#        'NAME': BASE_DIR / 'db.sqlite3',
-#    }
-# }
+DATABASES = {
+   'default': {
+       'ENGINE': 'django.db.backends.sqlite3',
+       'NAME': BASE_DIR / 'db.sqlite3',
+   }
+}
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
@@ -122,16 +122,16 @@ WSGI_APPLICATION = 'Pharmacy.wsgi.application'
 #     }
 # else:
 
-DATABASES = {
-        'default': {
-        'ENGINE': os.getenv('POSTGRES_ENGINE'),
-        'NAME': os.getenv('POSTGRES_DB'),
-        'USER': os.getenv('POSTGRES_USER'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
-        'HOST': os.getenv('POSTGRES_HOST'),
-        'PORT': os.getenv('POSTGRES_PORT'),
-    }
-}
+# DATABASES = {
+#         'default': {
+#         'ENGINE': os.getenv('POSTGRES_ENGINE'),
+#         'NAME': os.getenv('POSTGRES_DB'),
+#         'USER': os.getenv('POSTGRES_USER'),
+#         'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+#         'HOST': os.getenv('POSTGRES_HOST'),
+#         'PORT': os.getenv('POSTGRES_PORT'),
+#     }
+# }
     
 LOGIN_REDIRECT_URL = '/dashboard'
 if not DEBUG:
@@ -206,8 +206,8 @@ PWA_APP_THEME_COLOR = '#3498db'
 PWA_APP_BACKGROUND_COLOR = '#ffffff'
 PWA_APP_DISPLAY = 'standalone'
 PWA_APP_SCOPE = '/'
-PWA_APP_ID = '/pharmacy'
-PWA_APP_START_URL = '/pharmacy'
+PWA_APP_ID = '/'
+PWA_APP_START_URL = '/'
 PWA_APP_ICONS = [
     {"src": "/static/logo_192.png", "sizes": "192x192"},
     {"src": "/static/logo_512.png", "sizes": "512x512"}
