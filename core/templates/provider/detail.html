@@ -972,18 +972,19 @@ document.addEventListener('DOMContentLoaded', function() {
     // Extract supplier ID from URL
     let supplierId = null;
     const pathParts = window.location.pathname.split('/').filter(Boolean);
-    if (pathParts.length >= 2 && pathParts[0] === 'supplier-detail') {
-        supplierId = pathParts[1]; // get the id
+
+    if (pathParts[0] === 'supplier-detail' && pathParts.length >= 2) {
+        supplierId = pathParts[1];
     }
 
     if (!supplierId) {
-        console.warn('Supplier ID not found in URL');
-        return;
-        // show error or redirect
+        console.warn('Supplier ID not found in URL.');
+        // Handle the "Page not found" or "ID not found" error here.
+        // For example, you could show a user-friendly error message or redirect to a 404 page.
+    } else {
+        console.log('Supplier ID:', supplierId);
+        // Use the supplierId for your logic, like fetching data.
     }
-    console.log('Supplier ID:', supplierId);
-    // --- Utility Functions ---
-
     // Display status message
     function showMessage(message, type = 'success', duration = 3000) {
         const iconMap = {
