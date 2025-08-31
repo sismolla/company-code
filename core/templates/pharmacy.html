@@ -304,8 +304,8 @@
 {% block script %}
 <script>
     // === API Endpoints ===
-    const PRODUCT_API_URL = 'http://127.0.0.1:8000/product/api/';
-    const DOSAGE_API_URL = 'http://127.0.0.1:8000/dosage/api/';
+    const PRODUCT_API_URL = "{%url 'landing:products-api-view'%}";
+    const DOSAGE_API_URL = "{%url 'landing:dosage'%}";
 
     const productsGrid = document.getElementById('products-grid');
     const productsCountSpan = document.getElementById('products-count');

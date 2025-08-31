@@ -655,7 +655,7 @@
                 if (userProductId) {
                     // Construct the URL and update the link on the page
                     const link = document.getElementById('supplier-link');
-                    link.href = `http://127.0.0.1:8000/supplier-detail/${userProductId}/`;
+                    link.href = `/supplier-detail/${userProductId}/`;
                     link.style.display = 'block'; // Make the link visible
                 } else {
                     // Hide the link if userproduct_id is null
