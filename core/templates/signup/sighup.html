@@ -607,7 +607,7 @@
             console.log(csrftoken)
             try {
                 
-                const response = await fetch(signupApiUrl, {
+                const response = await fetch(loginApiUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -615,8 +615,6 @@
                     },
                     credentials: 'include', // ensures cookies (like sessionid) are sent
                     body: JSON.stringify({
-                        name: name.value,
-                        username: username.value,
                         email: email.value,
                         password: password.value,
                         // any other fields
