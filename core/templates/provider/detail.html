@@ -900,31 +900,31 @@
                         <i class="fas fa-user"></i>
                         Customer Information
                     </h2>
-                    <form id="order-form">
+                    <form id="order-form" novalidate>
                         <div class="form-group">
                             <label class="form-label" for="customer-name">Full Name <span class="required">*</span></label>
                             <input type="text" id="customer-name" class="form-control" placeholder="John Doe" required>
-                            <div class="invalid-feedback">Please provide your full name.</div>
+                            <div class="invalid-feedback" id="customer-name-error">Please provide your full name.</div>
                         </div>
                         <div class="form-group">
                             <label class="form-label" for="customer-email">Email Address</label>
                             <input type="email" id="customer-email" class="form-control" placeholder="john.doe@example.com">
-                            <div class="invalid-feedback">Please provide a valid email address.</div>
+                            <div class="invalid-feedback" id="customer-email-error">Please provide a valid email address.</div>
                         </div>
                         <div class="form-group">
                             <label class="form-label" for="customer-phone">Phone Number <span class="required">*</span></label>
-                            <input type="tel" id="customer-phone" class="form-control" placeholder="+1234567890" required>
-                            <div class="invalid-feedback">Please provide a valid phone number.</div>
+                            <input type="tel" id="customer-phone" class="form-control" placeholder="+251..." required>
+                            <div class="invalid-feedback" id="customer-phone-error">Please provide a valid phone number.</div>
                         </div>
                         <div class="form-group">
                             <label class="form-label" for="pharmacy-name">Medical Device Wholesaler <span class="required">*</span></label>
                             <input type="text" id="pharmacy-name" class="form-control" placeholder="My Medical Device Store" required>
-                            <div class="invalid-feedback">Please provide your medical device business name.</div>
+                            <div class="invalid-feedback" id="pharmacy-name-error">Please provide your medical device business name.</div>
                         </div>
                         <div class="form-group">
                             <label class="form-label" for="delivery-address">Delivery Address <span class="required">*</span></label>
                             <textarea id="delivery-address" class="form-control" rows="3" placeholder="123 Main St, City, State, ZIP" required></textarea>
-                            <div class="invalid-feedback">Please provide a delivery address.</div>
+                            <div class="invalid-feedback" id="delivery-address-error">Please provide a delivery address.</div>
                         </div>
                     </form>
                 </div>
@@ -948,342 +948,410 @@
 
 {% block script %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // --- DOM Elements ---
-    
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- DOM Elements ---
+        const loadingState = document.getElementById('loading-state');
+        const errorState = document.getElementById('error-state');
+        const mainContent = document.getElementById('main-content');
+        const statusMessage = document.getElementById('status-message');
+        const productsTableBody = document.getElementById('products-table-body');
+        const cartItemsContainer = document.getElementById('cart-items');
+        const cartTotalElement = document.getElementById('cart-total');
+        const customerInfoForm = document.getElementById('customer-info-form');
+        const checkoutBtn = document.querySelector('.checkout-btn');
+        const productSearchInput = document.getElementById('product-search');
+        const retryBtn = document.getElementById('retry-btn');
+        const errorMessage = document.getElementById('error-message');
+        const orderForm = document.getElementById('order-form');
 
-    const loadingState = document.getElementById('loading-state');
-    const errorState = document.getElementById('error-state');
-    const mainContent = document.getElementById('main-content');
-    const statusMessage = document.getElementById('status-message');
-    const messageText = statusMessage.querySelector('.message-text');
-    const productsTableBody = document.getElementById('products-table-body');
-    const cartItemsContainer = document.getElementById('cart-items');
-    const cartTotalElement = document.getElementById('cart-total');
-    const customerInfoForm = document.getElementById('customer-info-form');
-    const checkoutBtn = document.querySelector('.checkout-btn');
-    const productSearchInput = document.getElementById('product-search');
-    const retryBtn = document.getElementById('retry-btn');
-    const errorMessage = document.getElementById('error-message');
-    // --- State variables ---
-    let allProducts = [];
-    let cart = [];
-    let isSubmitting = false;
+        // --- State variables ---
+        let allProducts = [];
+        let cart = [];
+        let isSubmitting = false;
 
-    // Extract supplier ID from URL
-    let supplierId = null;
-    const pathParts = window.location.pathname.split('/').filter(Boolean);
+        // Extract supplier ID from URL
+        let supplierId = null;
+        const pathParts = window.location.pathname.split('/').filter(Boolean);
 
-    if (pathParts[0] === 'supplier-detail' && pathParts.length >= 2) {
-        supplierId = pathParts[1];
-    }
+        if (pathParts[0] === 'supplier-detail' && pathParts.length >= 2) {
+            supplierId = pathParts[1];
+        }
 
-    if (!supplierId) {
-        console.warn('Supplier ID not found in URL.');
-        // Handle the "Page not found" or "ID not found" error here.
-        // For example, you could show a user-friendly error message or redirect to a 404 page.
-    } else {
-        console.log('Supplier ID:', supplierId);
-        // Use the supplierId for your logic, like fetching data.
-    }
-    // Display status message
-    function showMessage(message, type = 'success', duration = 3000) {
-        const iconMap = {
-            success: 'fas fa-check-circle',
-            error: 'fas fa-exclamation-circle',
-            warning: 'fas fa-exclamation-triangle',
-            info: 'fas fa-info-circle'
-        };
-        const iconClass = iconMap[type] || 'fas fa-info-circle';
-
-        statusMessage.innerHTML = `<i class="${iconClass}"></i><span class="message-text">${message}</span>`;
-        statusMessage.className = `status-message show ${type}`;
-
-        setTimeout(() => {
-            statusMessage.classList.add('hide');
-            setTimeout(() => statusMessage.className = 'status-message', 300);
-        }, duration);
-    }
-
-    // Display error with retry option
-    function displayError(message) {
-        loadingState.style.display = 'none';
-        mainContent.style.display = 'none';
-        errorMessage.textContent = message;
-        errorState.style.display = 'block';
-    }
-
-    // Update cart with product and quantity
-    function updateCart(product, quantity) {
-        const index = cart.findIndex(item => item.id === product.id);
-        if (quantity > 0) {
-            if (index > -1) cart[index].quantity = quantity;
-            else cart.push({ ...product, quantity });
-        } else if (index > -1) cart.splice(index, 1);
-
-        updateCartDisplay();
-    }
-
-    // Update cart UI
-    function updateCartDisplay() {
-        cartItemsContainer.innerHTML = '';
-        let total = 0;
-
-        if (cart.length > 0) {
-            customerInfoForm.style.display = 'block';
-            checkoutBtn.disabled = false;
-
-            cart.forEach(item => {
-                const itemTotal = item.price * item.quantity;
-                total += itemTotal;
-
-                const cartItem = document.createElement('div');
-                cartItem.className = 'cart-item';
-                cartItem.innerHTML = `
-                    <div class="cart-item-details">
-                        <strong>${item.name} ${item.strength}</strong> (Qty: ${item.quantity})
-                    </div>
-                    <div class="cart-item-price">$${itemTotal}</div>
-                `;
-                cartItemsContainer.appendChild(cartItem);
-            });
+        if (!supplierId) {
+            console.warn('Supplier ID not found in URL.');
         } else {
-            customerInfoForm.style.display = 'none';
-            checkoutBtn.disabled = true;
-            cartItemsContainer.innerHTML = '<p class="empty-cart-message">Your order is empty. Add products to begin.</p>';
+            console.log('Supplier ID:', supplierId);
         }
 
-        cartTotalElement.textContent = `$${total}`;
-    }
-
-    // Render products in table
-    function renderProducts(productsToRender) {
-        productsTableBody.innerHTML = '';
-
-        if (!productsToRender || productsToRender.length === 0) {
-            productsTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No products available.</td></tr>';
-            return;
-        }
-
-        productsToRender.forEach(productItem => {
-            const product = productItem.product;
-            const stock = product.stock_quantity;
-            const statusClass = stock > 10 ? 'in-stock' : stock > 0 ? 'low-stock' : 'out-of-stock';
-            const stockText = stock > 0 ? `${stock} in stock` : 'Out of Stock';
-
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>
-                    <div class="product-name">${product.name}</div>
-                    <div class="product-strength">${product.strength}</div>
-                </td>
-                <td>
-                    <div class="product-manufacturer">${product.manufacturer || 'Generic'}</div>
-                    <div>${product.dosage_form.name}</div>
-                </td>
-                <td>$${product.price}</td>
-                <td><span class="status-badge ${statusClass}">${stockText}</span></td>
-                <td>
-                    <div class="quantity-control">
-                        <button class="decrement-btn" ${stock===0 ? 'disabled' : ''}>-</button>
-                        <input type="number" class="quantity-input" value="0" min="0" max="${stock}" ${stock===0 ? 'disabled' : ''}>
-                        <button class="increment-btn" ${stock===0 ? 'disabled' : ''}>+</button>
-                    </div>
-                </td>
-            `;
-            productsTableBody.appendChild(row);
-
-            // Quantity controls
-            const incBtn = row.querySelector('.increment-btn');
-            const decBtn = row.querySelector('.decrement-btn');
-            const qtyInput = row.querySelector('.quantity-input');
-
-            const handleQtyChange = () => {
-                let q = parseInt(qtyInput.value) || 0;
-                q = Math.max(0, Math.min(q, stock));
-                qtyInput.value = q;
-                updateCart(product, q);
+        // Display status message
+        function showMessage(message, type = 'success', duration = 3000) {
+            const iconMap = {
+                success: 'fas fa-check-circle',
+                error: 'fas fa-exclamation-circle',
+                warning: 'fas fa-exclamation-triangle',
+                info: 'fas fa-info-circle'
             };
+            const iconClass = iconMap[type] || 'fas fa-info-circle';
 
-            incBtn.addEventListener('click', () => { qtyInput.value++; handleQtyChange(); });
-            decBtn.addEventListener('click', () => { qtyInput.value--; handleQtyChange(); });
-            qtyInput.addEventListener('input', handleQtyChange);
-            qtyInput.addEventListener('change', handleQtyChange);
-        });
-    }
+            statusMessage.innerHTML = `<i class="${iconClass}"></i><span class="message-text">${message}</span>`;
+            statusMessage.className = `status-message show ${type}`;
 
-    // Fetch supplier details
-    async function fetchSupplierDetails() {
-        if (!supplierId || isNaN(supplierId)) {
-            displayError('Invalid supplier ID in URL.');
-            return;
+            setTimeout(() => {
+                statusMessage.classList.add('hide');
+                setTimeout(() => statusMessage.className = 'status-message', 300);
+            }, duration);
         }
 
-        loadingState.style.display = 'block';
-        errorState.style.display = 'none';
-        mainContent.style.display = 'none';
-
-        try {
-            const res = await fetch(`/user-models/${supplierId}/`);
-            if (!res.ok) throw new Error(`Failed to fetch supplier details (${res.status})`);
-            const data = await res.json();
-
-            if (!data || !data.supplier) throw new Error('Invalid data from server.');
-            allProducts = data.products || [];
-            renderSupplierDetails(data);
-
-            productSearchInput.disabled = false;
-            productSearchInput.placeholder = "Search for products...";
-        } catch (err) {
-            console.error(err);
-            displayError(err.message || 'Failed to load supplier details.');
+        // Display error with retry option
+        function displayError(message) {
+            loadingState.style.display = 'none';
+            mainContent.style.display = 'none';
+            errorMessage.textContent = message;
+            errorState.style.display = 'block';
         }
-    }
 
-    // Render supplier info in UI
-    // Render supplier info in UI
-    function renderSupplierDetails(data) {
-        try {
-            // Meta description
-            let meta = document.querySelector("meta[name='description']");
-            if (!meta) { 
-                meta = document.createElement("meta"); 
-                meta.name = "description"; 
-                document.head.appendChild(meta); 
+        // Update cart with product and quantity
+        function updateCart(product, quantity) {
+            const index = cart.findIndex(item => item.id === product.id);
+            if (quantity > 0) {
+                if (index > -1) cart[index].quantity = quantity;
+                else cart.push({ ...product, quantity });
+            } else if (index > -1) cart.splice(index, 1);
+
+            updateCartDisplay();
+        }
+
+        // Update cart UI
+        function updateCartDisplay() {
+            cartItemsContainer.innerHTML = '';
+            let total = 0;
+
+            if (cart.length > 0) {
+                customerInfoForm.style.display = 'block';
+                checkoutBtn.disabled = false;
+
+                cart.forEach(item => {
+                    const itemTotal = item.price * item.quantity;
+                    total += itemTotal;
+
+                    const cartItem = document.createElement('div');
+                    cartItem.className = 'cart-item';
+                    cartItem.innerHTML = `
+                        <div class="cart-item-details">
+                            <strong>${item.name} ${item.strength}</strong> (Qty: ${item.quantity})
+                        </div>
+                        <div class="cart-item-price">$${itemTotal.toFixed(2)}</div>
+                    `;
+                    cartItemsContainer.appendChild(cartItem);
+                });
+            } else {
+                customerInfoForm.style.display = 'none';
+                checkoutBtn.disabled = true;
+                cartItemsContainer.innerHTML = '<p class="empty-cart-message">Your order is empty. Add products to begin.</p>';
             }
-            meta.content = `${data.supplier.name} - Trusted Ethiopian pharmaceutical wholesaler`;
 
-            document.getElementById('supplier-name').textContent = data.supplier.name;
-            document.getElementById('supplier-address').textContent = data.supplier.address || 'N/A';
-            document.getElementById('product-count').textContent = `${allProducts.length} product${allProducts.length!==1?'s':''}`;
-            document.getElementById('supplier-description').textContent = data.description || 'No description available.';
-            document.getElementById('business-name').textContent = data.supplier.name;
-            document.getElementById('delivery-status').textContent = data.offer_delivery ? 'Yes' : 'No';
-            document.getElementById('bulk-discount').textContent = data.bulk_discount_available ? 'Yes' : 'No';
+            cartTotalElement.textContent = `$${total.toFixed(2)}`;
+        }
 
-            // Update the About section title dynamically
-            const aboutTitle = document.querySelector('.info-card > .section-title i').parentElement; 
-            // safer selector: select the h2 containing the About section icon
-            const aboutSection = document.querySelector('.info-card h2.section-title i.fas.fa-info-circle').parentElement;
-            aboutSection.innerHTML = `<i class="fas fa-info-circle"></i> About ${data.supplier.name}`;
+        // Render products in table
+        function renderProducts(productsToRender) {
+            productsTableBody.innerHTML = '';
 
-            const avatar = document.getElementById('supplier-avatar');
-            if (data.supplier.logo) avatar.innerHTML = `<img src="${data.supplier.logo}" alt="${data.supplier.name}" onerror="this.parentElement.innerHTML='<i class=\\'fas fa-building fa-2x\\'></i>'">`;
-            else avatar.innerHTML = `<i class="fas fa-building fa-2x"></i>`;
+            if (!productsToRender || productsToRender.length === 0) {
+                productsTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No products available.</td></tr>';
+                return;
+            }
 
-            // Contact info
-            const contactContainer = document.getElementById('contact-methods');
-            contactContainer.innerHTML = '';
-            ['phone','email','whatsapp_link','telegram_link'].forEach(key => {
-                if (data.supplier[key]) {
-                    const isLink = key.includes('link') || key==='email';
-                    const label = key==='phone'?'Phone':key==='email'?'Email':key.includes('whatsapp')?'Whatsapp':'Telegram';
-                    const icon = key==='phone'?'fas fa-phone-alt':key==='email'?'fas fa-envelope':key.includes('whatsapp')?'fab fa-whatsapp':'fab fa-telegram';
-                    contactContainer.innerHTML += createContactMethod(label, data.supplier[key], icon, isLink);
+            productsToRender.forEach(productItem => {
+                const product = productItem.product;
+                const stock = product.stock_quantity;
+                const statusClass = stock > 10 ? 'in-stock' : stock > 0 ? 'low-stock' : 'out-of-stock';
+                const stockText = stock > 0 ? `${stock} in stock` : 'Out of Stock';
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>
+                        <div class="product-name">${product.name}</div>
+                        <div class="product-strength">${product.strength}</div>
+                    </td>
+                    <td>
+                        <div class="product-manufacturer">${product.manufacturer || 'Generic'}</div>
+                        <div>${product.dosage_form.name}</div>
+                    </td>
+                    <td>$${product.price}</td>
+                    <td><span class="status-badge ${statusClass}">${stockText}</span></td>
+                    <td>
+                        <div class="quantity-control">
+                            <button class="decrement-btn" ${stock === 0 ? 'disabled' : ''}>-</button>
+                            <input type="number" class="quantity-input" value="0" min="0" max="${stock}" ${stock === 0 ? 'disabled' : ''}>
+                            <button class="increment-btn" ${stock === 0 ? 'disabled' : ''}>+</button>
+                        </div>
+                    </td>
+                `;
+                productsTableBody.appendChild(row);
+
+                // Quantity controls
+                const incBtn = row.querySelector('.increment-btn');
+                const decBtn = row.querySelector('.decrement-btn');
+                const qtyInput = row.querySelector('.quantity-input');
+
+                const handleQtyChange = () => {
+                    let q = parseInt(qtyInput.value) || 0;
+                    q = Math.max(0, Math.min(q, stock));
+                    qtyInput.value = q;
+                    updateCart(product, q);
+                };
+
+                incBtn.addEventListener('click', () => {
+                    qtyInput.value++;
+                    handleQtyChange();
+                });
+                decBtn.addEventListener('click', () => {
+                    qtyInput.value--;
+                    handleQtyChange();
+                });
+                qtyInput.addEventListener('input', handleQtyChange);
+                qtyInput.addEventListener('change', handleQtyChange);
+            });
+        }
+
+        // Fetch supplier details
+        async function fetchSupplierDetails() {
+            if (!supplierId || isNaN(supplierId)) {
+                displayError('Invalid supplier ID in URL.');
+                return;
+            }
+
+            loadingState.style.display = 'block';
+            errorState.style.display = 'none';
+            mainContent.style.display = 'none';
+
+            try {
+                const res = await fetch(`/user-models/${supplierId}/`);
+                if (!res.ok) throw new Error(`Failed to fetch supplier details (${res.status})`);
+                const data = await res.json();
+
+                if (!data || !data.supplier) throw new Error('Invalid data from server.');
+                allProducts = data.products || [];
+                renderSupplierDetails(data);
+
+                productSearchInput.disabled = false;
+                productSearchInput.placeholder = "Search for products...";
+            } catch (err) {
+                console.error(err);
+                displayError(err.message || 'Failed to load supplier details.');
+            }
+        }
+
+        // Render supplier info in UI
+        function renderSupplierDetails(data) {
+            try {
+                // Meta description
+                let meta = document.querySelector("meta[name='description']");
+                if (!meta) {
+                    meta = document.createElement("meta");
+                    meta.name = "description";
+                    document.head.appendChild(meta);
+                }
+                meta.content = `${data.supplier.name} - Trusted Ethiopian pharmaceutical wholesaler`;
+
+                document.getElementById('supplier-name').textContent = data.supplier.name;
+                document.getElementById('supplier-address').textContent = data.supplier.address || 'N/A';
+                document.getElementById('product-count').textContent = `${allProducts.length} product${allProducts.length !== 1 ? 's' : ''}`;
+                document.getElementById('supplier-description').textContent = data.description || 'No description available.';
+                document.getElementById('business-name').textContent = data.supplier.name;
+                document.getElementById('delivery-status').textContent = data.offer_delivery ? 'Yes' : 'No';
+                document.getElementById('bulk-discount').textContent = data.bulk_discount_available ? 'Yes' : 'No';
+
+                // Update the About section title dynamically
+                const aboutSection = document.querySelector('.info-card h2.section-title i.fas.fa-info-circle').parentElement;
+                aboutSection.innerHTML = `<i class="fas fa-info-circle"></i> About ${data.supplier.name}`;
+
+                const avatar = document.getElementById('supplier-avatar');
+                if (data.supplier.logo) avatar.innerHTML = `<img src="${data.supplier.logo}" alt="${data.supplier.name}" onerror="this.parentElement.innerHTML='<i class=\\'fas fa-building fa-2x\\'></i>'">`;
+                else avatar.innerHTML = `<i class="fas fa-building fa-2x"></i>`;
+
+                // Contact info
+                const contactContainer = document.getElementById('contact-methods');
+                contactContainer.innerHTML = '';
+                ['phone', 'email', 'whatsapp_link', 'telegram_link'].forEach(key => {
+                    if (data.supplier[key]) {
+                        const isLink = key.includes('link') || key === 'email';
+                        const label = key === 'phone' ? 'Phone' : key === 'email' ? 'Email' : key.includes('whatsapp') ? 'Whatsapp' : 'Telegram';
+                        const icon = key === 'phone' ? 'fas fa-phone-alt' : key === 'email' ? 'fas fa-envelope' : key.includes('whatsapp') ? 'fab fa-whatsapp' : 'fab fa-telegram';
+                        contactContainer.innerHTML += createContactMethod(label, data.supplier[key], icon, isLink);
+                    }
+                });
+                if (!contactContainer.children.length) contactContainer.innerHTML = '<p>No contact info available.</p>';
+
+                // Render products
+                renderProducts(allProducts);
+
+                loadingState.style.display = 'none';
+                mainContent.style.display = 'block';
+                updateCartDisplay();
+            } catch (err) {
+                console.error(err);
+                displayError('Error displaying supplier details.');
+            }
+        }
+
+        // Create contact method HTML
+        function createContactMethod(label, value, iconClass, isLink = false) {
+            if (!value) return '';
+            const displayValue = isLink ? `<a href="${value}" target="_blank" rel="noopener noreferrer">${label === 'Email' ? value : 'Contact via ' + label}</a>` : value;
+            return `<div class="contact-method"><div class="contact-icon"><i class="${iconClass}"></i></div><div class="contact-info"><div class="contact-label">${label}</div><div class="contact-value">${displayValue}</div></div></div>`;
+        }
+
+        /**
+         * @description Validates the form fields and displays error messages.
+         * @param {Object} [errors={}] - An optional object of field-specific errors from the server.
+         * @returns {boolean} - True if the form is valid, false otherwise.
+         */
+        function validateOrderForm(errors = {}) {
+            let valid = true;
+            // Clear previous errors
+            const formFields = document.querySelectorAll('#order-form .form-control');
+            formFields.forEach(field => field.classList.remove('is-invalid'));
+            const invalidFeedbackElements = document.querySelectorAll('.invalid-feedback');
+            invalidFeedbackElements.forEach(el => el.textContent = '');
+
+            // Validate required fields and display custom messages
+            ['customer-name', 'customer-phone', 'pharmacy-name', 'delivery-address'].forEach(id => {
+                const field = document.getElementById(id);
+                if (!field.value.trim()) {
+                    field.classList.add('is-invalid');
+                    document.getElementById(id + '-error').textContent = `Please provide your ${field.placeholder}.`;
+                    valid = false;
                 }
             });
-            if (!contactContainer.children.length) contactContainer.innerHTML = '<p>No contact info available.</p>';
 
-            // Render products
-            renderProducts(allProducts);
-
-            loadingState.style.display = 'none';
-            mainContent.style.display = 'block';
-            updateCartDisplay();
-        } catch (err) {
-            console.error(err);
-            displayError('Error displaying supplier details.');
-        }
-    }
-
-
-    // Create contact method HTML
-    function createContactMethod(label, value, iconClass, isLink=false) {
-        if (!value) return '';
-        const displayValue = isLink ? `<a href="${value}" target="_blank" rel="noopener noreferrer">${label==='Email'?value:'Contact via '+label}</a>` : value;
-        return `<div class="contact-method"><div class="contact-icon"><i class="${iconClass}"></i></div><div class="contact-info"><div class="contact-label">${label}</div><div class="contact-value">${displayValue}</div></div></div>`;
-    }
-
-    // Validate order form
-    function validateOrderForm() {
-        let valid = true;
-        ['customer-name','customer-phone','pharmacy-name','delivery-address'].forEach(id=>{
-            const field = document.getElementById(id);
-            if (!field.value.trim()) { field.classList.add('is-invalid'); valid=false; } 
-            else { field.classList.remove('is-invalid'); }
-        });
-        const emailField = document.getElementById('customer-email');
-        if (emailField.value.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailField.value)) { emailField.classList.add('is-invalid'); valid=false; }
-        else emailField.classList.remove('is-invalid');
-        return valid;
-    }
-
-    // --- Event Listeners ---
-    productSearchInput.addEventListener('input', function() {
-        const term = this.value.toLowerCase().trim();
-        const filtered = allProducts.filter(p => {
-            const prod = p.product;
-            return [prod.name, prod.strength, prod.manufacturer || '', prod.dosage_form_name || ''].some(f => f.toLowerCase().includes(term));
-        });
-        renderProducts(filtered);
-    });
-
-    retryBtn.addEventListener('click', fetchSupplierDetails);
-
-    checkoutBtn.addEventListener('click', async () => {
-        if (isSubmitting) return;
-        isSubmitting = true;
-
-        try {
-            if (!cart.length) return showMessage('Add products before submitting.', 'error');
-            if (!validateOrderForm()) return showMessage('Please fill all required fields correctly.', 'error');
-
-            const payload = {
-                supplier_id: parseInt(supplierId),
-                customer_full_name: document.getElementById('customer-name').value.trim(),
-                customer_email_address: document.getElementById('customer-email').value.trim(),
-                customer_phone: document.getElementById('customer-phone').value.trim(),
-                customer_pharmacy_name: document.getElementById('pharmacy-name').value.trim(),
-                customer_delivery_address: document.getElementById('delivery-address').value.trim(),
-                items: cart.map(item=>({product_id:item.id, quantity:item.quantity, price:item.price}))
-            };
-
-            checkoutBtn.disabled = true;
-            checkoutBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
-
-            const res = await fetch('/order/creation/', {
-                method:'POST',
-                headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')},
-                body: JSON.stringify(payload)
-            });
-            if (!res.ok) {
-                const errData = await res.json().catch(()=>({}));
-                throw new Error(errData.detail||errData.message||`Order failed (${res.status})`);
+            // Validate email
+            const emailField = document.getElementById('customer-email');
+            if (emailField.value.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailField.value)) {
+                emailField.classList.add('is-invalid');
+                document.getElementById('customer-email-error').textContent = 'Please provide a valid email address.';
+                valid = false;
             }
 
-            showMessage('Order submitted successfully! we will send you the order detail via email or contact the wholesaler.', 'success', 10000);
-            cart=[]; updateCartDisplay(); document.querySelectorAll('.quantity-input').forEach(i=>i.value=0);
-            document.getElementById('order-form').reset();
+            // Validate phone number format
+            const phoneField = document.getElementById('customer-phone');
+            // Updated regex to allow 09xxxxxxx, +2519xxxxxxx, 07xxxxxxx, +2517xxxxxxx
+            const phoneRegex = /^(09|07|\+2519|\+2517)\d{8}$/;
 
-        } catch(err) {
-            console.error(err);
-            showMessage(err.message || 'Error submitting order.', 'error');
-        } finally {
-            checkoutBtn.disabled=false;
-            checkoutBtn.innerHTML='Submit Order Request';
-            isSubmitting=false;
+            if (phoneField.value.trim() && !phoneRegex.test(phoneField.value.trim())) {
+                phoneField.classList.add('is-invalid');
+                document.getElementById('customer-phone-error').textContent = 
+                    'Please enter a valid phone number (e.g., 09xxxxxxxx, 07xxxxxxxx, +2519xxxxxxxx, +2517xxxxxxxx).';
+                valid = false;
+            }
+
+            
+            // Display server-side errors
+            for (const field in errors) {
+                const element = document.getElementById(field.replace(/_/g, '-'));
+                if (element) {
+                    element.classList.add('is-invalid');
+                    const errorElement = document.getElementById(element.id + '-error');
+                    if (errorElement) {
+                        // Join multiple error messages if they exist
+                        errorElement.textContent = Array.isArray(errors[field]) ? errors[field].join(' ') : errors[field];
+                    }
+                }
+            }
+            return valid;
         }
+
+        // --- Event Listeners ---
+        productSearchInput.addEventListener('input', function() {
+            const term = this.value.toLowerCase().trim();
+            const filtered = allProducts.filter(p => {
+                const prod = p.product;
+                return [prod.name, prod.strength, prod.manufacturer || '', prod.dosage_form_name || ''].some(f => f.toLowerCase().includes(term));
+            });
+            renderProducts(filtered);
+        });
+
+        retryBtn.addEventListener('click', fetchSupplierDetails);
+
+        checkoutBtn.addEventListener('click', async () => {
+            if (isSubmitting) return;
+            isSubmitting = true;
+
+            try {
+                if (!cart.length) {
+                    isSubmitting = false;
+                    return showMessage('Add products before submitting.', 'error');
+                }
+
+                // Initial client-side validation
+                if (!validateOrderForm()) {
+                    isSubmitting = false;
+                    showMessage('Please correct the errors in the form.', 'error');
+                    return;
+                }
+
+                const payload = {
+                    supplier_id: parseInt(supplierId),
+                    customer_full_name: document.getElementById('customer-name').value.trim(),
+                    customer_email_address: document.getElementById('customer-email').value.trim(),
+                    customer_phone: document.getElementById('customer-phone').value.trim(),
+                    customer_pharmacy_name: document.getElementById('pharmacy-name').value.trim(),
+                    customer_delivery_address: document.getElementById('delivery-address').value.trim(),
+                    items: cart.map(item => ({
+                        product_id: item.id,
+                        quantity: item.quantity,
+                        price: item.price
+                    }))
+                };
+
+                checkoutBtn.disabled = true;
+                checkoutBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+
+                const res = await fetch('/order/creation/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!res.ok) {
+                    const errData = await res.json().catch(() => ({}));
+                    if (res.status === 400 && errData) {
+                        validateOrderForm(errData);
+                        throw new Error('Please correct the form errors.');
+                    }
+                    throw new Error(errData.detail || errData.message || `Order failed (${res.status})`);
+                }
+
+                showMessage('Order submitted successfully! We will send you the order detail via email or contact the wholesaler.', 'success', 10000);
+                cart = [];
+                updateCartDisplay();
+                document.querySelectorAll('.quantity-input').forEach(i => i.value = 0);
+                orderForm.reset();
+
+            } catch (err) {
+                console.error(err);
+                showMessage(err.message || 'Error submitting order.', 'error');
+            } finally {
+                checkoutBtn.disabled = false;
+                checkoutBtn.innerHTML = 'Submit Order Request';
+                isSubmitting = false;
+            }
+        });
+
+        // Get CSRF token
+        function getCookie(name) {
+            const cookies = document.cookie.split(';').map(c => c.trim());
+            for (let cookie of cookies)
+                if (cookie.startsWith(name + '=')) return decodeURIComponent(cookie.substring(name.length + 1));
+            return null;
+        }
+
+        // --- Initialize ---
+        fetchSupplierDetails();
     });
-
-    // Get CSRF token
-    function getCookie(name) {
-        const cookies = document.cookie.split(';').map(c=>c.trim());
-        for (let cookie of cookies) if (cookie.startsWith(name+'=')) return decodeURIComponent(cookie.substring(name.length+1));
-        return null;
-    }
-
-    // --- Initialize ---
-    fetchSupplierDetails();
-});
 </script>
 {% endblock script %}
