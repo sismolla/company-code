@@ -209,11 +209,6 @@ PWA_APP_DISPLAY = 'standalone'
 PWA_APP_SCOPE = '/'
 PWA_APP_ID = '/'
 PWA_APP_START_URL = '/'
-PWA_APP_ICONS = [
-    {"src": "/static/logo_192.png", "sizes": "192x192"},
-    {"src": "/static/logo_512.png", "sizes": "512x512"}
-]
-
 PWA_APP_SCREENSHOTS = [
     {
         "src": "/static/phone_scren.png",
