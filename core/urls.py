@@ -39,7 +39,7 @@ urlpatterns = [
     path('user/products/', ProductsView.as_view(), name='user-products'),
     path('', Pharmacy_page.as_view(), name='landing-page'),
 
-    path('list/',ProductProviderListPage.as_view(),name='suppliers-list'),
+    path('pharmaceutical-wholesalers/',ProductProviderListPage.as_view(),name='suppliers-list'),
     path('supplier-detail/<int:pk>/', ProductProviderDetailPage.as_view(), name='product-provider-detail'),
     path('user-models-page/',SupplierProfileViewSet.as_view(),name='single-page-supplier'),
 

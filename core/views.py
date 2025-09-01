@@ -342,6 +342,8 @@ class ProductProvider(viewsets.ModelViewSet):
                 {
                     "id": item["id"],
                     "supplier": item["supplier"]["name"],
+                    "phone":item['supplier']['phone'],
+                    'email': item['supplier']['email'],
                     "address": item["supplier"]["address"],
                     "description": item["description"],
                     "average_rating": [p['average_rating'] for p in item['products']],  # still list per product

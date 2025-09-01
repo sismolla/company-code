@@ -1,11 +1,11 @@
 {% extends 'base2.html' %}
 {% load static %}
 {% block meta %}
-<meta name="description" content="Browse a list of verified Ethiopian pharmaceutical wholesalers on Pharma ገበያ. Connect directly with trusted suppliers for bulk pharmacy orders." />
+<meta name="description" content="Browse a list of verified Ethiopian medical devices wholesalers on Pharma ገበያ. Connect directly with trusted suppliers for bulk medical devices orders." />
 
 {% endblock meta %}
 
-{% block title %}Ethiopian Pharmaceutical Wholesalers{% endblock title %}
+{% block title %}Ethiopian Medical devices Wholesalers{% endblock title %}
 
 {% block style %}
     <style>
@@ -26,6 +26,66 @@
             margin: 0;
             padding: 0;
         }
+
+/* Additional styles for contact information */
+.search-container {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.search-input {
+    flex: 1;
+    min-width: 250px;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.supplier-contact {
+    margin: 15px 0;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-radius: 4px;
+}
+
+.supplier-contact-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.supplier-contact-item:last-child {
+    margin-bottom: 0;
+}
+
+.supplier-contact-item i {
+    margin-right: 10px;
+    color: #2c5aa0;
+    width: 20px;
+}
+
+.supplier-contact-item a {
+    color: #2c5aa0;
+    text-decoration: none;
+}
+
+.supplier-contact-item a:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+    .search-container {
+        flex-direction: column;
+    }
+    
+    .search-input {
+        min-width: 100%;
+    }
+}
+
 
         .container {
             max-width: 1200px;
@@ -189,27 +249,36 @@
     </style>
 {% endblock style %}
 {% block content %}
-    <div class="container">
-        <div class="page-header">
-            <h1 class="page-title">Trusted Pharmaceutical Wholesalers</h1>
-            <p class="page-description">Browse our verified Wholesalers and their top products</p>
-        </div>
+<div class="container">
+  <div class="page-header">
+    <h1 class="page-title">Trusted Medical devices Wholesalers in Ethiopia</h1>
+    <p class="page-description">Explore verified Medical devices wholesalers in Ethiopia offering bulk supplies, reliable shipping, and quality assurance for your business needs.</p>
+  </div>
 
-        <div class="search-container">
-            <input type="text" id="searchLocation" class="search-input" placeholder="Search by location (e.g., kotebe, London)">
-        </div>
+  <!-- Search and Listing -->
+  <div class="search-container">
+    <input type="text" id="searchLocation" class="search-input" placeholder="Search by location (e.g., Kotebe, Addis Ababa)">
+    <input type="text" id="searchContact" class="search-input" placeholder="Search by phone or email">
+  </div>
 
-        <div class="supplier-list">
-            <p>Loading Wholesalers...</p>
-        </div>
-    </div>
-{% endblock content %}
+  <div class="supplier-list">
+    <p>Loading Wholesalers...</p>
+    <!-- Listings dynamically populated here -->
+  </div>
+
+  <!-- Contact & NAP (if applicable) -->
+  <footer class="contact-info">
+    <p>Need help? <a href="/contact/">Contact us</a> or reach out to the suppliers directly.</p>
+  </footer>
+</div>
+{% endblock %}
 
 {% block script %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const supplierList = document.querySelector('.supplier-list');
-    const searchInput = document.getElementById('searchLocation');
+    const searchLocationInput = document.getElementById('searchLocation');
+    const searchContactInput = document.getElementById('searchContact');
     const apiUrl = '/user-models/';
     let allSuppliers = []; // Store the full list of suppliers
 
@@ -247,6 +316,21 @@ document.addEventListener('DOMContentLoaded', function() {
             const ratingValue = calculateAverageRating(supplier.average_rating);
             const ratingHtml = createStarRating(ratingValue);
 
+            // Format contact information
+            const phoneHtml = supplier.phone ? `
+                <div class="supplier-contact-item">
+                    <i class="fas fa-phone"></i>
+                    <a href="tel:${supplier.phone}">${supplier.phone}</a>
+                </div>
+            ` : '';
+
+            const emailHtml = supplier.email ? `
+                <div class="supplier-contact-item">
+                    <i class="fas fa-envelope"></i>
+                    <a href="mailto:${supplier.email}">${supplier.email}</a>
+                </div>
+            ` : '';
+
             supplierCard.innerHTML = `
                 <div class="supplier-header">
                     <div class="supplier-avatar">
@@ -263,6 +347,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 <p class="supplier-description">
                     ${supplier.description || 'No description available.'}
                 </p>
+                <div class="supplier-contact">
+                    ${phoneHtml}
+                    ${emailHtml}
+                </div>
                 <a href="/supplier-detail/${supplier.id}/" class="view-btn">
                     View Supplier Profile
                 </a>
@@ -296,16 +384,31 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // --- Search functionality ---
-    searchInput?.addEventListener('input', function(event) {
-        const searchTerm = event.target.value.toLowerCase();
-        const filteredSuppliers = allSuppliers.filter(supplier =>
-            supplier.address && supplier.address.toLowerCase().includes(searchTerm)
-        );
+    function filterSuppliers() {
+        const locationTerm = searchLocationInput.value.toLowerCase();
+        const contactTerm = searchContactInput.value.toLowerCase();
+        
+        const filteredSuppliers = allSuppliers.filter(supplier => {
+            const locationMatch = !locationTerm || 
+                (supplier.address && supplier.address.toLowerCase().includes(locationTerm));
+            
+            const contactMatch = !contactTerm || 
+                (supplier.phone && supplier.phone.toLowerCase().includes(contactTerm)) ||
+                (supplier.email && supplier.email.toLowerCase().includes(contactTerm));
+            
+            return locationMatch && contactMatch;
+        });
+        
         renderSuppliers(filteredSuppliers);
-    });
+    }
+
+    searchLocationInput?.addEventListener('input', filterSuppliers);
+    searchContactInput?.addEventListener('input', filterSuppliers);
 
     // --- Initial fetch ---
     fetchAndRenderSuppliers();
 });
 </script>
+
+
 {% endblock script %}
