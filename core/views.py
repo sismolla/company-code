@@ -645,13 +645,16 @@ class FAQView(TemplateView):
 def handler404(request, exception):
     return render(request, '404.html', status=404)
 
+def handler500(request):
+    return render(request, '500.html', status=404)
+
 
 def robots_txt(request):
     content = """
     User-agent: *
     Disallow: /admin/
     Allow: /
-    Sitemap: http://127.0.0.1:8000/sitemap.xml
+    Sitemap: http://pharmagebeya.com/sitemap.xml
     """
     return HttpResponse(content, content_type="text/plain")
 

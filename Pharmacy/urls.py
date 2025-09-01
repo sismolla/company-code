@@ -19,10 +19,11 @@ from django.contrib import admin
 from django.urls import path,include
 from django.conf.urls.static import static
 from django.views.generic import TemplateView
-from django.conf.urls import handler404
+from django.conf.urls import handler404,handler500
 from django.contrib.auth import views as auth_views
 
 handler404 = 'core.views.handler404'
+handler500 = 'core.views.handler500'
 
 from django.contrib.sitemaps.views import sitemap
 from core.sitemaps import StaticViewSitemap, SupplierSitemap

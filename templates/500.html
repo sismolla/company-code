@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Error | 500</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #fff;
+            overflow-x: hidden;
+        }
+        
+        .error-container {
+            max-width: 800px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .error-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            transform: rotate(30deg);
+            z-index: -1;
+        }
+        
+        .error-code {
+            font-size: 10rem;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 10px;
+            text-shadow: 4px 4px 0 rgba(0, 0, 0, 0.2);
+            color: #fff;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .error-code::after {
+            content: '500';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            color: transparent;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.7; }
+            50% { opacity: 0.3; }
+            100% { opacity: 0.7; }
+        }
+        
+        .error-title {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .error-message {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            line-height: 1.6;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .error-actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 14px 28px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn i {
+            margin-right: 10px;
+        }
+        
+        .technical-details {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 40px;
+            text-align: left;
+        }
+        
+        .technical-details summary {
+            font-weight: 600;
+            cursor: pointer;
+            padding: 10px;
+            outline: none;
+        }
+        
+        .technical-details pre {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+        }
+        
+        .server-icon {
+            font-size: 5rem;
+            margin-bottom: 30px;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0); }
+        }
+        
+        .support-contact {
+            margin-top: 30px;
+            font-size: 1rem;
+        }
+        
+        .support-contact a {
+            color: #fff;
+            text-decoration: underline;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .error-container {
+                padding: 30px 20px;
+            }
+            
+            .error-code {
+                font-size: 7rem;
+            }
+            
+            .error-title {
+                font-size: 2rem;
+            }
+            
+            .error-message {
+                font-size: 1rem;
+            }
+            
+            .error-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .error-code {
+                font-size: 5rem;
+            }
+            
+            .error-title {
+                font-size: 1.8rem;
+            }
+            
+            .server-icon {
+                font-size: 4rem;
+            }
+        }
+        
+        /* Decorative elements */
+        .decoration {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .decoration-1 {
+            width: 100px;
+            height: 100px;
+            top: -30px;
+            left: -30px;
+        }
+        
+        .decoration-2 {
+            width: 60px;
+            height: 60px;
+            bottom: 20px;
+            right: -20px;
+        }
+        
+        .decoration-3 {
+            width: 40px;
+            height: 40px;
+            bottom: 80px;
+            left: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="decoration decoration-1"></div>
+        <div class="decoration decoration-2"></div>
+        <div class="decoration decoration-3"></div>
+        
+        <div class="server-icon">
+            <i class="fas fa-server"></i>
+        </div>
+        
+        <h1 class="error-code">500</h1>
+        <h2 class="error-title">Internal Server Error</h2>
+        
+        <p class="error-message">
+            Oops! Something went wrong on our end. Our team has been notified and is working to fix the issue.
+            Please try again later or contact support if the problem persists.
+        </p>
+        
+        <div class="error-actions">
+            <a href="/" class="btn">
+                <i class="fas fa-home"></i> Go Home
+            </a>
+            <a href="#" class="btn" onclick="window.location.reload()">
+                <i class="fas fa-redo"></i> Try Again
+            </a>
+            <a href="/contactus" class="btn">
+                <i class="fas fa-envelope"></i> Contact Support
+            </a>
+        </div>
+        
+        <div class="support-contact">
+            <p>Need immediate assistance? Email us at <a href="mailto:support@yourcompany.com">msisay967@gmail.com</a></p>
+        </div>
+        
+        <details class="technical-details">
+            <summary>Technical Details</summary>
+            <pre>Error: Internal Server Error
+Time: <span id="current-time"></span>
+Request ID: #<span id="request-id"></span>
+Server: web-01</pre>
+        </details>
+    </div>
+
+    <script>
+        // Set current time
+        document.getElementById('current-time').textContent = new Date().toLocaleString();
+        
+        // Generate a random request ID
+        document.getElementById('request-id').textContent = Math.random().toString(36).substring(2, 10).toUpperCase();
+        
+        // Add some interactive elements
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('mousedown', () => {
+                btn.style.transform = 'scale(0.98)';
+            });
+            
+            btn.addEventListener('mouseup', () => {
+                btn.style.transform = '';
+            });
+            
+            btn.addEventListener('touchstart', () => {
+                btn.style.transform = 'scale(0.98)';
+            });
+            
+            btn.addEventListener('touchend', () => {
+                btn.style.transform = '';
+            });
+        });
+    </script>
+</body>
+</html>
