@@ -194,22 +194,6 @@ class SocialMediaPost(models.Model):
         return f"{self.supplier.name} - {self.post_date}"
 
 
-# class SupplierProfile(models.Model):
-#     user = models.OneToOneField(User, on_delete=models.CASCADE)
-#     telegram_chat_id = models.CharField(max_length=100, blank=True, null=True)  # group/channel chat_id
-#     post_frequency = models.CharField(
-#         max_length=20,
-#         choices=[
-#             ("daily", "Daily"),
-#             ("weekly", "Weekly"),
-#             ("custom", "Custom"),
-#         ],
-#         default="daily"
-#     )
-#     custom_time = models.TimeField(blank=True, null=True)  # if they want exact time posting
-
-
-
 class ContactUs(models.Model):
     SUBJECT_CHOICES = [
         ('wholesaler', 'wholesaler'),
@@ -222,3 +206,24 @@ class ContactUs(models.Model):
     email = models.EmailField(null=False,blank=False)
     subject = models.CharField(choices=SUBJECT_CHOICES, null=False,blank=False,max_length=300)
     message = models.TextField(null=False,blank=False,max_length=2000)
+
+
+class Platform(models.TextChoices):
+    FACEBOOK_PAGE = "facebook_page", "Facebook Page"
+    INSTAGRAM = "instagram", "Instagram"
+    LINKEDIN = "linkedin", "LinkedIn"
+    TELEGRAM_GROUP = "telegram_group", "Telegram Group"
+    TELEGRAM_CHANNEL = "telegram_channel", "Telegram Channel"
+
+class Post(models.Model):
+    content = models.TextField()
+    ai_generated = models.BooleanField(default=True)
+    approved = models.BooleanField(default=False)
+    image = models.ImageField(upload_to='post_images/', blank=True, null=True)
+    scheduled_time = models.DateTimeField(null=True, blank=True)
+    platform = models.CharField(max_length=50, choices=Platform.choices)
+    posted = models.BooleanField(default=False)
+    engagement_score = models.FloatField(null=True, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)

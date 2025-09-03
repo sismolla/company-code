@@ -68,6 +68,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'django_filters',
     'rest_framework',
+    'django_celery_beat',
     'django.contrib.sitemaps',
     'pwa',
 ]
@@ -102,12 +103,12 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'Pharmacy.wsgi.application'
 
-# DATABASES = {
-#    'default': {
-#        'ENGINE': 'django.db.backends.sqlite3',
-#        'NAME': BASE_DIR / 'db.sqlite3',
-#    }
-# }
+DATABASES = {
+   'default': {
+       'ENGINE': 'django.db.backends.sqlite3',
+       'NAME': BASE_DIR / 'db.sqlite3',
+   }
+}
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
@@ -124,16 +125,16 @@ WSGI_APPLICATION = 'Pharmacy.wsgi.application'
 #     }
 # else:
 
-DATABASES = {
-        'default': {
-        'ENGINE': os.getenv('POSTGRES_ENGINE'),
-        'NAME': os.getenv('POSTGRES_DB'),
-        'USER': os.getenv('POSTGRES_USER'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
-        'HOST': os.getenv('POSTGRES_HOST'),
-        'PORT': os.getenv('POSTGRES_PORT'),
-    }
-}
+# DATABASES = {
+#         'default': {
+#         'ENGINE': os.getenv('POSTGRES_ENGINE'),
+#         'NAME': os.getenv('POSTGRES_DB'),
+#         'USER': os.getenv('POSTGRES_USER'),
+#         'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+#         'HOST': os.getenv('POSTGRES_HOST'),
+#         'PORT': os.getenv('POSTGRES_PORT'),
+#     }
+# }
     
 LOGIN_REDIRECT_URL = '/dashboard'
 if not DEBUG:
@@ -148,6 +149,27 @@ if not DEBUG:
 
 
 
+
+# Celery configuration
+# CELERY CONFIGURATION
+# -------------------
+
+# URL for the message broker (Redis in this case)
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+
+# Where to store task results (also Redis here)
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+
+# Content and serialization
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+
+# Timezone (match your Django timezone)
+CELERY_TIMEZONE = 'UTC'
+
+# Optional: Automatically discover tasks in your apps
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 
 
 # Password validation MvKl1O3ilxZhfnz7

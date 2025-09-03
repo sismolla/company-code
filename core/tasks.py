@@ -1,8 +1,56 @@
 from django.utils import timezone
 from .models import Supplier, Product, SocialMediaPost
-from .telegram_utils import generate_telegram_post, send_telegram_post
+from .socialmedea_utils import generate_telegram_post, send_telegram_post
 import logging
 from django.db import transaction
+
+
+from celery import shared_task
+from django.utils import timezone
+from .models import Post
+
+@shared_task
+def post_to_telegram():
+    posts = Post.objects.filter(platform__icontains="telegram", posted=False)
+    for post in posts:
+        if post.approved:
+            try:
+                send_telegram_post(post.content)
+                post.posted = True
+                post.save()
+            except Exception as e:
+                print(f"Failed: {e}")
+
+@shared_task
+def post_to_linkedin():
+    posts = Post.objects.filter(platform__icontains="linkedin", posted=False)
+    for post in posts:
+        if post.approved:
+            try:
+                send_linkdin_post(
+                    content=post.content,
+                    image=post.image.url if post.image else None
+                )
+                post.posted = True
+                post.save()
+            except Exception as e:
+                print(f"Failed to post '{post.id}': {e}")
+
+@shared_task
+def post_to_instagram():
+    posts = Post.objects.filter(platform__icontains="instagram", posted=False)
+    for post in posts:
+        if post.approved:
+            try:
+                send_instagram_post(
+                    content=post.content,
+                    image=post.image.url if post.image else None
+                )
+                post.posted = True
+                post.save()
+            except Exception as e:
+                print(f"Failed to post '{post.id}': {e}")
+
 
 def post_next_supplier_products():
     """

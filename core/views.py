@@ -25,7 +25,7 @@ from django.db import transaction
 import openpyxl
 from django.core.files.storage import default_storage
 from dateutil import parser
-from .utils import send_order_email,notify_user
+from .utils import send_order_email,notify_user, send_presentation_email
 from rest_framework.pagination import PageNumberPagination
 
 
@@ -382,18 +382,16 @@ class ProductProviderDetailPage(View):
     template_name = 'provider/detail.html'
 
     def get(self, request, pk):
-        # Get the UserProducts instance
         user_product = get_object_or_404(UserProducts, pk=pk)
-        
-        # Get the supplier instance
         supplier = user_product.supplier
+        user_profile = UserProducts.objects.filter(supplier=supplier).first()
 
         # Get all products from this supplier
         products = supplier.products.all()  # QuerySet of Product
-
         return render(request, self.template_name, {
             'products': products,     # pass all products
-            'supplier': supplier,     # pass supplier instance
+            'supplier': supplier,  
+            'user_profile':user_profile,   # pass user profile instance
             'logo': supplier.logo if supplier and supplier.logo else None,
         })
 
@@ -671,3 +669,343 @@ def google_calendar_webhook(request):
 
 
 
+def send_test(request):
+    pharma_companies = {
+        "Caroga Pharma Ethiopia PLC": [
+            "abenetdenberu@gmail.com"
+        ],
+        "Droga Pharma PLC": [
+            "info@drogapharma.com",
+            "pharmadroga@gmail.com"
+        ],
+        "Julphar Ethiopia": [
+            "kedir.sherif@julphar.net",
+            "eyob.getachew@julphar.net",
+            "ahmed.abshiru@julphar.net",
+            "eyerusalem.hailemariam@julphar.net",
+            "Wibijig.Teshome@julphar.net"
+        ],
+        "Evan General Trading": [
+            "evantrading1@gmail.com"
+        ],
+        "EPSA (Ethiopian Pharmaceuticals Supply Agency)": [
+            "info@epsa.gov.et"
+        ],
+        "Ethiopian Pharmaceutical Manufacturing S.C.": [
+            "epharm@gmail.com"
+        ],
+        "Dagem Dereje": [
+            "dagimderegeimportexport@gmail.com"
+        ],
+        "Meruna Import & Export": [
+            "meruna@ethionet.et",
+            "meruna.drugreg@gmail.com",
+            "merunaplc@gmail.com"
+        ],
+        "Hosam Pharma": [
+            "info@hosampharma.com"
+        ],
+        "BGT-Pharma Pharmaceuticals": [
+            "bgtpharma@gmail.com"
+        ],
+        "West Pharma": [
+            "westpharma@rocketmail.com"
+        ],
+        "ZAF Pharmaceuticals": [
+            "zafpharmaceuticals@gmail.com",
+            "zafg@zafpharma.com"
+        ],
+        "Beker Pharma": [
+            "beker2@bekerpharma.com",
+            "ibrahim_nebil@bekerplc.com"
+        ],
+        "Mesroy International PLC": [
+            "mesroy@mesroy.com"
+        ],
+        "R G and Partners PLC": [
+            "rgandpartners@yahoo.com",
+            "info@rgandpartners.com"
+        ],
+        "Agmas Medical": [
+            "info@agmasmedical.com"
+        ],
+        "Elsmed Ethiopia": [
+            "dawit.hailu@elsmed-eth.com"
+        ],
+        "Yohai International": [
+            "elhamr@yohainternational.com",
+            "yonathanh@yohainternational.com"
+        ],
+        "Abadir Enterprise": [
+            "abadir@ethionet.et"
+        ],
+        "Behare-Pharma": [
+            "beharepharma@ethionet.et"
+        ],
+        "Beker": [
+            "beker@ethionet.et"
+        ],
+        "Biomed": [
+            "biomed@ethionet.et"
+        ],
+        "Blue German": [
+            "bluegerman@ethionet.et"
+        ],
+        "Caroga Pharma": [
+            "carogapharma@ethionet.et"
+        ],
+        "CBS": [
+            "cbs@ethionet.et"
+        ],
+        "Citrus International Trading PLC": [
+            "citrus@ethionet.et"
+        ],
+        "Conel": [
+            "conel@ethionet.et"
+        ],
+        "Damtit Pharma Trading": [
+            "damtit@ethionet.et"
+        ],
+        "Dat International Trading": [
+            "dat@ethionet.et"
+        ],
+        "Delta Medical": [
+            "delta@ethionet.et"
+        ],
+        "Diverse Electro Medical": [
+            "diverse@ethionet.et"
+        ],
+        "Dream Pharmaceuticals": [
+            "dream@ethionet.et"
+        ],
+        "DS": [
+            "ds@ethionet.et"
+        ],
+        "EBG": [
+            "ebg@ethionet.et"
+        ],
+        "Ekonian": [
+            "ekonian@ethionet.et"
+        ],
+        "Etab International": [
+            "etab@ethionet.et"
+        ],
+        "Ethio Kaz Enterprise": [
+            "ethiokaz@ethionet.et"
+        ],
+        "Etmedix": [
+            "etmedix@ethionet.et"
+        ],
+        "Excellence": [
+            "excellence@ethionet.et"
+        ],
+        "Eyasu Drug": [
+            "eyasu@ethionet.et"
+        ],
+        "Falidco": [
+            "falidco@ethionet.et"
+        ],
+        "Fasih Pharmaceutical": [
+            "fasih@ethionet.et"
+        ],
+        "Gama Pharmaceuticals": [
+            "gama@ethionet.et"
+        ],
+        "Gambi": [
+            "gambi@ethionet.et"
+        ],
+        "GASF-Bio Pharma": [
+            "gasfbio@ethionet.et"
+        ],
+        "GCT": [
+            "gct@ethionet.et"
+        ],
+        "Getmaz": [
+            "getmaz@ethionet.et"
+        ],
+        "Global": [
+            "global@ethionet.et"
+        ],
+        "Gonafer and Sons": [
+            "gonafer@ethionet.et"
+        ],
+        "Grace Trading": [
+            "grace@ethionet.et"
+        ],
+        "Gurmush": [
+            "gurmush@ethionet.et"
+        ],
+        "Habib": [
+            "habib@ethionet.et"
+        ],
+        "Haimet": [
+            "haimet@ethionet.et"
+        ],
+        "Hosam Pharmaceuticals Trading": [
+            "hosam@ethionet.et"
+        ],
+        "Hule Trading": [
+            "hule@ethionet.et"
+        ],
+        "Hyder": [
+            "hyder@ethionet.et"
+        ],
+        "JJ Laboglass Enterprise": [
+            "jjlaboglass@ethionet.et"
+        ],
+        "Jodave": [
+            "jodave@ethionet.et"
+        ],
+        "JOS Hanson and Sons": [
+            "joshanson@ethionet.et"
+        ],
+        "K.M.S.E.G.G.A": [
+            "kmsegga@ethionet.et"
+        ],
+        "Kalwin Multi Supply": [
+            "kalwin@ethionet.et"
+        ],
+        "Kefyalew": [
+            "kefyalew@ethionet.et"
+        ],
+        "Labora International Trading": [
+            "labora@ethionet.et"
+        ],
+        "Lebsi Medical Trading": [
+            "lebsi@ethionet.et"
+        ],
+        "Leyet": [
+            "leyet@ethionet.et"
+        ],
+        "Ma'edot": [
+            "maedot@ethionet.et"
+        ],
+        "Mawenten": [
+            "mawenten@ethionet.et"
+        ],
+        "Medica Pharma": [
+            "medica@ethionet.et"
+        ],
+        "Medicine Net": [
+            "medicinet@ethionet.et"
+        ],
+        "Medite": [
+            "medite@ethionet.et"
+        ],
+        "Meditech Ethiopia": [
+            "meditech@ethionet.et"
+        ],
+        "Menona Medical Supplies": [
+            "menona@ethionet.et"
+        ],
+        "Mesroy": [
+            "mesroy@ethionet.et"
+        ],
+        "MF Pharmaceuticals": [
+            "mfpharma@ethionet.et"
+        ],
+        "Mickel Business Group": [
+            "mickel@ethionet.et"
+        ],
+        "Micro Pharma": [
+            "micropharma@ethionet.et"
+        ],
+        "Mierab": [
+            "mierab@ethionet.et"
+        ],
+        "Mulu Electronics Engineering": [
+            "mulu@ethionet.et"
+        ],
+        "Mulu Tibeb": [
+            "mulu@ethionet.et"
+        ],
+        "Mulunesh": [
+            "mulunesh@ethionet.et"
+        ],
+        "Nared": [
+            "nared@ethionet.et"
+        ],
+        "Nazrawi": [
+            "nazrawi@ethionet.et"
+        ],
+        "Nejat": [
+            "nejat@ethionet.et"
+        ],
+        "Nemo Pharma": [
+            "nemo@ethionet.et"
+        ],
+        "Nesiya": [
+            "nesiya@ethionet.et"
+        ],
+        "Novel Pharmaceuticals": [
+            "novel@ethionet.et"
+        ],
+        "P.T.L": [
+            "ptl@ethionet.et"
+        ],
+        "Petram PLC": [
+            "petram@ethionet.et"
+        ],
+        "PFSA": [
+            "pfsa@ethionet.et"
+        ],
+        "Pharma Birbir PLC": [
+            "pharmabirbir@ethionet.et"
+        ],
+        "Pharma Dessie": [
+            "pharmadessie@ethionet.et"
+        ],
+        "Pharma Lab": [
+            "pharmalab@ethionet.et"
+        ],
+        "Pharma Share Company": [
+            "pharmashare@ethionet.et"
+        ],
+        "Pharma Success": [
+            "pharmasuccess@ethionet.et"
+        ],
+        "Pharma Union": [
+            "pharmaunion@ethionet.et"
+        ],
+        "Pharmaline Pharmaceuticals": [
+            "pharmaline@ethionet.et"
+        ],
+        "Pharma-Tech": [
+            "pharmatech@ethionet.et"
+        ],
+        "PVS Pharmaceuticals": [
+            "pvspharma@ethionet.et"
+        ],
+        "Ramada": [
+            "ramada@ethionet.et"
+        ],
+        "Rangvet PLC": [
+            "rangvet@ethionet.et"
+        ],
+        "Rehobot": [
+            "rehobot@ethionet.et"
+        ],
+        "RG and Partners": [
+            "rgandpartners@ethionet.et"
+        ],
+        "Robdan": [
+            "robdan@ethionet.et"
+        ],
+        "Ruhama Pharmaceutical": [
+            "ruhama@ethionet.et"
+        ],
+        "Sami Addis": [
+            "samiaddis@ethionet.et"
+        ],
+        "Samrawit International": [
+            "samrawit@ethionet.et"
+        ],
+        "Samuel Deressa": [
+            "samuelderessa@ethionet.et"
+        ],
+    }
+
+
+    ppt_file = "C:/Users/HP/Documents/Pharma_Gebeya_Wholesaler_Manual.pptx"
+    send_presentation_email(pharma_companies, ppt_file)
+    return HttpResponse("Test email sent successfully", status=200)

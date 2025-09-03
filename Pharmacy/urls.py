@@ -34,7 +34,7 @@ sitemaps = {
 }
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('sisay_molla_admin/', admin.site.urls),
     path('',include('core.urls')),
     path('contactus/',TemplateView.as_view(template_name='contact_us.html'),name='contact-us'),
     path('aboutus/',TemplateView.as_view(template_name='aboutus.html'),name='about-us'),
