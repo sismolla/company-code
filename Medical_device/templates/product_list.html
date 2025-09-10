@@ -1,0 +1,884 @@
+{% extends 'base2.html' %}
+{% load querystring %}
+{% load static %}
+{% block meta %}
+<meta name="description" content="Browse a list of verified Ethiopian medical devices wholesalers on Pharma ገበያ. Connect directly with trusted suppliers for bulk medical devices orders." />
+{% endblock meta %}
+
+{% block title %}Medical devices Across Ethiopia{% endblock title %}
+
+{% block style %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+    /* New modern color palette */
+    :root {
+        --primary: #1e3a8a; /* A professional dark blue */
+        --secondary: #3b82f6; /* A vibrant, but professional blue */
+        --accent: #ef4444; /* A soft red for accents/warnings */
+        --light-bg: #f8fafc; /* A very light gray for backgrounds */
+        --card-bg: #ffffff; /* Pure white for cards */
+        --dark-text: #1f2937; /* Dark gray for main text */
+        --gray-text: #6b7280; /* Lighter gray for secondary text */
+        --border-color: #e5e7eb; /* A subtle border color */
+        --shadow-light: 0 4px 12px rgba(0, 0, 0, 0.05);
+        --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.1);
+    }
+    
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    
+    body {
+        font-family: 'Open Sans', sans-serif;
+        color: var(--dark-text);
+        line-height: 1.6;
+        background-color: var(--light-bg);
+    }
+    
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 700;
+        color: var(--primary);
+    }
+    
+    .container {
+        width: 100%;
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 2rem;
+    }
+
+    /* New layout with main and sidebar */
+    .showcase-layout {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        padding: 2.5rem 0;
+    }
+
+    @media (min-width: 1024px) {
+        .showcase-layout {
+            grid-template-columns: 2fr 1fr;
+        }
+    }
+
+    /* Main Content Area */
+    .main-content {
+        padding: 0;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    .page-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 0;
+        color: var(--dark-text);
+    }
+
+    .page-subtitle {
+        font-size: 1.1rem;
+        color: var(--gray-text);
+        margin-top: 0.5rem;
+        font-weight: 500;
+    }
+
+    /* Filter & Search Bar */
+    .filter-bar {
+        background-color: var(--card-bg);
+        padding: 1.5rem;
+        border-radius: 1rem;
+        box-shadow: var(--shadow-light);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .search-input-group {
+        flex: 1;
+        min-width: 250px;
+        position: relative;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 0.8rem 1rem 0.8rem 3rem;
+        border: 1px solid var(--border-color);
+        border-radius: 9999px; /* Pill shape */
+        background-color: var(--light-bg);
+        font-size: 1rem;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .search-input:focus {
+        border-color: var(--secondary);
+        background-color: var(--card-bg);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--gray-text);
+        pointer-events: none;
+    }
+
+    .filter-select {
+        padding: 0.8rem 1.5rem;
+        border: 1px solid var(--border-color);
+        border-radius: 9999px; /* Pill shape */
+        background-color: var(--light-bg);
+        font-size: 1rem;
+        color: var(--dark-text);
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+        min-width: 180px;
+        appearance: none; /* Hide default arrow */
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%236b7280'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd' /%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        background-size: 1.2em;
+    }
+
+    .filter-select:hover {
+        border-color: var(--secondary);
+        background-color: var(--card-bg);
+    }
+
+    /* Product Grid & Cards */
+    .product-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 2rem;
+    }
+    
+    .product-card {
+        background-color: var(--card-bg);
+        border-radius: 1rem;
+        overflow: hidden;
+        box-shadow: var(--shadow-light);
+        transition: all 0.3s ease-in-out;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .product-card:hover {
+        transform: translateY(-0.5rem);
+        box-shadow: var(--shadow-hover);
+    }
+    
+    .product-card-new {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+}
+
+.product-image-new {
+    width: 100%;
+    height: 250px; /* Adjust height as needed */
+    overflow: hidden;
+    position: relative;
+}
+
+.product-image-new img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* This makes the image cover the box */
+    object-position: center; /* Centers the image */
+    transition: transform 0.3s ease;
+}
+
+.product-image-new:hover img {
+    transform: scale(1.05); /* Optional: zoom effect on hover */
+}
+
+/* Example badges */
+.product-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: #ff4d4f;
+    color: #fff;
+    padding: 5px 8px;
+    font-size: 12px;
+    border-radius: 4px;
+    text-transform: uppercase;
+}
+
+.product-badge.featured {
+    background: #1890ff;
+}
+
+    
+    .product-card:hover .product-image img {
+        transform: scale(1.05);
+    }
+
+    .product-badge {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background-color: var(--primary);
+        color: white;
+        padding: 0.3rem 0.8rem;
+        border-radius: 0.5rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+
+    .product-badge.featured {
+        background-color: var(--secondary);
+    }
+    
+    .product-content {
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+    }
+    
+    .product-title {
+        font-size: 1.25rem;
+        margin-bottom: 0.5rem;
+        color: var(--dark-text);
+        line-height: 1.3;
+    }
+    
+    .product-meta {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+        color: var(--gray-text);
+        font-weight: 500;
+    }
+    
+    .product-meta span:last-child {
+        text-align: right;
+    }
+
+    .product-price {
+        font-weight: 700;
+        font-size: 1.5rem;
+        color: var(--primary);
+        margin-bottom: 1rem;
+    }
+    
+    .product-description {
+        color: var(--gray-text);
+        margin-bottom: 1.5rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        flex-grow: 1;
+    }
+    
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 0.9rem;
+    }
+    
+    .btn-primary {
+        background-color: var(--primary);
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        background-color: #1a3075;
+    }
+
+    .btn-view {
+        background-color: var(--secondary);
+        color: white;
+        padding: 0.6rem 1.2rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-view:hover {
+        background-color: #2563eb;
+    }
+
+    /* Side Panel */
+    .sidebar {
+        background-color: var(--card-bg);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        box-shadow: var(--shadow-light);
+    }
+
+    .sidebar h3 {
+        font-size: 1.25rem;
+        margin-bottom: 1.5rem;
+        color: var(--dark-text);
+    }
+
+    .category-list, .arrival-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .category-list li {
+        margin-bottom: 0.75rem;
+    }
+
+    .category-link {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        color: var(--gray-text);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s ease;
+    }
+
+    .category-link:hover {
+        color: var(--primary);
+    }
+    
+    .new-arrival-card {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .new-arrival-card:last-child {
+        border-bottom: none;
+    }
+
+    .arrival-image {
+        width: 60px;
+        height: 60px;
+        border-radius: 0.5rem;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+
+    .arrival-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+
+    .arrival-details {
+        flex-grow: 1;
+    }
+
+    .arrival-details h4 {
+        font-size: 1rem;
+        margin-bottom: 0.25rem;
+        color: var(--dark-text);
+    }
+
+    .arrival-details p {
+        font-size: 0.9rem;
+        color: var(--gray-text);
+        margin: 0;
+    }
+
+    /* Filter tags (existing styles are mostly fine, just minor tweaks) */
+    .filter-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .filter-tag {
+        display: inline-flex;
+        align-items: center;
+        background-color: var(--secondary);
+        color: white;
+        padding: 0.4rem 0.9rem;
+        border-radius: 9999px;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .filter-tag-remove {
+        margin-left: 0.5rem;
+        cursor: pointer;
+        font-weight: bold;
+        color: #fff;
+    }
+    
+    .filter-tag-remove:hover {
+        color: var(--accent);
+    }
+
+    .clear-filters {
+        background: none;
+        border: none;
+        color: var(--primary);
+        cursor: pointer;
+        font-size: 0.95rem;
+        font-weight: 600;
+        margin-left: auto;
+        transition: color 0.3s ease;
+    }
+
+    .clear-filters:hover {
+        color: var(--accent);
+    }
+
+    /* Pagination */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        margin-top: 3rem;
+        flex-wrap: wrap;
+    }
+    
+    .pagination-item {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        margin: 0 0.5rem;
+        border-radius: 50%;
+        background-color: var(--card-bg);
+        color: var(--dark-text);
+        text-decoration: none;
+        font-weight: 600;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+    }
+    
+    .pagination-item:hover, .pagination-item.active {
+        background-color: var(--primary);
+        color: white;
+        box-shadow: 0 4px 12px rgba(30, 58, 138, 0.2);
+    }
+
+    .pagination-item.active {
+        font-weight: 700;
+    }
+    
+    /* Loading Overlay */
+    .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.9);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+        opacity: 0;
+    }
+
+    .loading-overlay.visible {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid var(--primary);
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite;
+    }
+
+    .loading-text {
+        margin-top: 15px;
+        font-size: 1.1rem;
+        color: var(--gray-text);
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .container {
+            padding: 0 1rem;
+        }
+
+        .showcase-layout {
+            padding: 1.5rem 0;
+        }
+
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+        }
+
+        .filter-bar {
+            padding: 1rem;
+            flex-direction: column;
+        }
+        
+        .search-input-group, .filter-select {
+            width: 100%;
+        }
+
+        .product-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .product-card {
+            flex-direction: row;
+        }
+
+        .product-image {
+            width: 150px;
+            height: 150px;
+            border-bottom: none;
+            border-right: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+    }
+</style>
+{% endblock style %}
+
+{% block content %}
+<div class="loading-overlay" id="loading-overlay">
+    <div class="spinner"></div>
+    <div class="loading-text">Loading products...</div>
+</div>
+
+<div class="container">
+    <!-- Page Header -->
+    <header class="page-header">
+        <div>
+            <h1 class="page-title">Medical Devices in Ethiopia</h1>
+            <p class="page-subtitle">Connect directly with verified suppliers and empower your business.</p>
+        </div>
+        <div class="page-actions">
+            <span id="product-count">{{ products.paginator.count }} products found</span>
+            <select class="filter-select" id="sort-select">
+                <option value="-created_at" {% if request.GET.ordering == "-created_at" %}selected{% endif %}>Newest First</option>
+                <option value="created_at" {% if request.GET.ordering == "created_at" %}selected{% endif %}>Oldest First</option>
+                <option value="price" {% if request.GET.ordering == "price" %}selected{% endif %}>Price: Low to High</option>
+                <option value="-price" {% if request.GET.ordering == "-price" %}selected{% endif %}>Price: High to Low</option>
+                <option value="name" {% if request.GET.ordering == "name" %}selected{% endif %}>Name: A to Z</option>
+                <option value="-name" {% if request.GET.ordering == "-name" %}selected{% endif %}>Name: Z to A</option>
+            </select>
+        </div>
+    </header>
+
+    <!-- Active Filters -->
+    <div class="filter-tags" id="filter-tags">
+        {% if request.GET.category %}
+        <div class="filter-tag">
+            Category: {{ selected_category.name }}
+            <span class="filter-tag-remove" data-filter="category">×</span>
+        </div>
+        {% endif %}
+        {% if request.GET.manufacturer %}
+        <div class="filter-tag">
+            Manufacturer: {{ request.GET.manufacturer }}
+            <span class="filter-tag-remove" data-filter="manufacturer">×</span>
+        </div>
+        {% endif %}
+        {% if request.GET.search %}
+        <div class="filter-tag">
+            Search: {{ request.GET.search }}
+            <span class="filter-tag-remove" data-filter="search">×</span>
+        </div>
+        {% endif %}
+        {% if request.GET.search or request.GET.category or request.GET.manufacturer %}
+        <button class="clear-filters" id="clear-filters">Clear all filters</button>
+        {% endif %}
+    </div>
+
+    <section class="showcase-layout">
+        <!-- Main Product Area -->
+        <main class="main-content">
+            <div class="filter-bar">
+                <div class="search-input-group">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="search-input" class="search-input" placeholder="Search for products..." value="{{ request.GET.search }}">
+                </div>
+                <select class="filter-select" id="category-filter">
+                    <option value="">All Categories</option>
+                    {% for category in categories %}
+                    <option value="{{ category.id }}" {% if request.GET.category == category.id|stringformat:"s" %}selected{% endif %}>{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+                <select class="filter-select" id="manufacturer-filter">
+                    <option value="">All Manufacturers</option>
+                    {% for manufacturer in manufacturers %}
+                    <option value="{{ manufacturer }}" {% if request.GET.manufacturer == manufacturer %}selected{% endif %}>{{ manufacturer }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="product-grid" id="product-grid">
+                {% for product in products %}
+                <article class="product-card" itemscope itemtype="https://schema.org/Product">
+                    <div class="product-image-new">
+                        {% if product.images.all %}
+                        <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" loading="lazy" itemprop="image">
+                        {% else %}
+                        <img src="https://placehold.co/600x400/e2e8f0/6b7280?text=No+Image" alt="No Image Available" loading="lazy">
+                        {% endif %}
+                        {% if product.is_new %}<span class="product-badge">NEW</span>{% endif %}
+                        {% if product.is_featured %}<span class="product-badge featured">FEATURED</span>{% endif %}
+                    </div>
+                    <div class="product-content">
+                        <h3 class="product-title" itemprop="name">{{ product.name }}</h3>
+                        <div class="product-meta">
+                            <span itemprop="manufacturer">{{ product.manufacturer }}</span>
+                            <span itemprop="category">{{ product.category.name }}</span>
+                        </div>
+                        <div class="product-price" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
+                            <span itemprop="priceCurrency" content="USD">$</span><span itemprop="price">{{ product.price }}</span>
+                        </div>
+                        <p class="product-description" itemprop="description">
+                            {{ product.intended_use|truncatewords:20 }}
+                        </p>
+                        <a href="{% url 'medical_device:product_detail' product.id %}" class="btn btn-view" aria-label="View details of {{ product.name }}">
+                            <i class="fas fa-info-circle"></i> Detail
+                        </a>
+                    </div>
+                </article>
+                {% empty %}
+                <div class="empty-state">
+                    <i class="fas fa-box-open"></i>
+                    <h3>No Products Found</h3>
+                    <p>There are no products matching your criteria.</p>
+                    <a href="#" class="btn btn-primary">
+                        <i class="fas fa-plus mr-2"></i> Add New Product
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+
+            {% if is_paginated %}
+            <nav class="pagination" aria-label="Product Pagination">
+                {% if page_obj.has_previous %}
+                <a href="?{% querystring page=page_obj.previous_page_number %}" class="pagination-item" aria-label="Previous Page">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+                {% endif %}
+            
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <span class="pagination-item active" aria-current="page">{{ num }}</span>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <a href="?{% querystring page=num %}" class="pagination-item">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
+            
+                {% if page_obj.has_next %}
+                <a href="?{% querystring page=page_obj.next_page_number %}" class="pagination-item" aria-label="Next Page">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+                {% endif %}
+            </nav>
+            {% endif %}
+        </main>
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <section class="sidebar-section">
+                <div class="sidebar-header">
+                    <i class="fas fa-fire sidebar-icon"></i>
+                    <h2 class="sidebar-title">Featured Categories</h2>
+                </div>
+                <ul class="category-list">
+                    {% for category in categories %}
+                    <li>
+                        <a href="{% url 'medical_device:product_list' %}?category={{ category.id }}" class="category-link">
+                            <i class="fas fa-arrow-right"></i> {{ category.name }}
+                        </a>
+                    </li>
+                    {% endfor %}
+                    <li>
+                        <a href="{% url 'medical_device:product_list' %}" class="category-link">
+                            <i class="fas fa-globe"></i> View All Products
+                        </a>
+                    </li>
+                </ul>
+            </section>
+
+            <section class="sidebar-section" style="margin-top: 2rem;">
+                <div class="sidebar-header">
+                    <i class="fas fa-clock sidebar-icon"></i>
+                    <h2 class="sidebar-title">New Arrivals</h2>
+                </div>
+                <div class="arrival-list">
+                    {% for product in new_arrivals %}
+                    <a href="{% url 'medical_device:product_detail' product.id %}" class="new-arrival-card">
+                        <div class="arrival-image">
+                            {% if product.images.all %}
+                            <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" loading="lazy">
+                            {% else %}
+                            <img src="https://placehold.co/600x400/e2e8f0/6b7280?text=ARR" alt="No Image">
+                            {% endif %}
+                        </div>
+                        <div class="arrival-details">
+                            <h4>{{ product.name|truncatewords:4 }}</h4>
+                            <p>${{ product.price }}</p>
+                        </div>
+                    </a>
+                    {% empty %}
+                    <p class="text-muted">No new arrivals</p>
+                    {% endfor %}
+                </div>
+            </section>
+        </aside>
+    </section>
+</div>
+{% endblock content %}
+
+
+{% block script %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const searchInput = document.getElementById('search-input');
+        const categoryFilter = document.getElementById('category-filter');
+        const manufacturerFilter = document.getElementById('manufacturer-filter');
+        const sortSelect = document.getElementById('sort-select');
+        const clearFiltersBtn = document.getElementById('clear-filters');
+        const filterTags = document.querySelectorAll('.filter-tag-remove');
+        
+        // Function to update URL with current filters
+        function updateURL() {
+            const params = new URLSearchParams();
+            
+            if (searchInput.value) {
+                params.set('search', searchInput.value);
+            }
+            
+            if (categoryFilter.value) {
+                params.set('category', categoryFilter.value);
+            }
+            
+            if (manufacturerFilter.value) {
+                params.set('manufacturer', manufacturerFilter.value);
+            }
+            
+            if (sortSelect.value) {
+                params.set('ordering', sortSelect.value);
+            }
+            
+            // Update URL and reload the page
+            const newURL = window.location.pathname + '?' + params.toString();
+            window.location.href = newURL;
+        }
+        
+        // Function to remove a specific filter
+        function removeFilter(filterType) {
+            const params = new URLSearchParams(window.location.search);
+            
+            if (filterType === 'search') {
+                searchInput.value = '';
+                params.delete('search');
+            } else if (filterType === 'category') {
+                categoryFilter.value = '';
+                params.delete('category');
+            } else if (filterType === 'manufacturer') {
+                manufacturerFilter.value = '';
+                params.delete('manufacturer');
+            }
+            
+            // Preserve ordering if set
+            if (sortSelect.value && sortSelect.value !== '-created_at') {
+                params.set('ordering', sortSelect.value);
+            }
+            
+            // Update URL and reload the page
+            const newURL = window.location.pathname + '?' + params.toString();
+            window.location.href = newURL;
+        }
+        
+        // Function to clear all filters
+        function clearAllFilters() {
+            const params = new URLSearchParams();
+            
+            // Preserve ordering if set
+            if (sortSelect.value && sortSelect.value !== '-created_at') {
+                params.set('ordering', sortSelect.value);
+            }
+            
+            // Update URL and reload the page
+            const newURL = window.location.pathname + '?' + params.toString();
+            window.location.href = newURL;
+        }
+        
+        // Add event listeners for filters
+        searchInput.addEventListener('input', debounce(updateURL, 500));
+        categoryFilter.addEventListener('change', updateURL);
+        manufacturerFilter.addEventListener('change', updateURL);
+        sortSelect.addEventListener('change', updateURL);
+        
+        // Add event listeners for filter tags
+        filterTags.forEach(tag => {
+            tag.addEventListener('click', function() {
+                const filterType = this.getAttribute('data-filter');
+                removeFilter(filterType);
+            });
+        });
+        
+        // Add event listener for clear all filters button
+        if (clearFiltersBtn) {
+            clearFiltersBtn.addEventListener('click', clearAllFilters);
+        }
+        
+        // Debounce function to limit API calls during typing
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+    });
+</script>
+{% endblock script %}

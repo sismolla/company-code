@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Device Catalog</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1a67aa;
+            --secondary: #2a9d8f;
+            --accent: #e63946;
+            --light: #f8f9fa;
+            --dark: #2d3e50;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --border: #dee2e6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+            transition: background-color 0.3s ease;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo i {
+            margin-right: 10px;
+            font-size: 1.8rem;
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            transition: opacity 0.5s ease;
+            pointer-events: none;
+        }
+        
+        .loading-overlay.hidden {
+            opacity: 0;
+        }
+
+        .spinner {
+            border: 6px solid var(--light-gray);
+            border-top: 6px solid var(--primary);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            margin-top: 1rem;
+            font-size: 1.2rem;
+            color: var(--dark);
+        }
+        
+        /* Product Listing Page */
+        #product-listing-page {
+            padding: 2rem 0;
+        }
+
+        #listing-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        #listing-header h1 {
+            font-size: 2.5rem;
+            color: var(--primary);
+        }
+        
+        .search-and-filter {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+        
+        .search-and-filter input,
+        .search-and-filter select {
+            padding: 0.8rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-family: 'Open Sans', sans-serif;
+            min-width: 200px;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+        
+        .search-and-filter input:focus,
+        .search-and-filter select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(26, 103, 170, 0.1);
+        }
+        
+        #product-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .product-card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            text-decoration: none;
+            color: var(--dark);
+            display: block;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background-color: var(--light-gray);
+            transition: transform 0.3s ease;
+        }
+        
+        .product-card:hover .product-image {
+            transform: scale(1.05);
+        }
+
+        .card-content {
+            padding: 1.5rem;
+        }
+
+        .card-category {
+            font-size: 0.85rem;
+            color: var(--gray);
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .card-manufacturer {
+            font-size: 1rem;
+            color: var(--gray);
+            margin-bottom: 1rem;
+        }
+
+        .card-price {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .no-results {
+            text-align: center;
+            grid-column: 1 / -1;
+            padding: 3rem;
+            color: var(--gray);
+            font-size: 1.2rem;
+        }
+
+        /* Product Detail Page */
+        #product-detail-page {
+            padding: 2rem 0;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: var(--gray);
+            margin-bottom: 2rem;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+        
+        .back-button:hover {
+            color: var(--primary);
+        }
+        
+        .product-detail-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+        
+        @media (min-width: 768px) {
+            .product-detail-grid {
+                grid-template-columns: 2fr 1fr;
+            }
+        }
+        
+        .main-info {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .product-detail-name {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .product-detail-manufacturer {
+            font-size: 1.25rem;
+            color: var(--gray);
+            margin-bottom: 1.5rem;
+        }
+
+        .product-detail-price {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--secondary);
+            margin-bottom: 2rem;
+        }
+        
+        .image-gallery {
+            position: relative;
+            background-color: var(--light-gray);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .main-image {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            transition: opacity 0.5s ease;
+        }
+        
+        .thumbnail-container {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+        
+        .thumbnail {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .thumbnail.active {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px var(--primary);
+        }
+        
+        .info-section {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            margin-top: 2rem;
+        }
+        
+        .info-section h3 {
+            font-size: 1.5rem;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .attributes-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .attributes-list li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .attributes-list .label {
+            font-weight: 600;
+        }
+        
+        .detail-text {
+            color: var(--gray);
+            margin-bottom: 1rem;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #145a94;
+        }
+        
+        .btn-icon {
+            margin-right: 8px;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 2rem 0 1rem;
+            margin-top: 2rem;
+        }
+        
+        .footer-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .copyright {
+            font-size: 0.9rem;
+            color: var(--light-gray);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="spinner"></div>
+        <div class="loading-text" id="loading-text">Fetching products...</div>
+    </div>
+    
+    <!-- Header -->
+    <header>
+        <div class="container header-content">
+            <a href="#" class="logo" id="home-link">
+                <i class="fas fa-heartbeat"></i>
+                <span>Pharmagebeya</span>
+            </a>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Product Listing Page -->
+        <section id="product-listing-page">
+            <div id="listing-header">
+                <h1>Medical Devices</h1>
+                <p>Browse our extensive catalog of medical devices.</p>
+            </div>
+            
+            <div class="search-and-filter">
+                <input type="text" id="search-input" placeholder="Search by name or manufacturer...">
+                <select id="category-filter">
+                    <option value="all">All Categories</option>
+                    <!-- Categories will be dynamically populated -->
+                </select>
+            </div>
+            
+            <div id="product-list">
+                <!-- Product cards will be dynamically populated -->
+            </div>
+        </section>
+
+        <!-- Product Detail Page -->
+        <section id="product-detail-page">
+            <a href="#" id="back-to-products" class="back-button">
+                <i class="fas fa-arrow-left"></i> Back to Products
+            </a>
+            <div class="product-detail-grid">
+                <!-- Image Gallery -->
+                <div class="image-gallery">
+                    <img id="detail-main-image" class="main-image" src="" alt="Product Image">
+                    <div class="thumbnail-container" id="detail-thumbnails">
+                        <!-- Thumbnails will be dynamically populated -->
+                    </div>
+                </div>
+
+                <!-- Product Info -->
+                <div class="main-info">
+                    <h1 class="product-detail-name" id="detail-name"></h1>
+                    <p class="product-detail-manufacturer" id="detail-manufacturer"></p>
+                    <p class="product-detail-price" id="detail-price"></p>
+                    <a href="#" id="brochure-link" class="btn btn-primary" download style="display: none;">
+                        <i class="fas fa-file-download btn-icon"></i> Download Brochure
+                    </a>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <h3>Description</h3>
+                <p class="detail-text" id="detail-description"></p>
+            </div>
+
+            <div class="info-section">
+                <h3>Intended Use</h3>
+                <p class="detail-text" id="detail-intended-use"></p>
+            </div>
+
+            <div class="info-section">
+                <h3>Specifications & Attributes</h3>
+                <ul class="attributes-list" id="detail-attributes">
+                    <!-- Attributes will be dynamically populated -->
+                </ul>
+            </div>
+            
+            <div class="info-section">
+                <h3>Certifications</h3>
+                <p class="detail-text" id="detail-certifications"></p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="copyright">
+                    &copy; 2023 Pharmagebeya. All rights reserved.
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const loadingOverlay = document.getElementById('loading-overlay');
+            const productListingPage = document.getElementById('product-listing-page');
+            const productDetailPage = document.getElementById('product-detail-page');
+            const productListContainer = document.getElementById('product-list');
+            const searchInput = document.getElementById('search-input');
+            const categoryFilter = document.getElementById('category-filter');
+            const backButton = document.getElementById('back-to-products');
+            const homeLink = document.getElementById('home-link');
+            const loadingText = document.getElementById('loading-text');
+
+            let allProducts = [];
+            let allCategories = [
+                { id: 1, name: "Surgical Instruments" },
+                { id: 2, name: "Diagnostic Devices" },
+                { id: 3, name: "Monitoring Devices" },
+                { id: 4, name: "Therapeutic Devices" },
+                { id: 5, name: "Disposables & Consumables" },
+                { id: 6, name: "Implants & Prosthetics" },
+                { id: 7, name: "Hospital Furniture & Support Equipment" }
+            ];
+
+            // Helper function to show and hide loading spinner
+            const showLoading = (message) => {
+                loadingText.textContent = message;
+                loadingOverlay.classList.remove('hidden');
+            };
+
+            const hideLoading = () => {
+                loadingOverlay.classList.add('hidden');
+            };
+
+            // Fetch product data from the API
+            const fetchProducts = async () => {
+                try {
+                    showLoading('Fetching products...');
+                    // In a real application, replace this with your actual API endpoint.
+                    // For this example, we'll use mock data.
+                    const response = await fetch('http://127.0.0.1:8000/devices/');
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const data = await response.json();
+                    
+                    // Filter out any products without a name
+                    allProducts = data.results.filter(product => product.name);
+                    
+                    // If no products, use mock data for demonstration
+                    if (allProducts.length === 0) {
+                        console.warn('No products found from API, using mock data for demonstration.');
+                        allProducts = [
+                            {
+                                id: 1, name: 'Siemens ACUSON S2000 Ultrasound System', manufacturer: 'Siemens', category: 2, price: 50000.00,
+                                intended_use: 'Used for general-purpose diagnostic ultrasound imaging.',
+                                description: 'The ACUSON S2000 is a premium ultrasound system designed to meet the demands of a wide range of clinical applications.',
+                                certifications: 'FDA, CE',
+                                attributes: [{ attribute_id: 1, name: 'Resolution', value: 'High Definition' }],
+                                images: [
+                                    'https://placehold.co/800x600/1a67aa/ffffff?text=Ultrasound+System+1',
+                                    'https://placehold.co/800x600/1a67aa/ffffff?text=Ultrasound+System+2',
+                                    'https://placehold.co/800x600/1a67aa/ffffff?text=Ultrasound+System+3'
+                                ],
+                                brochure: 'https://www.example.com/brochure1.pdf'
+                            },
+                            {
+                                id: 2, name: 'Medtronic Pulse Oximeter', manufacturer: 'Medtronic', category: 3, price: 150.00,
+                                intended_use: 'Measures the oxygen saturation of a patient\'s blood and pulse rate.',
+                                description: 'A portable, easy-to-use pulse oximeter for accurate and reliable measurements in various clinical settings.',
+                                certifications: 'FDA, ISO 13485',
+                                attributes: [{ attribute_id: 2, name: 'Screen Type', value: 'LCD' }, { attribute_id: 3, name: 'Battery Life', value: '12 hours' }],
+                                images: [
+                                    'https://placehold.co/800x600/2a9d8f/ffffff?text=Pulse+Oximeter+1',
+                                    'https://placehold.co/800x600/2a9d8f/ffffff?text=Pulse+Oximeter+2'
+                                ],
+                                brochure: null
+                            },
+                             {
+                                id: 3, name: 'Philips CPAP Machine', manufacturer: 'Philips', category: 4, price: 800.00,
+                                intended_use: 'Provides a constant flow of air to patients with sleep apnea.',
+                                description: 'A quiet and compact CPAP machine designed for comfortable use at home.',
+                                certifications: 'CE',
+                                attributes: [{ attribute_id: 4, name: 'Noise Level', value: '28 dB' }, { attribute_id: 5, name: 'Weight', value: '1.2 kg' }],
+                                images: [
+                                    'https://placehold.co/800x600/e63946/ffffff?text=CPAP+Machine+1',
+                                    'https://placehold.co/800x600/e63946/ffffff?text=CPAP+Machine+2',
+                                    'https://placehold.co/800x600/e63946/ffffff?text=CPAP+Machine+3'
+                                ],
+                                brochure: 'https://www.example.com/brochure3.pdf'
+                            },
+                        ];
+                    }
+                    renderProducts(allProducts);
+                } catch (error) {
+                    console.error('Failed to fetch products:', error);
+                    productListContainer.innerHTML = `<div class="no-results">
+                        <i class="fas fa-exclamation-triangle fa-2x"></i>
+                        <p>Failed to load products. Please check the API endpoint and try again.</p>
+                    </div>`;
+                } finally {
+                    hideLoading();
+                }
+            };
+            
+            // Render product cards on the listing page
+            const renderProducts = (products) => {
+                productListContainer.innerHTML = '';
+                if (products.length === 0) {
+                    productListContainer.innerHTML = `<div class="no-results">
+                        <i class="fas fa-box-open fa-2x"></i>
+                        <p>No products match your criteria.</p>
+                    </div>`;
+                    return;
+                }
+                products.forEach(product => {
+                    const category = allCategories.find(c => c.id === product.category);
+                    const categoryName = category ? category.name : 'Unknown';
+                    const card = document.createElement('a');
+                    card.href = '#';
+                    card.classList.add('product-card');
+                    card.dataset.id = product.id;
+                    card.innerHTML = `
+                        <img src="${product.images[0] || 'https://placehold.co/400x300/e9ecef/6c757d?text=No+Image'}" 
+                             alt="${product.name}" class="product-image">
+                        <div class="card-content">
+                            <span class="card-category">${categoryName}</span>
+                            <h3 class="card-name">${product.name}</h3>
+                            <p class="card-manufacturer">By ${product.manufacturer}</p>
+                            <span class="card-price">$${product.price.toFixed(2)}</span>
+                        </div>
+                    `;
+                    productListContainer.appendChild(card);
+                });
+            };
+
+            // Populate category filter dropdown
+            const populateCategories = () => {
+                allCategories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category.id;
+                    option.textContent = category.name;
+                    categoryFilter.appendChild(option);
+                });
+            };
+
+            // Filter and search functionality
+            const filterProducts = () => {
+                const searchTerm = searchInput.value.toLowerCase();
+                const selectedCategory = categoryFilter.value;
+
+                const filtered = allProducts.filter(product => {
+                    const matchesSearch = product.name.toLowerCase().includes(searchTerm) || 
+                                          product.manufacturer.toLowerCase().includes(searchTerm);
+                    const matchesCategory = selectedCategory === 'all' || 
+                                            product.category == selectedCategory;
+                    return matchesSearch && matchesCategory;
+                });
+                renderProducts(filtered);
+            };
+
+            // Event listener for search and filter changes
+            searchInput.addEventListener('input', filterProducts);
+            categoryFilter.addEventListener('change', filterProducts);
+
+            // Function to show the product detail page
+            const showProductDetail = (productId) => {
+                const product = allProducts.find(p => p.id == productId);
+                if (!product) {
+                    alert('Product not found.');
+                    return;
+                }
+
+                // Populate detail page content
+                document.getElementById('detail-name').textContent = product.name;
+                document.getElementById('detail-manufacturer').textContent = `By ${product.manufacturer}`;
+                document.getElementById('detail-price').textContent = `$${product.price.toFixed(2)}`;
+                document.getElementById('detail-intended-use').textContent = product.intended_use;
+                document.getElementById('detail-description').textContent = product.description;
+                document.getElementById('detail-certifications').textContent = product.certifications || 'Not specified';
+                
+                // Render attributes
+                const attributesList = document.getElementById('detail-attributes');
+                attributesList.innerHTML = '';
+                if (product.attributes && product.attributes.length > 0) {
+                    product.attributes.forEach(attr => {
+                        const listItem = document.createElement('li');
+                        listItem.innerHTML = `<span class="label">${attr.name || 'Attribute'}:</span> ${attr.value}`;
+                        attributesList.appendChild(listItem);
+                    });
+                } else {
+                    attributesList.innerHTML = `<li>No specific attributes listed.</li>`;
+                }
+                
+                // Handle image gallery
+                const mainImage = document.getElementById('detail-main-image');
+                const thumbnailsContainer = document.getElementById('detail-thumbnails');
+                thumbnailsContainer.innerHTML = '';
+                if (product.images && product.images.length > 0) {
+                    mainImage.src = product.images[0];
+                    mainImage.alt = product.name;
+                    product.images.forEach((url, index) => {
+                        const thumbnail = document.createElement('img');
+                        thumbnail.src = url;
+                        thumbnail.alt = `Thumbnail ${index + 1}`;
+                        thumbnail.classList.add('thumbnail');
+                        if (index === 0) thumbnail.classList.add('active');
+                        thumbnail.addEventListener('click', () => {
+                            mainImage.src = url;
+                            document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
+                            thumbnail.classList.add('active');
+                        });
+                        thumbnailsContainer.appendChild(thumbnail);
+                    });
+                } else {
+                    mainImage.src = 'https://placehold.co/800x600/e9ecef/6c757d?text=No+Images+Available';
+                    mainImage.alt = 'No image available';
+                }
+
+                // Handle brochure link
+                const brochureLink = document.getElementById('brochure-link');
+                if (product.brochure) {
+                    brochureLink.href = product.brochure;
+                    brochureLink.style.display = 'inline-flex';
+                } else {
+                    brochureLink.style.display = 'none';
+                }
+
+                productListingPage.style.display = 'none';
+                productDetailPage.style.display = 'block';
+            };
+
+            // Event listener for clicking on a product card
+            productListContainer.addEventListener('click', (e) => {
+                const card = e.target.closest('.product-card');
+                if (card) {
+                    e.preventDefault();
+                    const productId = card.dataset.id;
+                    showProductDetail(productId);
+                }
+            });
+
+            // Event listener for back button
+            backButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                productDetailPage.style.display = 'none';
+                productListingPage.style.display = 'block';
+            });
+            
+            // Event listener for home link
+            homeLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                productDetailPage.style.display = 'none';
+                productListingPage.style.display = 'block';
+                searchInput.value = '';
+                categoryFilter.value = 'all';
+                renderProducts(allProducts);
+            });
+            
+            // Initial load
+            populateCategories();
+            fetchProducts();
+        });
+    </script>
+</body>
+</html>

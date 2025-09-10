@@ -1,0 +1,1612 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Products - Medical Product Management System{% endblock %}
+{% block meta_description %}Manage your medical Device products, inventory, and pricing efficiently with our comprehensive product management system.{% endblock %}
+
+{% block style %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        header {
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 24px;
+            color: #007bff;
+        }
+
+        .logo i {
+            margin-right: 10px;
+            color: #dc3545;
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 0.3s ease;
+            pointer-events: none; /* Allows clicks on elements underneath */
+            opacity: 0;
+        }
+
+        .loading-overlay.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #007bff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        .loading-text {
+            margin-top: 15px;
+            font-size: 18px;
+            color: #555;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Main Content */
+        .main-content {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            margin-top: 20px;
+            padding: 40px;
+        }
+
+        .page-title h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .page-title p {
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        /* Form */
+        .form-container {
+            position: relative;
+        }
+
+        .form-section {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .form-section.active {
+            display: block;
+            opacity: 1;
+        }
+
+        .section-title {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            color: #007bff;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+            margin-bottom: 25px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-control, .form-select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .form-control:focus, .form-select:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .required {
+            color: #dc3545;
+            margin-left: 2px;
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 5px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            position: absolute;
+            bottom: -20px;
+            left: 0;
+            white-space: nowrap;
+        }
+
+        .error-message.show {
+            opacity: 1;
+        }
+
+        .form-control.error {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.25);
+        }
+
+        .form-control.success {
+            border-color: #28a745;
+            box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.25);
+        }
+
+        /* File Upload */
+        .file-upload {
+            border: 2px dashed #ced4da;
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        .file-upload.drag-over {
+            background-color: #e9f5ff;
+            border-color: #007bff;
+        }
+
+        .file-upload .file-input {
+            display: none;
+        }
+
+        .file-upload i {
+            font-size: 48px;
+            color: #6c757d;
+        }
+
+        .file-upload p {
+            margin: 10px 0 5px;
+            color: #555;
+        }
+
+        .file-hint {
+            color: #999;
+            font-size: 14px;
+        }
+
+        .file-list-container {
+            margin-top: 20px;
+        }
+
+        .file-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .file-list-container h4 {
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        .file-list li {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #495057;
+        }
+
+        .file-list li i {
+            color: #6c757d;
+            margin-right: 10px;
+        }
+
+        .file-list li .remove-file {
+            background: none;
+            border: none;
+            color: #dc3545;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        /* Form Progress Bar */
+        .form-progress {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            margin-bottom: 40px;
+        }
+
+        .form-progress-bar {
+            position: absolute;
+            top: 22px;
+            left: 0;
+            height: 4px;
+            background-color: #e9ecef;
+            width: 100%;
+            z-index: 1;
+        }
+
+        .form-progress-bar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background-color: #007bff;
+            width: 0%;
+            transition: width 0.5s ease;
+            z-index: 2;
+        }
+
+        .progress-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 3;
+            flex: 1;
+            text-align: center;
+        }
+
+        .progress-step .step-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background-color: #ced4da;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 700;
+            font-size: 18px;
+            transition: background-color 0.5s, color 0.5s;
+        }
+
+        .progress-step .step-label {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #6c757d;
+            font-weight: 600;
+        }
+
+        .progress-step.active .step-icon {
+            background-color: #007bff;
+        }
+
+        .progress-step.completed .step-icon {
+            background-color: #28a745;
+        }
+
+        /* Buttons */
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+            border: none;
+        }
+
+        .btn:disabled {
+            background-color: #ced4da;
+            color: #6c757d;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: #007bff;
+            border: 2px solid #007bff;
+        }
+
+        .btn-outline:hover {
+            background-color: #e6f2ff;
+        }
+
+        /* Form Review */
+        .form-review {
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-review h3 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            color: #495057;
+            margin-top: 0;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #e9ecef;
+            padding-bottom: 10px;
+        }
+
+        .review-item {
+            display: flex;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .review-label {
+            font-weight: 600;
+            color: #555;
+            flex-basis: 30%;
+            min-width: 150px;
+        }
+
+        .review-value {
+            flex-basis: 70%;
+            color: #333;
+        }
+
+        .file-review-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .file-review-list li {
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        /* Checkbox */
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .form-check-input {
+            margin-right: 10px;
+        }
+
+        /* Footer */
+        footer {
+            background-color: #343a40;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1001;
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 10px;
+        }
+
+        .toast {
+            display: flex;
+            align-items: center;
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 15px 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            min-width: 300px;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .toast.hide {
+            animation: slideOut 0.5s ease-in forwards;
+        }
+
+        .toast.success { border-left: 5px solid #28a745; }
+        .toast.error { border-left: 5px solid #dc3545; }
+        .toast.info { border-left: 5px solid #17a2b8; }
+        .toast.warning { border-left: 5px solid #ffc107; }
+
+        .toast-icon {
+            font-size: 24px;
+            margin-right: 15px;
+        }
+
+        .toast.success .toast-icon { color: #28a745; }
+        .toast.error .toast-icon { color: #dc3545; }
+        .toast.info .toast-icon { color: #17a2b8; }
+        .toast.warning .toast-icon { color: #ffc107; }
+
+        .toast-content { flex-grow: 1; }
+        .toast-title { font-weight: 600; font-family: 'Montserrat', sans-serif; }
+        .toast-message { font-size: 14px; color: #6c757d; }
+
+        .toast-close {
+            background: none;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            color: #6c757d;
+            margin-left: 15px;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+
+        /* Custom Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1002;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background: #fff;
+            padding: 40px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 90%;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-icon {
+            font-size: 60px;
+            color: #28a745;
+            margin-bottom: 20px;
+        }
+
+        .modal-icon.error {
+            color: #dc3545;
+        }
+
+        .modal-message {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .modal-description {
+            font-size: 16px;
+            color: #6c757d;
+            margin-bottom: 30px;
+        }
+
+        .modal-close-btn {
+            background-color: #007bff;
+            color: #fff;
+            padding: 12px 30px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .modal-close-btn:hover {
+            background-color: #0056b3;
+        }
+
+        /* Responsiveness */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 20px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .progress-step {
+                flex: 1 1 0;
+            }
+
+            .progress-step .step-icon {
+                width: 35px;
+                height: 35px;
+                font-size: 16px;
+            }
+
+            .progress-step .step-label {
+                font-size: 12px;
+                white-space: nowrap;
+            }
+
+            .review-label {
+                flex-basis: 100%;
+                margin-bottom: 5px;
+            }
+
+            .review-value {
+                flex-basis: 100%;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="spinner"></div>
+        <div class="loading-text">Loading form data...</div>
+    </div>
+
+    <div class="toast-container" id="toast-container"></div>
+
+    <div class="container main-content">
+        <div class="page-title">
+            <h1>Add New Medical Device</h1>
+            <p>Submit a new medical device to the Pharmagebeya catalog. Please provide accurate and complete information.</p>
+            <div class="validation-summary">
+                <p><span class="required">*</span> = Required field</p>
+                <p><span class="strongly-recommended">*</span> = Strongly recommended</p>
+                <p>Unmarked fields = Optional</p>
+                <p><strong>Note:</strong> Either description or brochure must be provided</p>
+            </div>
+        </div>
+        
+        <div class="form-container" id="form-container">
+            <div class="form-progress">
+                <div class="form-progress-bar" id="progressBar"></div>
+                <div class="progress-step" id="step1">
+                    <div class="step-icon">1</div>
+                    <div class="step-label">Basic Info</div>
+                </div>
+                <div class="progress-step" id="step2">
+                    <div class="step-icon">2</div>
+                    <div class="step-label">Specifications</div>
+                </div>
+                <div class="progress-step" id="step3">
+                    <div class="step-icon">3</div>
+                    <div class="step-label">Pricing & Inventory</div>
+                </div>
+                <div class="progress-step" id="step4">
+                    <div class="step-icon">4</div>
+                    <div class="step-label">Review & Submit</div>
+                </div>
+            </div>
+            
+            <form id="device-form">
+                <div class="form-section active" id="basic-info-section">
+                    <h2 class="section-title">Basic Information</h2>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="deviceName">Device Name <span class="required">*</span></label>
+                            <input type="text" id="deviceName" name="name" class="form-control" required placeholder="e.g., Siemens ACUSON S2000 Ultrasound System">
+                            <div class="error-message" id="deviceName-error"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="category">Category <span class="required">*</span></label>
+                            <select id="category" name="category" class="form-select" required>
+                                <option value="" disabled selected>Loading categories...</option>
+                            </select>
+                            <div class="error-message" id="category-error"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="manufacturer">Manufacturer <span class="strongly-recommended">*</span></label>
+                            <input type="text" id="manufacturer" name="manufacturer" class="form-control" placeholder="e.g., Siemens, GE Healthcare, Medtronic">
+                            <div class="error-message" id="manufacturer-error"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="brand">Brand</label>
+                            <input type="text" id="brand" name="brand" class="form-control" placeholder="e.g., ACUSON, LOGIQ, da Vinci">
+                            <div class="error-message" id="brand-error"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="modelNumber">Model Number</label>
+                            <input type="text" id="modelNumber" name="model_number" class="form-control" placeholder="e.g., ACUSON S2000, LOGIQ E9">
+                            <div class="error-message" id="modelNumber-error"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="intendedUse">Intended Use</label>
+                        <textarea id="intendedUse" name="intended_use" class="form-control" placeholder="Provide a detailed description of the device's intended use."></textarea>
+                        <div class="error-message" id="intendedUse-error"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Description <span class="strongly-recommended">*</span></label>
+                        <textarea id="description" name="description" class="form-control" placeholder="Provide a detailed description of the device's function and key features."></textarea>
+                        <div class="error-message" id="description-error"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="certifications">Certifications</label>
+                        <input type="text" id="certifications" name="certifications" class="form-control" placeholder="e.g., FDA, CE, ISO 13485">
+                        <div class="error-message" id="certifications-error"></div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline" disabled></button>
+                        <button type="button" class="btn btn-primary" id="next-to-specs">Next <i class="fas fa-arrow-right"></i></button>
+                    </div>
+                </div>
+
+                <div class="form-section" id="specs-section">
+                    <h2 class="section-title">Specifications & Technical Details</h2>
+                    <div id="dynamic-specs-container">
+                        <p class="form-hint">Select a category to load specific fields.</p>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline" id="back-to-basic-info"><i class="fas fa-arrow-left"></i> Back</button>
+                        <button type="button" class="btn btn-primary" id="next-to-pricing">Next <i class="fas fa-arrow-right"></i></button>
+                    </div>
+                </div>
+
+                <div class="form-section" id="pricing-section">
+                    <h2 class="section-title">Pricing & Inventory</h2>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="price">Price</label>
+                            <input type="number" id="price" name="price" class="form-control" placeholder="e.g., 500.00" min="0" step="0.01">
+                            <div class="error-message" id="price-error"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="stockQuantity">Stock Quantity</label>
+                            <input type="number" id="stockQuantity" name="stock_quantity" class="form-control" placeholder="e.g., 10" min="0">
+                            <div class="error-message" id="stockQuantity-error"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="warranty">Warranty</label>
+                            <input type="text" id="warranty" name="warranty" class="form-control" placeholder="e.g., 2 years manufacturer warranty">
+                            <div class="error-message" id="warranty-error"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="shippingInfo">Shipping Information</label>
+                            <input type="text" id="shippingInfo" name="shipping_info" class="form-control" placeholder="e.g., 2-day express shipping, international shipping available">
+                            <div class="error-message" id="shippingInfo-error"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Images</label>
+                        <div class="file-upload" id="images-drop-area">
+                            <input type="file" id="images-input" class="file-input" multiple accept="image/*">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>Drag & drop up to 5 images or click to browse</p>
+                            <p class="form-hint">Accepted file types: .jpg, .png</p>
+                        </div>
+                        <div class="error-message" id="images-error"></div>
+                        <div class="file-list-container" id="image-list-container" style="display: none;">
+                            <h4>Images (<span id="image-count">0</span>/5)</h4>
+                            <ul id="image-list" class="file-list"></ul>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Brochure</label>
+                        <div class="file-upload" id="brochure-drop-area">
+                            <input type="file" id="brochure-input" class="file-input" accept=".pdf,.docx">
+                            <i class="fas fa-file-upload"></i>
+                            <p>Drag & drop a single brochure or click to browse</p>
+                            <p class="form-hint">Accepted file types: .pdf, .docx</p>
+                        </div>
+                        <div class="error-message" id="brochure-error"></div>
+                        <div class="file-list-container" id="brochure-list-container" style="display: none;">
+                            <h4>Brochure (<span id="brochure-count">0</span>/1)</h4>
+                            <ul id="brochure-list" class="file-list"></ul>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline" id="back-to-specs"><i class="fas fa-arrow-left"></i> Back</button>
+                        <button type="button" class="btn btn-primary" id="next-to-review">Next <i class="fas fa-arrow-right"></i></button>
+                    </div>
+                </div>
+
+                <div class="form-section" id="review-section">
+                    <h2 class="section-title">Review Device Information</h2>
+                    <p>Please review all information before submitting. You can go back to make changes if needed.</p>
+                    
+                    <div class="form-review">
+                        <h3>Basic Information</h3>
+                        <div class="review-item">
+                            <div class="review-label">Device Name</div>
+                            <div class="review-value" id="review-deviceName"></div>
+                        </div>
+                        <div class="review-item">
+                            <div class="review-label">Category</div>
+                            <div class="review-value" id="review-category"></div>
+                        </div>
+                        <div class="review-item">
+                            <div class="review-label">Manufacturer</div>
+                            <div class="review-value" id="review-manufacturer"></div>
+                        </div>
+                        <div class="review-item">
+                            <div class="review-label">Brand</div>
+                            <div class="review-value" id="review-brand"></div>
+                        </div>
+                        <div class="review-item">
+                            <div class="review-label">Model Number</div>
+                            <div class="review-value" id="review-modelNumber"></div>
+                        </div>
+                        <div class="review-item">
+                            <div class="review-label">Intended Use</div>
+                            <div class="review-value" id="review-intendedUse"></div>
+                        </div>
+                        <div class="review-item">
+                            <div class="review-label">Description</div>
+                            <div class="review-value" id="review-description"></div>
+                        </div>
+                        <div class="review-item">
+                            <div class="review-label">Certifications</div>
+                            <div class="review-value" id="review-certifications"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-review">
+                        <h3>Specifications</h3>
+                        <div id="review-dynamic-specs">
+                            </div>
+                    </div>
+                    
+                    <div class="form-review">
+                        <h3>Pricing & Inventory</h3>
+                        <div class="review-item">
+                            <div class="review-label">Price</div>
+                            <div class="review-value" id="review-price"></div>
+                        </div>
+                        <div class="review-item">
+                            <div class="review-label">Stock Quantity</div>
+                            <div class="review-value" id="review-stockQuantity"></div>
+                        </div>
+                        <div class="review-item">
+                            <div class="review-label">Warranty</div>
+                            <div class="review-value" id="review-warranty"></div>
+                        </div>
+                        <div class="review-item">
+                            <div class="review-label">Shipping Information</div>
+                            <div class="review-value" id="review-shippingInfo"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-review">
+                        <h3>Attachments</h3>
+                        <div class="review-item">
+                            <div class="review-label">Images</div>
+                            <ul class="file-review-list" id="review-images"></ul>
+                        </div>
+                        <div class="review-item">
+                            <div class="review-label">Brochure</div>
+                            <ul class="file-review-list" id="review-brochure"></ul>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="checkbox-container">
+                            <input type="checkbox" id="terms-agreement" class="form-check-input" required>
+                            <label for="terms-agreement" class="form-check-label">I certify that all information provided is accurate and this device complies with all applicable regulations.</label>
+                        </div>
+                        <div class="error-message" id="terms-error"></div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline" id="back-to-pricing">
+                            <i class="fas fa-arrow-left"></i> Back to Pricing
+                        </button>
+                        <button type="submit" class="btn btn-primary" id="submit-btn">
+                            <i class="fas fa-check-circle"></i> Submit Device
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal-content">
+            <i class="fas fa-check-circle modal-icon" id="modal-icon"></i>
+            <div class="modal-message" id="modal-message"></div>
+            <div class="modal-description" id="modal-description"></div>
+            <button class="modal-close-btn" id="modal-close-btn">Close</button>
+        </div>
+    </div>
+{%endblock %}
+
+{% block script %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const formContainer = document.getElementById('form-container');
+            const loadingOverlay = document.getElementById('loading-overlay');
+            const form = document.getElementById('device-form');
+            const sections = document.querySelectorAll('.form-section');
+            const progressSteps = document.querySelectorAll('.progress-step');
+            const progressBar = document.getElementById('progressBar');
+            const toastContainer = document.getElementById('toast-container');
+            
+            // File upload elements
+            const imagesDropArea = document.getElementById('images-drop-area');
+            const imagesInput = document.getElementById('images-input');
+            const imageList = document.getElementById('image-list');
+            const imageListContainer = document.getElementById('image-list-container');
+            const imageCountSpan = document.getElementById('image-count');
+            
+            const brochureDropArea = document.getElementById('brochure-drop-area');
+            const brochureInput = document.getElementById('brochure-input');
+            const brochureList = document.getElementById('brochure-list');
+            const brochureListContainer = document.getElementById('brochure-list-container');
+            const brochureCountSpan = document.getElementById('brochure-count');
+
+            const modalOverlay = document.getElementById('modal-overlay');
+            const modalIcon = document.getElementById('modal-icon');
+            const modalMessage = document.getElementById('modal-message');
+            const modalDescription = document.getElementById('modal-description');
+            const modalCloseBtn = document.getElementById('modal-close-btn');
+            const categorySelect = document.getElementById('category');
+            const dynamicSpecsContainer = document.getElementById('dynamic-specs-container');
+            const reviewDynamicSpecs = document.getElementById('review-dynamic-specs');
+            const reviewImagesList = document.getElementById('review-images');
+            const reviewBrochureList = document.getElementById('review-brochure');
+            
+            let currentStep = 0;
+            let uploadedImages = [];
+            let uploadedBrochure = [];
+            let categoriesData = [];
+
+            // File limits
+            const MAX_IMAGES = 5;
+            const MAX_BROCHURES = 1;
+            const CATEGORIES_API_URL = '/medical_device_upload_api/';
+            const SUBMISSION_API_URL = '/devices/';
+
+            // Toast notification system
+            function showToast(title, message, type = 'info', duration = 5000) {
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                
+                let iconClass = 'fas fa-info-circle';
+                if (type === 'success') iconClass = 'fas fa-check-circle';
+                if (type === 'error') iconClass = 'fas fa-exclamation-circle';
+                if (type === 'warning') iconClass = 'fas fa-exclamation-triangle';
+                
+                toast.innerHTML = `
+                    <i class="${iconClass} toast-icon"></i>
+                    <div class="toast-content">
+                        <div class="toast-title">${title}</div>
+                        <div class="toast-message">${message}</div>
+                    </div>
+                    <button class="toast-close"><i class="fas fa-times"></i></button>
+                `;
+                
+                toastContainer.appendChild(toast);
+                
+                // Close button functionality
+                const closeBtn = toast.querySelector('.toast-close');
+                closeBtn.addEventListener('click', () => {
+                    toast.classList.add('hide');
+                    setTimeout(() => {
+                        toastContainer.removeChild(toast);
+                    }, 300);
+                });
+                
+                // Auto-remove after duration
+                if (duration > 0) {
+                    setTimeout(() => {
+                        if (toast.parentNode === toastContainer) {
+                            toast.classList.add('hide');
+                            setTimeout(() => {
+                                if (toast.parentNode === toastContainer) {
+                                    toastContainer.removeChild(toast);
+                                }
+                            }, 300);
+                        }
+                    }, duration);
+                }
+                
+                return toast;
+            }
+
+            // Show error message for a specific field
+            function showFieldError(fieldId, message) {
+                const field = document.getElementById(fieldId);
+                const errorElement = document.getElementById(`${fieldId}-error`);
+                
+                if (field && errorElement) {
+                    field.classList.add('error');
+                    field.classList.remove('success');
+                    errorElement.textContent = message;
+                    errorElement.classList.add('show');
+                    
+                    // Scroll to the field if it's not in view
+                    if (!isElementInViewport(field)) {
+                        field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }
+            }
+
+            // Clear error message for a specific field
+            function clearFieldError(fieldId) {
+                const field = document.getElementById(fieldId);
+                const errorElement = document.getElementById(`${fieldId}-error`);
+                
+                if (field && errorElement) {
+                    field.classList.remove('error');
+                    errorElement.classList.remove('show');
+                    errorElement.textContent = '';
+                }
+            }
+
+            // Show success state for a field
+            function showFieldSuccess(fieldId) {
+                const field = document.getElementById(fieldId);
+                const errorElement = document.getElementById(`${fieldId}-error`);
+                
+                if (field && errorElement) {
+                    field.classList.remove('error');
+                    field.classList.add('success');
+                    errorElement.classList.remove('show');
+                }
+            }
+
+            // Check if element is in viewport
+            function isElementInViewport(el) {
+                const rect = el.getBoundingClientRect();
+                return (
+                    rect.top >= 0 &&
+                    rect.left >= 0 &&
+                    rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+                    rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+                );
+            }
+
+            // Validate a specific field
+            function validateField(fieldId, rules) {
+                const field = document.getElementById(fieldId);
+                if (!field) return true;
+                
+                const value = field.value.trim();
+                let isValid = true;
+                let errorMessage = '';
+                
+                // Required validation
+                if (rules.required && !value) {
+                    isValid = false;
+                    errorMessage = rules.requiredMessage || 'This field is required';
+                }
+                
+                // Min length validation
+                if (isValid && rules.minLength && value.length < rules.minLength) {
+                    isValid = false;
+                    errorMessage = rules.minLengthMessage || `Minimum ${rules.minLength} characters required`;
+                }
+                
+                // Max length validation
+                if (isValid && rules.maxLength && value.length > rules.maxLength) {
+                    isValid = false;
+                    errorMessage = rules.maxLengthMessage || `Maximum ${rules.maxLength} characters allowed`;
+                }
+                
+                // Pattern validation
+                if (isValid && rules.pattern && value && !rules.pattern.test(value)) {
+                    isValid = false;
+                    errorMessage = rules.patternMessage || 'Invalid format';
+                }
+                
+                // Min value validation
+                if (isValid && rules.min !== undefined && parseFloat(value) < rules.min) {
+                    isValid = false;
+                    errorMessage = rules.minMessage || `Value must be at least ${rules.min}`;
+                }
+                
+                // Max value validation
+                if (isValid && rules.max !== undefined && parseFloat(value) > rules.max) {
+                    isValid = false;
+                    errorMessage = rules.maxMessage || `Value cannot exceed ${rules.max}`;
+                }
+                
+                if (!isValid) {
+                    showFieldError(fieldId, errorMessage);
+                } else {
+                    showFieldSuccess(fieldId);
+                }
+                
+                return isValid;
+            }
+
+            // Validate all fields in a section
+            function validateSection(sectionId, fieldRules) {
+                let allValid = true;
+                
+                for (const [fieldId, rules] of Object.entries(fieldRules)) {
+                    const isValid = validateField(fieldId, rules);
+                    if (!isValid) allValid = false;
+                }
+                
+                return allValid;
+            }
+
+            // Fetches categories from the API
+            async function fetchCategories() {
+                try {
+                    const response = await fetch(CATEGORIES_API_URL);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return await response.json();
+                } catch (error) {
+                    console.error('Failed to fetch categories:', error);
+                    showModal('Network Error', 'Could not retrieve form data. Please check your network connection or try again later.', false);
+                    loadingOverlay.style.display = 'none';
+                    return [];
+                }
+            }
+
+            // Populates the category dropdown
+            function populateCategories() {
+                categorySelect.innerHTML = '<option value="" disabled selected>Select a category</option>';
+                categoriesData.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category.id;
+                    option.textContent = category.name;
+                    categorySelect.appendChild(option);
+                });
+            }
+
+            // Shows a specific step and updates the progress bar
+            function showStep(stepIndex) {
+                sections.forEach((section, index) => {
+                    section.classList.toggle('active', index === stepIndex);
+                });
+
+                progressSteps.forEach((step, index) => {
+                    step.classList.remove('active', 'completed');
+                    if (index < stepIndex) {
+                        step.classList.add('completed');
+                        step.querySelector('.step-icon').innerHTML = '<i class="fas fa-check"></i>';
+                    } else if (index === stepIndex) {
+                        step.classList.add('active');
+                        step.querySelector('.step-icon').textContent = (index + 1);
+                    } else {
+                        step.querySelector('.step-icon').textContent = (index + 1);
+                    }
+                });
+                updateProgressBar();
+            }
+
+            // Updates the progress bar's width
+            function updateProgressBar() {
+                const totalSteps = progressSteps.length - 1;
+                const progressWidth = (currentStep / totalSteps) * 100;
+                progressBar.style.width = `${progressWidth}%`;
+            }
+
+            // Shows a custom modal message
+            function showModal(message, description, success = true) {
+                modalMessage.textContent = message;
+                modalDescription.textContent = description;
+                
+                if (success) {
+                    modalIcon.className = 'fas fa-check-circle modal-icon';
+                } else {
+                    modalIcon.className = 'fas fa-exclamation-triangle modal-icon error';
+                }
+                
+                modalOverlay.classList.add('active');
+            }
+
+            // Hides the custom modal
+            function hideModal() {
+                modalOverlay.classList.remove('active');
+            }
+
+            // Dynamically generates form fields based on category
+            function renderDynamicFields() {
+                const selectedCategoryId = categorySelect.value;
+                const selectedCategory = categoriesData.find(cat => cat.id == selectedCategoryId);
+                const attributes = selectedCategory ? selectedCategory.attributes : [];
+                dynamicSpecsContainer.innerHTML = '';
+                
+                if (attributes.length > 0) {
+                    const formGrid = document.createElement('div');
+                    formGrid.className = 'form-grid';
+                    
+                    attributes.forEach(attribute => {
+                        const formGroup = document.createElement('div');
+                        formGroup.className = 'form-group';
+                        
+                        const label = document.createElement('label');
+                        label.htmlFor = `dynamic-${attribute.id}`;
+                        label.textContent = attribute.name;
+                        
+                        if (attribute.field_type === 'select') {
+                            const select = document.createElement('select');
+                            select.id = `dynamic-${attribute.id}`;
+                            select.name = `dynamic-${attribute.id}`;
+                            select.className = 'form-select';
+
+                            const defaultOption = document.createElement('option');
+                            defaultOption.value = "";
+                            defaultOption.textContent = `Select a ${attribute.name.toLowerCase()}`;
+                            defaultOption.disabled = true;
+                            defaultOption.selected = true;
+                            select.appendChild(defaultOption);
+                            
+                            if (attribute.options) {
+                                attribute.options.split(',').forEach(optionText => {
+                                    const option = document.createElement('option');
+                                    option.value = optionText.trim();
+                                    option.textContent = optionText.trim();
+                                    select.appendChild(option);
+                                });
+                            }
+                            formGroup.appendChild(label);
+                            formGroup.appendChild(select);
+                        } else if (attribute.field_type === 'text' || attribute.field_type === 'number') {
+                            const input = document.createElement('input');
+                            input.type = attribute.field_type;
+                            input.id = `dynamic-${attribute.id}`;
+                            input.name = `dynamic-${attribute.id}`;
+                            input.className = 'form-control';
+                            input.placeholder = `Enter ${attribute.name.toLowerCase()}`;
+
+                            if (attribute.field_type === 'number') {
+                                input.step = "any";
+                            }
+                            
+                            formGroup.appendChild(label);
+                            formGroup.appendChild(input);
+                        } else if (attribute.field_type === 'textarea') {
+                            const textarea = document.createElement('textarea');
+                            textarea.id = `dynamic-${attribute.id}`;
+                            textarea.name = `dynamic-${attribute.id}`;
+                            textarea.className = 'form-control';
+                            textarea.placeholder = `Enter ${attribute.name.toLowerCase()}`;
+                            
+                            formGroup.appendChild(label);
+                            formGroup.appendChild(textarea);
+                        }
+
+                        // Add error message element
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'error-message';
+                        errorDiv.id = `dynamic-${attribute.id}-error`;
+                        formGroup.appendChild(errorDiv);
+                        
+                        formGrid.appendChild(formGroup);
+                    });
+                    dynamicSpecsContainer.appendChild(formGrid);
+                } else {
+                    dynamicSpecsContainer.innerHTML = '<p class="form-hint">No specific fields for this category.</p>';
+                }
+            }
+
+            // Updates the review section with form data
+            function updateReviewSection() {
+                // Basic Info
+                document.getElementById('review-deviceName').textContent = document.getElementById('deviceName').value || 'Not provided';
+                document.getElementById('review-category').textContent = categorySelect.options[categorySelect.selectedIndex].text || 'Not selected';
+                document.getElementById('review-manufacturer').textContent = document.getElementById('manufacturer').value || 'Not provided';
+                document.getElementById('review-brand').textContent = document.getElementById('brand').value || 'Not provided';
+                document.getElementById('review-modelNumber').textContent = document.getElementById('modelNumber').value || 'Not provided';
+                document.getElementById('review-intendedUse').textContent = document.getElementById('intendedUse').value || 'Not provided';
+                document.getElementById('review-description').textContent = document.getElementById('description').value || 'Not provided';
+                document.getElementById('review-certifications').textContent = document.getElementById('certifications').value || 'Not provided';
+
+                // Specifications (dynamic)
+                reviewDynamicSpecs.innerHTML = '';
+                const selectedCategoryId = categorySelect.value;
+                const selectedCategory = categoriesData.find(cat => cat.id == selectedCategoryId);
+                if (selectedCategory) {
+                    selectedCategory.attributes.forEach(attribute => {
+                        const inputElement = document.getElementById(`dynamic-${attribute.id}`);
+                        if (inputElement) {
+                            const reviewItem = document.createElement('div');
+                            reviewItem.className = 'review-item';
+                            reviewItem.innerHTML = `
+                                <div class="review-label">${attribute.name}</div>
+                                <div class="review-value">${inputElement.value || 'Not provided'}</div>
+                            `;
+                            reviewDynamicSpecs.appendChild(reviewItem);
+                        }
+                    });
+                }
+                
+                // Pricing & Inventory
+                document.getElementById('review-price').textContent = document.getElementById('price').value ? `${document.getElementById('price').value} ETB` : 'Not provided';
+                document.getElementById('review-stockQuantity').textContent = document.getElementById('stockQuantity').value || 'Not provided';
+                document.getElementById('review-warranty').textContent = document.getElementById('warranty').value || 'Not provided';
+                document.getElementById('review-shippingInfo').textContent = document.getElementById('shippingInfo').value || 'Not provided';
+
+                // Attachments
+                reviewImagesList.innerHTML = uploadedImages.map(file => `<li>${file.name}</li>`).join('') || '<li>No images uploaded</li>';
+                reviewBrochureList.innerHTML = uploadedBrochure.map(file => `<li>${file.name}</li>`).join('') || '<li>No brochure uploaded</li>';
+            }
+            
+            // --- Event Listeners and Main Logic ---
+
+            // Initial data fetch
+            async function initializeForm() {
+                loadingOverlay.style.display = 'flex';
+                categoriesData = await fetchCategories();
+                if (categoriesData.length > 0) {
+                    populateCategories();
+                    loadingOverlay.style.display = 'none';
+                    formContainer.style.display = 'block';
+                }
+            }
+
+            // Category select change handler
+            categorySelect.addEventListener('change', renderDynamicFields);
+
+            // Navigation buttons
+            document.getElementById('next-to-specs').addEventListener('click', () => {
+                const basicInfoRules = {
+                    'deviceName': { required: true, requiredMessage: 'Device name is required' },
+                    'category': { required: true, requiredMessage: 'Category is required' }
+                };
+                
+                if (validateSection('basic-info-section', basicInfoRules)) {
+                    currentStep = 1;
+                    showStep(currentStep);
+                    renderDynamicFields();
+                }
+            });
+
+            document.getElementById('back-to-basic-info').addEventListener('click', () => {
+                currentStep = 0;
+                showStep(currentStep);
+            });
+
+            document.getElementById('next-to-pricing').addEventListener('click', () => {
+                // Dynamic fields are optional, so we don't validate them as required
+                currentStep = 2;
+                showStep(currentStep);
+            });
+
+            document.getElementById('back-to-specs').addEventListener('click', () => {
+                currentStep = 1;
+                showStep(currentStep);
+            });
+
+            document.getElementById('next-to-review').addEventListener('click', () => {
+                // All fields in pricing section are optional
+                updateReviewSection();
+                currentStep = 3;
+                showStep(currentStep);
+            });
+
+            document.getElementById('back-to-pricing').addEventListener('click', () => {
+                currentStep = 2;
+                showStep(currentStep);
+            });
+
+            function getCsrfToken() {
+                try {
+                    const metaTag = document.querySelector('meta[name="csrf-token"]');
+                    return metaTag ? metaTag.getAttribute('content') : null;
+                } catch (error) {
+                    console.error('Error getting CSRF token:', error);
+                    return null;
+                }
+            } 
+
+            // Submission handler
+            form.addEventListener('submit', async function(event) {
+                event.preventDefault();
+
+                if (!document.getElementById('terms-agreement').checked) {
+                    showFieldError('terms-agreement', 'You must agree to the terms to submit.');
+                    return;
+                } else {
+                    clearFieldError('terms-agreement');
+                }
+
+                // Validate required fields
+                const basicInfoRules = {
+                    'deviceName': { required: true, requiredMessage: 'Device name is required' },
+                    'category': { required: true, requiredMessage: 'Category is required' }
+                };
+                
+                const requiredValid = validateSection('basic-info-section', basicInfoRules);
+                if (!requiredValid) {
+                    showToast('Validation Error', 'Please fill in all required fields.', 'error');
+                    return;
+                }
+                
+                // Validate description or brochure
+                const description = document.getElementById('description').value.trim();
+                const hasDescription = description.length > 0;
+                const hasBrochure = uploadedBrochure.length > 0;
+                
+                if (!hasDescription && !hasBrochure) {
+                    showFieldError('description', 'Either description or brochure is required');
+                    showFieldError('brochure', 'Either description or brochure is required');
+                    showToast('Information Required', 'Please provide either a description or upload a brochure.', 'error');
+                    return;
+                } else {
+                    clearFieldError('description');
+                    clearFieldError('brochure');
+                }
+
+                document.getElementById('submit-btn').disabled = true;
+                loadingOverlay.style.display = 'flex';
+                loadingOverlay.querySelector('.loading-text').textContent = 'Submitting form...';
+
+                const formData = new FormData();
+
+                // --- Append normal fields individually ---
+                formData.append('name', form.deviceName.value);
+                formData.append('category', form.category.value);
+                formData.append('manufacturer', form.manufacturer.value);
+                formData.append('brand', form.brand.value);
+                formData.append('model_number', form.modelNumber.value);
+                formData.append('intended_use', form.intendedUse.value);
+                formData.append('description', form.description.value);
+                formData.append('certifications', form.certifications.value);
+                formData.append('price', form.price.value);
+                formData.append('stock_quantity', form.stockQuantity.value);
+                formData.append('warranty', form.warranty.value);
+                formData.append('shipping_info', form.shippingInfo.value);
+
+                // --- Append dynamic specifications ---
+                const selectedCategoryId = categorySelect.value;
+                const selectedCategory = categoriesData.find(cat => cat.id == selectedCategoryId);
+                if (selectedCategory) {
+                    selectedCategory.attributes.forEach(attr => {
+                        const inputElement = document.getElementById(`dynamic-${attr.id}`);
+                        if (inputElement) {
+                            formData.append(`specifications[${attr.id}]`, inputElement.value);
+                        }
+                    });
+                }
+
+                // --- Append files ---
+                uploadedImages.forEach(file => {
+                    formData.append('images', file);
+                });
+                if (uploadedBrochure.length > 0) {
+                    formData.append('brochure', uploadedBrochure[0]);
+                }
+
+                // --- CSRF token ---
+                const csrf_token = getCsrfToken();
+                if (!csrf_token) {
+                    showModal('CSRF Token Error', 'Could not find CSRF token. Please refresh the page and try again.', false);
+                    document.getElementById('submit-btn').disabled = false;
+                    loadingOverlay.style.display = 'none';
+                    return;
+                }
+
+                // --- Submit the form ---
+                try {
+                    const response = await fetch(SUBMISSION_API_URL, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRFToken': csrf_token
+                        },
+                    });
+
+                    if (response.ok) {
+                        showModal('Success! 🎉', 'Your new medical device has been submitted successfully.');
+                        form.reset();
+                        currentStep = 0;
+                        showStep(currentStep);
+                        uploadedImages = [];
+                        uploadedBrochure = [];
+                        updateFileList(imagesInput, imageList, uploadedImages, imageListContainer, imageCountSpan);
+                        updateFileList(brochureInput, brochureList, uploadedBrochure, brochureListContainer, brochureCountSpan);
+                        renderDynamicFields();
+                    } else {
+                        const errorData = await response.json();
+                        let errorMessage = 'An error occurred during submission. Please check your inputs.';
+                        if (errorData) {
+                            errorMessage = Object.entries(errorData)
+                                .map(([key, value]) => `<strong>${key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}</strong>: ${Array.isArray(value) ? value.join(', ') : value}`)
+                                .join('<br>');
+                        }
+                        showModal('Submission Failed 😔', errorMessage, false);
+                    }
+                } catch (error) {
+                    console.error('Submission error:', error);
+                    showModal('Network Error', 'Could not connect to the server. Please check your network.', false);
+                } finally {
+                    document.getElementById('submit-btn').disabled = false;
+                    loadingOverlay.style.display = 'none';
+                }
+            });
+
+
+            // --- File Upload Logic ---
+            function handleFileSelect(event, fileList, uploadedFiles, maxFiles, listContainer, countSpan) {
+                const files = event.target.files;
+                if (files.length === 0) return;
+                
+                let totalFiles = uploadedFiles.length + files.length;
+                if (totalFiles > maxFiles) {
+                    showToast('File Limit Exceeded', `You can only upload up to ${maxFiles} file(s).`, 'warning');
+                    return;
+                }
+                
+                for (const file of files) {
+                    uploadedFiles.push(file);
+                }
+                
+                updateFileList(event.target, fileList, uploadedFiles, listContainer, countSpan);
+            }
+            
+            function updateFileList(input, list, files, container, countSpan) {
+                list.innerHTML = '';
+                if (files.length > 0) {
+                    container.style.display = 'block';
+                    files.forEach((file, index) => {
+                        const listItem = document.createElement('li');
+                        listItem.innerHTML = `
+                            <span><i class="fas fa-file-alt"></i> ${file.name}</span>
+                            <button type="button" class="remove-file-btn" data-index="${index}"><i class="fas fa-trash-alt"></i></button>
+                        `;
+                        list.appendChild(listItem);
+                    });
+                } else {
+                    container.style.display = 'none';
+                }
+                countSpan.textContent = files.length;
+                input.value = ''; // Clear input to allow re-uploading same file
+            }
+
+            function handleFileDrop(event, fileInput, fileList, uploadedFiles, maxFiles, listContainer, countSpan) {
+                event.preventDefault();
+                event.stopPropagation();
+                
+                const files = event.dataTransfer.files;
+                if (files.length === 0) return;
+                
+                let totalFiles = uploadedFiles.length + files.length;
+                if (totalFiles > maxFiles) {
+                    showToast('File Limit Exceeded', `You can only upload up to ${maxFiles} file(s).`, 'warning');
+                    return;
+                }
+                
+                for (const file of files) {
+                    uploadedFiles.push(file);
+                }
+                
+                updateFileList(fileInput, fileList, uploadedFiles, listContainer, countSpan);
+            }
+
+            // Image file handling
+            imagesInput.addEventListener('change', (e) => handleFileSelect(e, imageList, uploadedImages, MAX_IMAGES, imageListContainer, imageCountSpan));
+            imagesDropArea.addEventListener('click', () => imagesInput.click());
+            imagesDropArea.addEventListener('dragover', (e) => e.preventDefault());
+            imagesDropArea.addEventListener('drop', (e) => handleFileDrop(e, imagesInput, imageList, uploadedImages, MAX_IMAGES, imageListContainer, imageCountSpan));
+            imageList.addEventListener('click', (e) => {
+                if (e.target.classList.contains('remove-file-btn')) {
+                    const index = e.target.getAttribute('data-index');
+                    uploadedImages.splice(index, 1);
+                    updateFileList(imagesInput, imageList, uploadedImages, imageListContainer, imageCountSpan);
+                }
+            });
+
+            // Brochure file handling
+            brochureInput.addEventListener('change', (e) => {
+                uploadedBrochure = [];
+                handleFileSelect(e, brochureList, uploadedBrochure, MAX_BROCHURES, brochureListContainer, brochureCountSpan);
+            });
+            brochureDropArea.addEventListener('click', () => brochureInput.click());
+            brochureDropArea.addEventListener('dragover', (e) => e.preventDefault());
+            brochureDropArea.addEventListener('drop', (e) => {
+                uploadedBrochure = [];
+                handleFileDrop(e, brochureInput, brochureList, uploadedBrochure, MAX_BROCHURES, brochureListContainer, brochureCountSpan);
+            });
+            brochureList.addEventListener('click', (e) => {
+                if (e.target.classList.contains('remove-file-btn')) {
+                    uploadedBrochure.splice(0, 1);
+                    updateFileList(brochureInput, brochureList, uploadedBrochure, brochureListContainer, brochureCountSpan);
+                }
+            });
+            
+            // Modal close button
+            modalCloseBtn.addEventListener('click', hideModal);
+
+            // Initialize the form
+            initializeForm();
+            showStep(0);
+        });
+    </script>
+{% endblock %}

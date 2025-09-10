@@ -8,6 +8,7 @@ db.sqlite3
 /media/
 /staticfiles/
 .env
+/send_log.txt/
 
 # Virtual environment
 venv/

@@ -2,12 +2,13 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.views import View
+from django.views.generic.list import ListView
 from rest_framework.permissions import AllowAny
 from rest_framework import generics
 from rest_framework.filters import SearchFilter,OrderingFilter
 from .models import ChatMessage, ChatThread, ContactUs, DosageForm, Order, Product, ReportAbuse, Review, Supplier, Notification, UserProducts
 from .filters import ProductFilter
-from .serializers import ChatMessageSerializer, ChatThreadCreateSerializer, ChatThreadSerializer, ContactUsSerializer, DosageFormSerializer, NotificationSerializer, OrderSerializer, ProductDetailSerializer, ProductProviderSerializer, ProductSerializerView, SupplierOrderSerializer, SupplierUpdateSerializer, ReportAbuseSerializer, ReviewSerializer, SupplierSignupSerializer, UserSerializer
+from .serializers import ChatMessageSerializer, ChatThreadCreateSerializer, ChatThreadSerializer, ContactUsSerializer, DosageFormSerializer, NotificationSerializer, OrderSerializer, ProductDetailSerializer, ProductProviderSerializer, SupplierOrderSerializer, SupplierUpdateSerializer, ReportAbuseSerializer, ReviewSerializer, SupplierSignupSerializer, UserSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 from django.views.generic import TemplateView
 from rest_framework import  permissions
@@ -33,14 +34,50 @@ def logout_view(request):
     logout(request)  # This clears the session
     return redirect('landing:landing-page')  # Redirect to your login page or home
 
-class Pharmacy_page(View):
-    template_name = 'pharmacy.html'
-    def get(self, request):
-        supplier = Supplier.objects.filter(user=request.user.id).first()
-        context = {
-            "logo": supplier.logo if supplier and supplier.logo else None,
-        }
-        return render(request, self.template_name, context)
+class Pharmacy_page(ListView):
+
+    model = Product
+    template_name = "pharmacy.html"
+    context_object_name = "products"
+    paginate_by = 50  # change as needed
+
+    def get_queryset(self):
+        queryset = Product.objects.all().select_related("dosage_form", "supplier")
+
+        # Filters
+        dosage_form = self.request.GET.get("dosage_form")
+        if dosage_form:
+            queryset = queryset.filter(dosage_form_id=dosage_form)
+
+        min_price = self.request.GET.get("price__gte")
+        max_price = self.request.GET.get("price__lte")
+        if min_price:
+            queryset = queryset.filter(price__gte=min_price)
+        if max_price:
+            queryset = queryset.filter(price__lte=max_price)
+
+        search = self.request.GET.get("search")
+        if search:
+            queryset = queryset.filter(
+                Q(name__icontains=search) |
+                Q(supplier__name__icontains=search) |
+                Q(dosage_form__name__icontains=search)
+            )
+
+        # Ordering
+        ordering = self.request.GET.get("ordering", "price")
+        allowed_ordering = ["price", "stock_quantity", "name", "-price", "-stock_quantity", "-name"]
+        if ordering in allowed_ordering:
+            queryset = queryset.order_by(ordering)
+
+        return queryset.annotate(avg_rating=Avg("reviews__rating"))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["dosage_forms"] = DosageForm.objects.all()
+        context["filters"] = self.request.GET
+        return context
+
 
 class ProductDetailView(View):
     template_name = 'detail.html'
@@ -49,42 +86,32 @@ class ProductDetailView(View):
         product = get_object_or_404(Product, pk=pk)
         return render(request, self.template_name, {'product': product})
     
-# class ProductDetailAPIView(generics.RetrieveAPIView):
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+    
+    
+# class ProductApiView(generics.ListAPIView):
 #     queryset = Product.objects.all()
 #     serializer_class = ProductSerializerView
-#     def get_queryset(self):
-#         return Product.objects.select_related("supplier__user_supplier").all()
-#
-#     def retrieve(self, request, *args, **kwargs):
-#         response = super().retrieve(request, *args, **kwargs)
-#         product = self.get_object()
-#         userproduct = getattr(product.supplier, "user_supplier", None)
-#         print('this is the userproduct', userproduct)
-#         response.data["userproduct_id"] = userproduct.id if userproduct else None
-#         return response
-
-class ProductApiView(generics.ListAPIView):
-    queryset = Product.objects.all()
-    serializer_class = ProductSerializerView
-    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    filterset_class = ProductFilter
-    pagination_class = PageNumberPagination
+#     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+#     filterset_class = ProductFilter
+#     pagination_class = PageNumberPagination
     
-    # Search fields
-    search_fields = [
-        'name',
-        'supplier__name',
-        'dosage_form__name'
-    ]
+#     search_fields = [
+#         'name',
+#         'supplier__name',
+#         'dosage_form__name'
+#     ]
 
-    # Allow ordering by these fields
-    ordering_fields = ['price', 'stock_quantity', 'name']
-    ordering = ['price']  # default order
+#     ordering_fields = ['price', 'stock_quantity', 'name']
+#     ordering = ['price']  # default order
 
 class DosageApi(generics.ListAPIView):
     queryset = DosageForm.objects.all()
     serializer_class = DosageFormSerializer
     pagination_class = None
+
 class ReviewCreateAPIView(generics.CreateAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
@@ -258,6 +285,7 @@ class ProductsView(LoginRequiredMixin,TemplateView):
 
 class SignUpPageView(TemplateView):
     template_name = 'signup/sighup.html'
+    
 
 class SupplierSignupAPIView(generics.CreateAPIView):
     queryset = Supplier.objects.all()
@@ -657,9 +685,7 @@ def robots_txt(request):
     return HttpResponse(content, content_type="text/plain")
 
 
-# views.py
 from django.http import HttpResponse
-import json
 from .tasks import post_next_supplier_products
 
 def google_calendar_webhook(request):

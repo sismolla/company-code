@@ -1,6 +1,6 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-from .views import google_calendar_webhook, ChatMessageCreateAPIView, ChatThreadCreateAPIView, ChatThreadListAPIView, ContactUsViewSet, CustomerDashboardView, FAQView, HelpPageView, MarkMessagesAsReadView, MessageView, NotificationApi, Pharmacy_page,ProductApiView,DosageApi, ProductBulkUploadView, ProductDetailAPIView, ProductProvider, ProductProviderDetailPage, ProductViewSet, ProductsView, ProfilePageView, ReportAbuseCreateAPIView, ReviewCreateAPIView,ProductDetailView, SignUpPageView, SupplierOrderDetailPage, SupplierProfileViewSet, SupplierSignupAPIView, UserLoginAPIView, UserOrderDetailUpdateView, UserOrdersListView, UserProfileAPIView, logout_view, ProductProviderListPage,OrderCreateView, SupplierOrderPage,send_test
+from .views import google_calendar_webhook, ChatMessageCreateAPIView, ChatThreadCreateAPIView, ChatThreadListAPIView, ContactUsViewSet, CustomerDashboardView, FAQView, HelpPageView, MarkMessagesAsReadView, MessageView, NotificationApi, Pharmacy_page,DosageApi, ProductBulkUploadView, ProductDetailAPIView, ProductProvider, ProductProviderDetailPage, ProductViewSet, ProductsView, ProfilePageView, ReportAbuseCreateAPIView, ReviewCreateAPIView,ProductDetailView, SignUpPageView, SupplierOrderDetailPage, SupplierProfileViewSet, SupplierSignupAPIView, UserLoginAPIView, UserOrderDetailUpdateView, UserOrdersListView, UserProfileAPIView, logout_view, ProductProviderListPage,OrderCreateView, SupplierOrderPage,send_test
 
 
 app_name = 'landing'
@@ -18,7 +18,6 @@ urlpatterns = [
     path('dosage/api/', DosageApi.as_view(), name='dosage'),
     path('reviews/create/', ReviewCreateAPIView.as_view(), name='review-create'),
     path('report-abuse/', ReportAbuseCreateAPIView.as_view(), name='report-abuse-create'),
-    path('product/api/',ProductApiView.as_view(),name='products-api-view'),
     # Chat API endpoints 
 
     path('thread/<int:thread_pk>/mark-as-read/', MarkMessagesAsReadView.as_view(), name='mark-as-read'),

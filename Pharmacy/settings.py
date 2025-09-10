@@ -68,9 +68,9 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'django_filters',
     'rest_framework',
-    'django_celery_beat',
     'django.contrib.sitemaps',
     'pwa',
+    'Medical_device',
 ]
 
 MIDDLEWARE = [
@@ -149,14 +149,6 @@ if not DEBUG:
 
 
 
-
-# Celery configuration
-CELERY_BROKER_URL = 'redis://localhost:6379/0'
-CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TIMEZONE = 'UTC'
 
 
 # Password validation MvKl1O3ilxZhfnz7

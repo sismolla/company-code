@@ -258,18 +258,18 @@ class SingleProductReview(serializers.ModelSerializer):
         model = Review
         fields = ['reviewer_name', 'rating', 'comment', 'created_at']
 
-class ProductSerializerView(serializers.ModelSerializer):
-    dosage_form_name = serializers.CharField(source='dosage_form.name', read_only=True)
-    reviews = SingleProductReview(many=True, read_only=True)
-    userproduct_id = serializers.SerializerMethodField()
+# class ProductSerializerView(serializers.ModelSerializer):
+#     dosage_form_name = serializers.CharField(source='dosage_form.name', read_only=True)
+#     reviews = SingleProductReview(many=True, read_only=True)
+#     userproduct_id = serializers.SerializerMethodField()
 
-    class Meta:
-        model = Product
-        fields = ['id', 'image', 'dosage_form_name', 'dosage_form', 'reviews', 'name', 'price', 'expire_date', 'stock_quantity', 'strength', 'userproduct_id']
+#     class Meta:
+#         model = Product
+#         fields = ['id', 'image', 'dosage_form_name', 'dosage_form', 'reviews', 'name', 'price', 'expire_date', 'stock_quantity', 'strength', 'userproduct_id']
 
-    def get_userproduct_id(self, obj):
-        userproduct = getattr(obj.supplier, "user_supplier", None)
-        return userproduct.id if userproduct else None
+#     def get_userproduct_id(self, obj):
+#         userproduct = getattr(obj.supplier, "user_supplier", None)
+#         return userproduct.id if userproduct else None
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:

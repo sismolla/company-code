@@ -6,6 +6,7 @@
     {% progressive_web_app_meta %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
     <meta name="google-site-verification" content="OLwUEgXwWdcMPfr7P9Ge9Oq1hGVEMYn9BsD87_WUyOU" />
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-S434JFNEGC"></script>
@@ -543,7 +544,9 @@
             }
         }
     </style>
-    {% block style %}{% endblock style %}
+    {% block style %}
+    
+    {% endblock style %}
 </head>
 <body>
 
@@ -591,16 +594,24 @@
             </button>
 
             <div class="nav-links-container" id="nav-links-container">
+                <a href="/" class="nav-link">
+                    <span>Pharmaceuticals</span>
+                    <span class="underline"></span>
+                </a>
+                <a href="/list/device" class="nav-link">
+                    <span>Medical devices</span>
+                    <span class="underline"></span>
+                </a>
+                <a href="/pharmaceutical-wholesalers" class="nav-link">
+                    <span>Wholesalers</span>
+                    <span class="underline"></span>
+                </a>
                 <a href="/aboutus" class="nav-link">
                     <span>About us</span>
                     <span class="underline"></span>
                 </a>
                 <a href="/contactus" class="nav-link">
                     <span>Contact us</span>
-                    <span class="underline"></span>
-                </a>
-                <a href="/pharmaceutical-wholesalers" class="nav-link">
-                    <span>Wholesalers</span>
                     <span class="underline"></span>
                 </a>
                 <a href="/faq/" class="nav-link">
