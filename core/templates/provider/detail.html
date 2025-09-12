@@ -712,8 +712,6 @@
     .product-table td:nth-of-type(4):before { content: "Status"; }
     .product-table td:nth-of-type(5):before { content: "Quantity"; }
 }
-
-    /* Print styles */
     @media print {
         body {
             background-color: white;
@@ -756,6 +754,7 @@
         }
     }
 </style>
+{% block new_style %}{% endblock new_style %}
 {% endblock style %}
 
 {% block content %}
@@ -783,6 +782,7 @@
             <i class="fas fa-arrow-left"></i>
             Back to Medical Device Wholesalers
         </a>
+        
     </div>
 
     <div class="supplier-header">
@@ -837,8 +837,12 @@
                     <input type="text" id="product-search" class="form-control" placeholder="Search for medical devices..." disabled>
                 </div>
             </div>
+                <a href="{% url 'medical_device:supplier-products' supplier.id%}" 
+            class="btn btn-outline" style="border-color: var(--primary-color); color: var(--primary-color);">
+                <i class="fas fa-eye mr-2"></i> View Medical Device Products
+            </a>
 
-            <div class="info-card">
+                        <div class="info-card">
                 <h2 class="section-title">
                     <i class="fas fa-cogs"></i>
                     Pharmaceutical Inventory

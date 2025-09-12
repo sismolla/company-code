@@ -28,7 +28,7 @@ from django.core.files.storage import default_storage
 from dateutil import parser
 from .utils import send_order_email,notify_user, send_presentation_email
 from rest_framework.pagination import PageNumberPagination
-
+from Medical_device.models import MedicalDevice
 
 def logout_view(request):
     logout(request)  # This clears the session
@@ -169,6 +169,7 @@ class CustomerDashboardView(LoginRequiredMixin,TemplateView):
             context["dashboard"] = Product.objects.filter(supplier__user=user)[:10]
             # Stats
             context["count_products"] = Product.objects.filter(supplier__user=user).count()
+            context['device_products'] = MedicalDevice.objects.filter(supplier=user.id).count()
             supplier = Supplier.objects.filter(user=user).first()
             context['reviews'] = supplier.average_rating if supplier else 0
             context['logo'] = supplier.logo if supplier.logo else None

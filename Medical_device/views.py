@@ -1,8 +1,10 @@
+
 import json
+from django.shortcuts import render
 from rest_framework.response import Response 
 from rest_framework.views import APIView
 from .serializer import CategorySerializer, ProductSerializer
-from .models import Product, Category, ProductAttributeValue, ProductImage
+from .models import MedicalDevice, Category, ProductAttributeValue, ProductImage
 from django.views.generic import TemplateView
 from rest_framework import serializers,status,viewsets
 from django.views.generic import ListView
@@ -12,8 +14,11 @@ from django.views.generic import DetailView
 from django.template.loader import render_to_string
 from rest_framework.permissions import IsAuthenticated
 from core.models import Supplier
+from core.models import UserProducts
+from django.contrib.auth.mixins import LoginRequiredMixin
 
-class DeviceAddPage(TemplateView):
+class DeviceAddPage(LoginRequiredMixin,TemplateView):
+    login_url = '/user/signup/'
     template_name = 'device_form.html'
 
 class DeviceViewPage(TemplateView):
@@ -74,9 +79,9 @@ class ProductViewSet(viewsets.ModelViewSet):
         user = self.request.user
         try:
             supplier = Supplier.objects.get(user=user)
-            return Product.objects.filter(supplier=supplier)
+            return MedicalDevice.objects.filter(supplier=supplier)
         except Supplier.DoesNotExist:
-            return Product.objects.none()
+            return MedicalDevice.objects.none()
     
     def update(self, request, *args, **kwargs):
         attributes = request.data.get("attributes")
@@ -130,14 +135,14 @@ class ProductViewSet(viewsets.ModelViewSet):
         return Response(ProductSerializer(product).data, status=status.HTTP_200_OK)
 
 class ProductListView(ListView):
-    model = Product
+    model = MedicalDevice
     template_name = 'product_list.html'  
     context_object_name = 'products'  
     paginate_by = 50
     ordering = ['-created_at']
     
     def get_queryset(self):
-        queryset = Product.objects.all().select_related('category').prefetch_related('images', 'attributes__attribute')
+        queryset = MedicalDevice.objects.all().select_related('category').prefetch_related('images', 'attributes__attribute')
         
         # Apply filters
         search_query = self.request.GET.get('search')
@@ -169,8 +174,8 @@ class ProductListView(ListView):
         
         # Add categories and manufacturers for filters
         context['categories'] = Category.objects.all()
-        context['manufacturers'] = Product.objects.values_list('manufacturer', flat=True).distinct()
-        context['new_arrivals'] = Product.objects.all().order_by('-created_at')[:10]
+        context['manufacturers'] = MedicalDevice.objects.values_list('manufacturer', flat=True).distinct()
+        context['new_arrivals'] = MedicalDevice.objects.all().order_by('-created_at')[:10]
         # Add selected category for display
         category_id = self.request.GET.get('category')
         if category_id:
@@ -187,16 +192,16 @@ class ProductListView(ListView):
             html = render_to_string('product_list_partial.html', context, self.request)
             return HttpResponse(html)  # 🔥 raw HTML, not JSON
         return super().render_to_response(context, **response_kwargs)
-    
+
 class ProductDetailView(DetailView):
-    model = Product
+    model = MedicalDevice
     template_name = 'product_detail.html'
     context_object_name = 'product'
     
     def get_object(self, queryset=None):
         # Get the product with related data
         return get_object_or_404(
-            Product.objects.select_related('category')
+            MedicalDevice.objects.select_related('category')
                           .prefetch_related('images', 'attributes__attribute'),
             id=self.kwargs['pk']
         )
@@ -205,10 +210,29 @@ class ProductDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         
         # Get related products (same category)
-        context['related_products'] = Product.objects.filter(
+        context['related_products'] = MedicalDevice.objects.filter(
             category=self.object.category
         ).exclude(id=self.object.id).select_related('category')[:10]
         context['warranty'] = self.object.warranty
         context['supplier'] = self.object.supplier
+        context['user_supplier'] = UserProducts.objects.filter(supplier=self.object.supplier.id).first()
         return context
+
+def supplier_products(request, pk):
+    supplier = get_object_or_404(Supplier, id=pk)
+    products = supplier.devices.prefetch_related("images", "attributes__attribute", "category")
     
+    contact_info = {
+        'Phone': supplier.phone if hasattr(supplier, 'phone') else None,
+        'Email': supplier.user.email if hasattr(supplier.user, 'email') else None,
+        'Whatsapp': supplier.whatsapp_link if hasattr(supplier, 'whatsapp_link') else None,
+        'Telegram': supplier.telegram_link if hasattr(supplier, 'telegram_link') else None,
+    }
+
+    member_since = supplier.user.date_joined.strftime("%B %Y")  
+
+    # Remove empty values
+    contact_info = {k:v for k,v in contact_info.items() if v}
+
+    return render(request, "provider/detail_two.html", {"supplier": supplier, "products": products,'contact_info': contact_info,"member_since": member_since,
+})

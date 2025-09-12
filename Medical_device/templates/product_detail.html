@@ -467,7 +467,19 @@
         margin-top: 1.5rem;
         transition: var(--transition);
     }
-    
+        .btn-gradient-info {
+        background: linear-gradient(45deg, #36d1dc, #5b86e5);
+        color: #fff;
+        border: none;
+    }
+    .btn-gradient-info:hover {
+        background: linear-gradient(45deg, #5b86e5, #36d1dc);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+    .btn-gradient-info:focus {
+        box-shadow: 0 0 0 0.25rem rgba(54, 209, 220, 0.5);
+    }
     .brochure-download:hover {
         transform: translateY(-2px);
         box-shadow: var(--shadow);
@@ -517,6 +529,8 @@
         background: var(--border);
         margin: 1.5rem 0;
     }
+
+    
     
     .badge {
         display: inline-flex;
@@ -657,16 +671,22 @@
             
             <!-- Action Buttons -->
             <div class="action-buttons">
+                <a href="{% url 'landing:product-provider-detail' user_supplier.id%}" class="btn btn-secondary flex-grow-1 flex-md-auto">
+                    <i class="fas "></i> Visit Supplier Page
+                </a>
+
                 <button class="btn btn-success" id="share-btn">
                     <i class="fas fa-share-alt"></i> Share Product
                 </button>
-                <button  id="contactSupplierBtn"
-                            data-supplier-id="{{ supplier.id }}"
-                            data-logged-in-user-id="{{ request.user.id }}"
-                            class="btn-message">
-                        Message Wholesaler
-                    </button>
-            </div>
+                <button class="btn btn-gradient-info d-flex align-items-center justify-content-center flex-grow-1 flex-md-auto shadow-sm"
+                    id="contactSupplierBtn"
+                    data-supplier-id="{{ supplier.id }}"
+                    data-logged-in-user-id="{{ request.user.id }}"
+                    style="min-width: 180px; transition: transform 0.2s ease, box-shadow 0.2s ease;">
+                <i class="fas fa-envelope me-2"></i>
+                <span>Message Wholesaler</span>
+            </button>
+                        </div>
 
             <input type="checkbox" id="toggleContact" class="hidden peer">
             <label for="toggleContact" class="w-full py-2 md:py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition flex items-center justify-center cursor-pointer">
@@ -850,12 +870,12 @@
 
 <!-- Mobile Action Bar -->
 <div class="mobile-action-bar">
-    <a class="btn btn-outline">
-        <i class="fas fa-envelope"></i> Contact Seller
+    <a href="{% url 'medical_device:supplier-products' user_supplier.id %}" class="btn btn-outline">
+        <i class="fas fa-envelope"></i> Visit Seller page
     </a>
-                    <button class="btn btn-secondary" id="share-btn">
-                    <i class="fas fa-share-alt"></i> Share Product
-                </button>
+<button class="btn btn-secondary" id="share-btn-secondary">
+    <i class="fas fa-share-alt"></i> Share Product
+</button>
 </div>
 {% endblock content %}
 
@@ -866,6 +886,35 @@
         const contactSupplierBtn = document.getElementById('contactSupplierBtn');
         const thumbnails = document.querySelectorAll('.thumbnail');
         const mainImage = document.getElementById('current-image');
+        const shareButton = document.getElementById('share-btn-secondary');
+
+    shareButton.addEventListener('click', async () => {
+        // Check if the Web Share API is supported by the browser
+        if (navigator.share) {
+            try {
+                // Fetch product details to share. You would replace this with actual logic
+                // to get the product's name, URL, and a description.
+                const productDetails = {
+                    title: 'Check out this awesome product!',
+                    text: 'I found this product and thought you might like it. It\'s a great deal.',
+                    url: window.location.href // Shares the current page's URL
+                };
+
+                // Use the Web Share API to open the native sharing dialog
+                await navigator.share(productDetails);
+                console.log('Product shared successfully!');
+
+            } catch (error) {
+                // This catch block handles cases where the user cancels the share
+                // or if there's an error during the process.
+                console.error('Error sharing the product:', error);
+            }
+        } else {
+            // Fallback for browsers that do not support the Web Share API
+            // You could use a simple alert, copy to clipboard, or a custom modal.
+            alert('Your browser does not support the Web Share API. You can manually copy the link from the address bar.');
+        }
+    });
         
         if (thumbnails.length > 0 && mainImage) {
             thumbnails.forEach(thumb => {

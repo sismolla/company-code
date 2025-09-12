@@ -11,7 +11,7 @@ class Category(models.Model):
         return self.name
 
 
-class Product(models.Model):
+class MedicalDevice(models.Model):
     supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE, related_name="devices")
     name = models.CharField(max_length=255)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
@@ -30,7 +30,7 @@ class Product(models.Model):
         return self.name
 
 class ProductImage(models.Model):
-    product = models.ForeignKey("Product", on_delete=models.CASCADE, related_name="images")
+    product = models.ForeignKey("MedicalDevice", on_delete=models.CASCADE, related_name="images")
     image = models.ImageField(upload_to="products/images/")
 
     def __str__(self):
@@ -53,7 +53,7 @@ class Attribute(models.Model):
         return f"{self.name} ({self.category.name})"
 
 class ProductAttributeValue(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="attributes")
+    product = models.ForeignKey(MedicalDevice, on_delete=models.CASCADE, related_name="attributes")
     attribute = models.ForeignKey(Attribute, on_delete=models.CASCADE)
     value = models.CharField(max_length=255)
 

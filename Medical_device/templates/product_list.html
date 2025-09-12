@@ -635,10 +635,6 @@
         <!-- Main Product Area -->
         <main class="main-content">
             <div class="filter-bar">
-                <div class="search-input-group">
-                    <i class="fas fa-search search-icon"></i>
-                    <input type="text" id="search-input" class="search-input" placeholder="Search for products..." value="{{ request.GET.search }}">
-                </div>
                 <select class="filter-select" id="category-filter">
                     <option value="">All Categories</option>
                     {% for category in categories %}
@@ -687,7 +683,7 @@
                     <i class="fas fa-box-open"></i>
                     <h3>No Products Found</h3>
                     <p>There are no products matching your criteria.</p>
-                    <a href="#" class="btn btn-primary">
+                    <a href="{%url 'medical_device:add-device'%}" class="btn btn-primary">
                         <i class="fas fa-plus mr-2"></i> Add New Product
                     </a>
                 </div>

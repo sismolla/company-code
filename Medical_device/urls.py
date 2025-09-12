@@ -1,6 +1,6 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-from .views import CategoryApiView, ProductDetailView, ProductListView,ProductViewSet, DeviceAddPage, DeviceViewPage, DeviceHomePage
+from .views import CategoryApiView, ProductDetailView, ProductListView,ProductViewSet, DeviceAddPage, DeviceViewPage, DeviceHomePage, supplier_products
 from rest_framework.routers import DefaultRouter
 
 
@@ -14,6 +14,7 @@ urlpatterns = [
     path('list/device/<int:pk>/', ProductDetailView.as_view(), name='product_detail'),
     path('medical_device_upload_api/', CategoryApiView.as_view(), name='medical-device-upload-api'),
     path('home/device/', DeviceHomePage.as_view(), name='device-home'),
+    path('supplier/products/<int:pk>', supplier_products, name='supplier-products'),
 ]
 
 

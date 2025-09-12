@@ -54,9 +54,9 @@ def generate_telegram_post(products, post_templates=POST_TEMPLATES):
 
     # Link ID fallback
     obj = UserProducts.objects.filter(supplier=supplier).first()
-    link_url = f"http://127.0.0.1:8000/pharmacy/supplier-detail/{obj.id}/" if obj else "http://127.0.0.1:8000/pharmacy/"
+    link_url = f"https://pharmagebeya.com/supplier-detail/{obj.id}/" if obj else "https://pharmagebeya.com/pharmaceutical-wholesalers/"
 
-    catalog_url = "http://127.0.0.1:8000/pharmacy/"
+    catalog_url = "https://pharmagebeya.com/"
 
     text = template.format(
         supplier_name=supplier.name,

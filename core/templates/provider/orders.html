@@ -732,13 +732,15 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const response = await fetch('/orders/');
             if (!response.ok) throw new Error('Failed to fetch orders');
-            return await response.json();
+            const data = await response.json();
+            return data.results || [];   // 👈 return only the array of orders
         } catch (err) {
             console.error(err);
             showToast('Failed to load orders. Please try again.', 'error');
             return [];
         }
     }
+
 
     async function updateOrderStatus(orderId, newStatus) {
         const response = await fetch(`/orders/${orderId}/`, {

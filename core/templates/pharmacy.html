@@ -471,7 +471,7 @@
                 <div class="product-details">
                     <div class="product-category">{{ p.dosage_form.name }}</div>
                     <h3 class="product-title">{{ p.name }} {{ p.strength }}</h3>
-                    <div class="product-price">${{ p.price }}</div>
+                    <div class="product-price">{{ p.price }}(ETB)</div>
                     <div class="product-reviews">
                         {% with avg=p.avg_rating %}
                             {% if avg %}

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Category, Attribute, Product, ProductAttributeValue, Attribute, ProductImage
+from .models import Category, Attribute, MedicalDevice, ProductAttributeValue, Attribute, ProductImage
 
 class AttributeSerializer(serializers.ModelSerializer):
     class Meta:
@@ -35,7 +35,7 @@ class ProductSerializer(serializers.ModelSerializer):
     images = ProductImageSerializer(many=True, read_only=True)
 
     class Meta:
-        model = Product
+        model = MedicalDevice
         fields = [
             "id",
             "name",
