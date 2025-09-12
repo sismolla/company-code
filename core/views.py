@@ -78,16 +78,21 @@ class Pharmacy_page(ListView):
         context["filters"] = self.request.GET
         return context
 
+from django.views.generic import DetailView
 
-class ProductDetailView(View):
+class ProductDetailView(DetailView):
+    model = Product
     template_name = 'detail.html'
+    context_object_name = 'product'
 
-    def get(self, request, pk):
-        product = get_object_or_404(Product, pk=pk)
-        return render(request, self.template_name, {'product': product})
-    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        supplier = self.object.supplier
+        member_since = (
+            supplier.user.date_joined.strftime("%B %Y") 
+            if getattr(supplier, "user", None) else "N/A"
+        )
+        context['member_since'] = member_since
         return context
     
     
@@ -368,20 +373,20 @@ class ProductProvider(viewsets.ModelViewSet):
 
         # keep only some fields for list
         data = [
-                {
-                    "id": item["id"],
-                    "supplier": item["supplier"]["name"],
-                    "phone":item['supplier']['phone'],
-                    'email': item['supplier']['email'],
-                    "address": item["supplier"]["address"],
-                    "description": item["description"],
-                    "average_rating": [p['average_rating'] for p in item['products']],  # still list per product
-                    "logo": item["supplier"]["logo"],  # ✅ single supplier logo
-                }
-
-            for item in serializer.data
+            {
+                "id": item["id"],
+                "supplier": item["supplier"]["name"],
+                "phone": item["supplier"]["phone"],
+                "email": item["supplier"]["email"],
+                "address": item["supplier"]["address"],
+                "description": item["description"],
+                "average_rating": [p["average_rating"] for p in item["products"]],
+                "logo": item["supplier"]["logo"],  # ✅ single supplier logo
+            }
+            for item in serializer.data if item.get("products")  # ✅ only include if products exist
         ]
         return Response(data)
+
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()

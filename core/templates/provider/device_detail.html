@@ -216,6 +216,7 @@ body {
     padding: 2rem;
     box-shadow: var(--shadow-sm);
     margin-bottom: 1.75rem;
+    margin-top: 20px;
     border: none;
     transition: var(--transition);
 }
@@ -689,13 +690,14 @@ body {
             </h1>
             <div class="supplier-meta">
                 <div class="meta-item"><i class="fas fa-map-marker-alt"></i> {{ supplier.address|default:"Location not specified" }}</div>
-                <div class="meta-item"><i class="fas fa-boxes"></i> {{ products|length }} Products</div>
+                <div class="meta-item"><i class="fas fa-boxes"></i> {{ products|length }} Devices</div>
             </div>
         </div>
     </header>
     <a href="{% url 'landing:product-provider-detail' supplier.id%}" 
             class="btn btn-outline" style="border-color: var(--primary-color); color: var(--primary-color);">
-                <i class="fas fa-eye mr-2"></i> View Pharmaceutical Products
+                <i class="fas fa-eye mr-2"></i> Su
+                pplier Pharmaceutical Products
             </a>
 
     <div class="main-content">
@@ -712,12 +714,8 @@ body {
                         <div class="value">{{ supplier.name }}</div>
                     </div>
                     <div class="detail-item">
-                        <div class="label">Delivery Service</div>
-                        <div class="value">{{ supplier.provides_delivery|yesno:"Available,Not Available" }}</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="label">Bulk Discounts</div>
-                        <div class="value">{{ supplier.bulk_discount|yesno:"Available,Not Available" }}</div>
+                        <div class="label">Supplier Address</div>
+                        <div class="value">{{ supplier.address|yesno:"Available,Not Available" }}</div>
                     </div>
                     <div class="detail-item">
                         <div class="label">Member Since</div>
@@ -779,13 +777,17 @@ body {
                                         {% endif %}
                                     </div>
 
-                                    <div class="card-footer bg-white border-0 pt-0 d-flex justify-content-between align-items-center">
-                                        {% if product.price %}
-                                        <span class="price-tag">{{ product.price }} ETB</span>
-                                        {% else %}
+                                    <div class="card-footer bg-light border-0 d-flex justify-content-end align-items-center" 
+                                    style="padding: 0.75rem 1rem;position: relative; border-radius: 0.5rem; min-height: 50px;">
+                                    {% if product.price %}
+                                        <span class="price-tag fw-bold text-primary" style="font-size: 1.1rem;">
+                                            {{ product.price }} ETB
+                                        </span>
+                                    {% else %}
                                         <span class="text-muted small">Price on request</span>
-                                        {% endif %}
-                                    </div>
+                                    {% endif %}
+                                </div>
+
                                 </div>
                                 {% endfor %}
                             </div>

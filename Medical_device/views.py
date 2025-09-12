@@ -234,5 +234,5 @@ def supplier_products(request, pk):
     # Remove empty values
     contact_info = {k:v for k,v in contact_info.items() if v}
 
-    return render(request, "provider/detail_two.html", {"supplier": supplier, "products": products,'contact_info': contact_info,"member_since": member_since,
+    return render(request, "provider/device_detail.html", {"supplier": supplier, "products": products,'contact_info': contact_info,"member_since": member_since,
 })

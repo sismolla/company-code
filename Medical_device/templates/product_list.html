@@ -581,8 +581,8 @@
 {% endblock style %}
 
 {% block content %}
-<div class="loading-overlay" id="loading-overlay">
-    <div class="spinner"></div>
+<div class="loading-overlay" id="loading-overlay" role="status" aria-live="polite">
+    <div class="spinner" aria-hidden="true"></div>
     <div class="loading-text">Loading products...</div>
 </div>
 
@@ -591,11 +591,14 @@
     <header class="page-header">
         <div>
             <h1 class="page-title">Medical Devices in Ethiopia</h1>
-            <p class="page-subtitle">Connect directly with verified suppliers and empower your business.</p>
+            <p class="page-subtitle">
+                Connect directly with <strong>verified suppliers</strong> of medical devices in Ethiopia and empower your business.
+            </p>
         </div>
         <div class="page-actions">
-            <span id="product-count">{{ products.paginator.count }} products found</span>
-            <select class="filter-select" id="sort-select">
+            <span id="product-count"><strong>{{ products.paginator.count }}</strong> products found</span>
+            <label for="sort-select" class="visually-hidden">Sort products</label>
+            <select class="filter-select" id="sort-select" aria-label="Sort products">
                 <option value="-created_at" {% if request.GET.ordering == "-created_at" %}selected{% endif %}>Newest First</option>
                 <option value="created_at" {% if request.GET.ordering == "created_at" %}selected{% endif %}>Oldest First</option>
                 <option value="price" {% if request.GET.ordering == "price" %}selected{% endif %}>Price: Low to High</option>
@@ -607,83 +610,95 @@
     </header>
 
     <!-- Active Filters -->
-    <div class="filter-tags" id="filter-tags">
+    <nav class="filter-tags" id="filter-tags" aria-label="Active filters">
         {% if request.GET.category %}
         <div class="filter-tag">
             Category: {{ selected_category.name }}
-            <span class="filter-tag-remove" data-filter="category">×</span>
+            <button class="filter-tag-remove" data-filter="category" aria-label="Remove category filter">×</button>
         </div>
         {% endif %}
         {% if request.GET.manufacturer %}
         <div class="filter-tag">
             Manufacturer: {{ request.GET.manufacturer }}
-            <span class="filter-tag-remove" data-filter="manufacturer">×</span>
+            <button class="filter-tag-remove" data-filter="manufacturer" aria-label="Remove manufacturer filter">×</button>
         </div>
         {% endif %}
         {% if request.GET.search %}
         <div class="filter-tag">
             Search: {{ request.GET.search }}
-            <span class="filter-tag-remove" data-filter="search">×</span>
+            <button class="filter-tag-remove" data-filter="search" aria-label="Remove search filter">×</button>
         </div>
         {% endif %}
         {% if request.GET.search or request.GET.category or request.GET.manufacturer %}
         <button class="clear-filters" id="clear-filters">Clear all filters</button>
         {% endif %}
-    </div>
+    </nav>
 
     <section class="showcase-layout">
         <!-- Main Product Area -->
         <main class="main-content">
             <div class="filter-bar">
-                <select class="filter-select" id="category-filter">
+                <label for="category-filter" class="visually-hidden">Filter by category</label>
+                <select class="filter-select" id="category-filter" aria-label="Filter by category">
                     <option value="">All Categories</option>
                     {% for category in categories %}
                     <option value="{{ category.id }}" {% if request.GET.category == category.id|stringformat:"s" %}selected{% endif %}>{{ category.name }}</option>
                     {% endfor %}
                 </select>
-                <select class="filter-select" id="manufacturer-filter">
-                    <option value="">All Manufacturers</option>
-                    {% for manufacturer in manufacturers %}
-                    <option value="{{ manufacturer }}" {% if request.GET.manufacturer == manufacturer %}selected{% endif %}>{{ manufacturer }}</option>
-                    {% endfor %}
+
+                <label for="manufacturer-filter" class="visually-hidden">Filter by manufacturer</label>
+                <select class="filter-select" id="manufacturer-filter" aria-label="Filter by manufacturer">
+<option value="">All Manufacturers</option>
+{% for manufacturer in manufacturers %}
+    {% if manufacturer %}
+        <option value="{{ manufacturer }}" {% if request.GET.manufacturer == manufacturer %}selected{% endif %}>{{ manufacturer }}</option>
+    {% endif %}
+{% endfor %}
                 </select>
             </div>
 
             <div class="product-grid" id="product-grid">
                 {% for product in products %}
                 <article class="product-card" itemscope itemtype="https://schema.org/Product">
-                    <div class="product-image-new">
+                    <figure class="product-image-new">
                         {% if product.images.all %}
-                        <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" loading="lazy" itemprop="image">
+                        <img src="{{ product.images.first.image.url }}" 
+                             alt="{{ product.name }} - {{ product.category.name }} from {{ product.manufacturer }}" 
+                             loading="lazy" itemprop="image" width="400" height="300">
                         {% else %}
-                        <img src="https://placehold.co/600x400/e2e8f0/6b7280?text=No+Image" alt="No Image Available" loading="lazy">
+                        <img src="https://placehold.co/600x400/e2e8f0/6b7280?text=No+Image" 
+                             alt="No image available for {{ product.name }}" 
+                             loading="lazy" width="400" height="300">
                         {% endif %}
-                        {% if product.is_new %}<span class="product-badge">NEW</span>{% endif %}
-                        {% if product.is_featured %}<span class="product-badge featured">FEATURED</span>{% endif %}
-                    </div>
+                        {% if product.is_new %}<span class="product-badge" aria-label="New product">NEW</span>{% endif %}
+                        {% if product.is_featured %}<span class="product-badge featured" aria-label="Featured product">FEATURED</span>{% endif %}
+                    </figure>
                     <div class="product-content">
-                        <h3 class="product-title" itemprop="name">{{ product.name }}</h3>
+                        <h2 class="product-title" itemprop="name">{{ product.name }}</h2>
                         <div class="product-meta">
-                            <span itemprop="manufacturer">{{ product.manufacturer }}</span>
+                            <span itemprop="manufacturer">{{ product.manufacturer }}</span> |
                             <span itemprop="category">{{ product.category.name }}</span>
                         </div>
                         <div class="product-price" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
-                            <span itemprop="priceCurrency" content="USD">$</span><span itemprop="price">{{ product.price }}</span>
+                            <meta itemprop="priceCurrency" content="ETB">
+                            <span itemprop="price">{{ product.price }}</span> ETB
                         </div>
                         <p class="product-description" itemprop="description">
                             {{ product.intended_use|truncatewords:20 }}
                         </p>
-                        <a href="{% url 'medical_device:product_detail' product.id %}" class="btn btn-view" aria-label="View details of {{ product.name }}">
+                        <a href="{% url 'medical_device:product_detail' product.id %}" 
+                           class="btn btn-view" 
+                           aria-label="View details of {{ product.name }}">
                             <i class="fas fa-info-circle"></i> Detail
                         </a>
                     </div>
                 </article>
                 {% empty %}
                 <div class="empty-state">
-                    <i class="fas fa-box-open"></i>
+                    <i class="fas fa-box-open" aria-hidden="true"></i>
                     <h3>No Products Found</h3>
                     <p>There are no products matching your criteria.</p>
-                    <a href="{%url 'medical_device:add-device'%}" class="btn btn-primary">
+                    <a href="{% url 'medical_device:add-device' %}" class="btn btn-primary">
                         <i class="fas fa-plus mr-2"></i> Add New Product
                     </a>
                 </div>
@@ -716,23 +731,23 @@
         </main>
 
         <!-- Sidebar -->
-        <aside class="sidebar">
+        <aside class="sidebar" aria-label="Sidebar">
             <section class="sidebar-section">
                 <div class="sidebar-header">
-                    <i class="fas fa-fire sidebar-icon"></i>
+                    <i class="fas fa-fire sidebar-icon" aria-hidden="true"></i>
                     <h2 class="sidebar-title">Featured Categories</h2>
                 </div>
                 <ul class="category-list">
                     {% for category in categories %}
                     <li>
                         <a href="{% url 'medical_device:product_list' %}?category={{ category.id }}" class="category-link">
-                            <i class="fas fa-arrow-right"></i> {{ category.name }}
+                            <i class="fas fa-arrow-right" aria-hidden="true"></i> {{ category.name }}
                         </a>
                     </li>
                     {% endfor %}
                     <li>
                         <a href="{% url 'medical_device:product_list' %}" class="category-link">
-                            <i class="fas fa-globe"></i> View All Products
+                            <i class="fas fa-globe" aria-hidden="true"></i> View All Products
                         </a>
                     </li>
                 </ul>
@@ -740,7 +755,7 @@
 
             <section class="sidebar-section" style="margin-top: 2rem;">
                 <div class="sidebar-header">
-                    <i class="fas fa-clock sidebar-icon"></i>
+                    <i class="fas fa-clock sidebar-icon" aria-hidden="true"></i>
                     <h2 class="sidebar-title">New Arrivals</h2>
                 </div>
                 <div class="arrival-list">
@@ -748,14 +763,14 @@
                     <a href="{% url 'medical_device:product_detail' product.id %}" class="new-arrival-card">
                         <div class="arrival-image">
                             {% if product.images.all %}
-                            <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" loading="lazy">
+                            <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" loading="lazy" width="100" height="80">
                             {% else %}
-                            <img src="https://placehold.co/600x400/e2e8f0/6b7280?text=ARR" alt="No Image">
+                            <img src="https://placehold.co/600x400/e2e8f0/6b7280?text=ARR" alt="No Image" width="100" height="80">
                             {% endif %}
                         </div>
                         <div class="arrival-details">
-                            <h4>{{ product.name|truncatewords:4 }}</h4>
-                            <p>${{ product.price }}</p>
+                            <h3>{{ product.name|truncatewords:4 }}</h3>
+                            <p>{{ product.price }} ETB</p>
                         </div>
                     </a>
                     {% empty %}
@@ -767,6 +782,7 @@
     </section>
 </div>
 {% endblock content %}
+
 
 
 {% block script %}

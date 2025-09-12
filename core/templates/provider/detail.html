@@ -246,6 +246,7 @@
         padding: 1.5rem;
         box-shadow: var(--card-shadow);
         margin-bottom: 1.5rem;
+        margin-top: 20px;
     }
 
     .form-group {
@@ -828,6 +829,11 @@
                         <div class="detail-label">Bulk Discount</div>
                         <div id="bulk-discount" class="detail-value">Loading...</div>
                     </div>
+
+                    {% comment %} <div class="detail-item">
+                        <div class="detail-label">Member Since</div>
+                        <div class="member-value">{{member_since}}</div>
+                    </div> {% endcomment %}
                 </div>
             </div>
 
@@ -839,7 +845,7 @@
             </div>
                 <a href="{% url 'medical_device:supplier-products' supplier.id%}" 
             class="btn btn-outline" style="border-color: var(--primary-color); color: var(--primary-color);">
-                <i class="fas fa-eye mr-2"></i> View Medical Device Products
+                <i class="fas fa-eye mr-2"></i> Supplier Medical Device's
             </a>
 
                         <div class="info-card">

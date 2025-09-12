@@ -12,9 +12,13 @@ class StaticViewSitemap(Sitemap):
             'contact-us',
             'privacy-policy',
             'terms-policy',
+
+            'medical_device:product_list',
         ]  # your named URLs
 
     def location(self, item):
+        return reverse(item)
+    def location2(self, item):
         return reverse(item)
 
 class SupplierSitemap(Sitemap):
@@ -26,6 +30,9 @@ class SupplierSitemap(Sitemap):
 
     def location(self, obj):
         return reverse("landing:product-provider-detail", kwargs={"pk": obj.pk})
+    
+    def location2(self, obj):
+        return reverse("medical_device:product_detail", kwargs={"pk": obj.pk})
 
     def lastmod(self, obj):
         return obj.created_at
