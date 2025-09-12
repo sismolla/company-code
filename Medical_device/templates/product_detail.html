@@ -662,12 +662,16 @@
                 {% endif %}
             </div>
             
-            {% if product.price %}
-            <div class="product-price">
-                <span class="price-label">Price:</span>
-                ${{ product.price }}
-            </div>
-            {% endif %}
+            <div class="card-footer bg-light border-0 d-flex justify-content-end align-items-center" 
+                                    style="padding: 0.75rem 1rem;position: relative; border-radius: 0.5rem; min-height: 50px; color:red">
+                                    {% if product.price %}
+                                        <span class="price-tag fw-bold text-primary" style="font-size: 1.1rem;">
+                                            {{ product.price }} ETB
+                                        </span>
+                                    {% else %}
+                                        <span class="text-muted small">Price on request</span>
+                                    {% endif %}
+                                </div>
             
             <!-- Action Buttons -->
             <div class="action-buttons">
