@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from django.db.models import Q
 from django.db import transaction
-
+from Medical_device.models import MedicalDevice
 class DosageFormSerializer(serializers.ModelSerializer):
     class Meta:
         model = DosageForm
@@ -301,10 +301,15 @@ class ProductSupplierSerializer(serializers.ModelSerializer):
     def get_email(self, obj):
         # Return related user's email if user exists
         return obj.user.email if obj.user else None
-    
+
+class Medical_device_checker(serializers.ModelSerializer):
+    class Meta:
+        model = MedicalDevice
+        fields = ['id']
 class ProductProviderSerializer(serializers.ModelSerializer):
     products = serializers.SerializerMethodField()  
     supplier = ProductSupplierSerializer(read_only=True)
+    medical_devices = Medical_device_checker(many=True, read_only=True)
     class Meta:
         model = UserProducts
         fields = [
@@ -314,6 +319,7 @@ class ProductProviderSerializer(serializers.ModelSerializer):
             'supplier',
             'bulk_discount_available',
             'offer_delivery',
+            'medical_devices',
         ]
 
     def get_products(self, obj):

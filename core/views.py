@@ -383,7 +383,7 @@ class ProductProvider(viewsets.ModelViewSet):
                 "average_rating": [p["average_rating"] for p in item["products"]],
                 "logo": item["supplier"]["logo"],  # ✅ single supplier logo
             }
-            for item in serializer.data if item.get("products")  # ✅ only include if products exist
+            for item in serializer.data if item.get("products") or item.get("medical_devices")   # ✅ only include if products exist
         ]
         return Response(data)
 

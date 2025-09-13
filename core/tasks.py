@@ -32,7 +32,7 @@ def post_next_supplier_products():
             # Check for unposted products
             posted_product_ids = SocialMediaPost.objects.filter(supplier=supplier ,post_date=today).values_list('products__id', flat=True)
             products = Product.objects.filter(supplier=supplier).exclude(id__in=posted_product_ids)[:20]
-
+            
             if not products.exists():
                 continue  # Move to next supplier
 

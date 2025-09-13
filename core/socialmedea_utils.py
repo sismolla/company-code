@@ -68,7 +68,7 @@ def generate_telegram_post(products, post_templates=POST_TEMPLATES):
     )
     return text
 
-def send_telegram_post(text):
+def send_telegram_post_old(text):
     """
     Sends a Telegram message to a supplier group and a channel.
     Raises exception if a request fails, so Celery can retry.
@@ -101,6 +101,33 @@ def send_telegram_post(text):
         'chat_id': channel_id,
         "text": text,
         'parse_mode': 'HTML',
+    }
+
+    try:
+        response_channel = requests.post(base_url, json=payload_channel, timeout=10)
+        response_channel.raise_for_status()
+        logger.info(f"Telegram message sent to channel {channel_id}")
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Failed to send Telegram message to channel {channel_id}: {e}")
+        raise
+
+
+def send_telegram_post(text):
+    """
+    Sends a Telegram message only to a channel.
+    Raises exception if a request fails, so Celery can retry.
+    """
+    load_dotenv()
+    channel_id = os.getenv("TELEGRAM_CHANNEL_BOT_ID")
+    BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+
+    base_url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+
+    # Send to the channel only
+    payload_channel = {
+        "chat_id": channel_id,
+        "text": text,
+        "parse_mode": "HTML",
     }
 
     try:

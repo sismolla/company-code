@@ -639,7 +639,7 @@
                 if (productAverageRatingEl) productAverageRatingEl.textContent = `(${reviewCount} reviews)`;
                 if (productRatingStarsEl) productRatingStarsEl.innerHTML = generateStarHtml(Math.round(averageRating));
 
-                if (productPriceEl) productPriceEl.innerHTML = `$${data.price} <span class="text-base text-gray-500 font-normal">per unit</span>`;
+                if (productPriceEl) productPriceEl.innerHTML = `${data.price} <span class="text-base text-gray-500 font-normal">per unit</span>`;
 
                 if (productStockEl) {
                     productStockEl.textContent = `In Stock: ${data.stock_quantity}`;
