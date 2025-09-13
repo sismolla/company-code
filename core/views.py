@@ -13,7 +13,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.views.generic import TemplateView
 from rest_framework import  permissions
 from django.shortcuts import get_object_or_404
-from django.db.models import Q, Avg
+from django.db.models import Q, Avg, F
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -28,14 +28,16 @@ from django.core.files.storage import default_storage
 from dateutil import parser
 from .utils import send_order_email,notify_user, send_presentation_email
 from rest_framework.pagination import PageNumberPagination
-from Medical_device.models import MedicalDevice
+from Medical_device.models import MedicalDevice, ImpressionAggregate
+from django.contrib.contenttypes.models import ContentType
+from .impression_based_ordering import top_products
+
 
 def logout_view(request):
     logout(request)  # This clears the session
     return redirect('landing:landing-page')  # Redirect to your login page or home
 
 class Pharmacy_page(ListView):
-
     model = Product
     template_name = "pharmacy.html"
     context_object_name = "products"
@@ -43,6 +45,11 @@ class Pharmacy_page(ListView):
 
     def get_queryset(self):
         queryset = Product.objects.all().select_related("dosage_form", "supplier")
+
+        # annotate impressions
+        queryset = queryset.annotate(
+            impression_count=F("impressions__impression_count")
+        )
 
         # Filters
         dosage_form = self.request.GET.get("dosage_form")
@@ -64,11 +71,17 @@ class Pharmacy_page(ListView):
                 Q(dosage_form__name__icontains=search)
             )
 
-        # Ordering
-        ordering = self.request.GET.get("ordering", "price")
-        allowed_ordering = ["price", "stock_quantity", "name", "-price", "-stock_quantity", "-name"]
+        # Ordering (user-selected)
+        ordering = self.request.GET.get("ordering")
+        allowed_ordering = [
+            "price", "stock_quantity", "name",
+            "-price", "-stock_quantity", "-name"
+        ]
+
         if ordering in allowed_ordering:
             queryset = queryset.order_by(ordering)
+        else:
+            queryset = top_products(limit=50)
 
         return queryset.annotate(avg_rating=Avg("reviews__rating"))
 
@@ -77,7 +90,8 @@ class Pharmacy_page(ListView):
         context["dosage_forms"] = DosageForm.objects.all()
         context["filters"] = self.request.GET
         return context
-
+    
+    
 from django.views.generic import DetailView
 
 class ProductDetailView(DetailView):
@@ -94,6 +108,15 @@ class ProductDetailView(DetailView):
         )
         context['member_since'] = member_since
         return context
+    
+    def get_object(self, queryset=None):
+        obj = super().get_object(queryset)
+
+        ct = ContentType.objects.get_for_model(obj)
+        agg, _ = ImpressionAggregate.objects.get_or_create(content_type=ct, object_id=obj.pk)
+        ImpressionAggregate.objects.filter(pk=agg.pk).update(impression_count=F("impression_count") + 1)
+
+        return obj
     
     
 # class ProductApiView(generics.ListAPIView):

@@ -1,5 +1,23 @@
 from django.db import models
 from core.models import Supplier
+from django.contrib.contenttypes.fields import GenericRelation
+from django.db import models
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericForeignKey
+
+class ImpressionAggregate(models.Model):
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey("content_type", "object_id")
+
+    impression_count = models.BigIntegerField(default=0)
+    click_count = models.BigIntegerField(default=0)
+    telegram_views = models.BigIntegerField(default=0)
+
+    class Meta:
+        unique_together = ("content_type", "object_id")
+
+
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
@@ -25,7 +43,7 @@ class MedicalDevice(models.Model):
     price = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
     warranty = models.CharField(max_length=255, blank=True, null=True)  # e.g., "2 years"
     created_at = models.DateTimeField(auto_now_add=True)
-
+    impressions = GenericRelation(ImpressionAggregate)
     def __str__(self):
         return self.name
 

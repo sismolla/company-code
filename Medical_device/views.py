@@ -4,11 +4,11 @@ from django.shortcuts import render
 from rest_framework.response import Response 
 from rest_framework.views import APIView
 from .serializer import CategorySerializer, ProductSerializer
-from .models import MedicalDevice, Category, ProductAttributeValue, ProductImage
+from .models import MedicalDevice, Category, ProductAttributeValue, ProductImage, ImpressionAggregate
 from django.views.generic import TemplateView
 from rest_framework import serializers,status,viewsets
 from django.views.generic import ListView
-from django.db.models import Q
+from django.db.models import Q, F, Value
 from django.shortcuts import get_object_or_404
 from django.views.generic import DetailView
 from django.template.loader import render_to_string
@@ -16,6 +16,8 @@ from rest_framework.permissions import IsAuthenticated
 from core.models import Supplier
 from core.models import UserProducts
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.contenttypes.models import ContentType
+from django.db.models.functions import Coalesce
 
 class DeviceAddPage(LoginRequiredMixin,TemplateView):
     login_url = '/user/signup/'
@@ -136,20 +138,23 @@ class ProductViewSet(viewsets.ModelViewSet):
 
 class ProductListView(ListView):
     model = MedicalDevice
-    template_name = 'product_list.html'  
-    context_object_name = 'products'  
+    template_name = 'product_list.html'
+    context_object_name = 'products'
     paginate_by = 50
-    ordering = ['-created_at']
-    
+
     def get_queryset(self):
         queryset = MedicalDevice.objects.all().select_related('category').prefetch_related('images', 'attributes__attribute')
-        
-        # Apply filters
+
+        # Annotate with impression count (default 0)
+        queryset = queryset.annotate(
+            impression_count=Coalesce(F('impressions__impression_count'), Value(0))
+        )
+
+        # Filters
         search_query = self.request.GET.get('search')
         category_filter = self.request.GET.get('category')
         manufacturer_filter = self.request.GET.get('manufacturer')
-        ordering = self.request.GET.get('ordering', '-created_at')
-        
+
         if search_query:
             queryset = queryset.filter(
                 Q(name__icontains=search_query) |
@@ -157,25 +162,34 @@ class ProductListView(ListView):
                 Q(intended_use__icontains=search_query) |
                 Q(manufacturer__icontains=search_query)
             )
-        
+
         if category_filter:
             queryset = queryset.filter(category_id=category_filter)
-            
+
         if manufacturer_filter:
             queryset = queryset.filter(manufacturer=manufacturer_filter)
-            
-        if ordering:
-            queryset = queryset.order_by(ordering)
-            
+
+        # Ordering
+        ordering = self.request.GET.get('ordering')
+        allowed_ordering = ['name', '-name', 'created_at', '-created_at', 'impression_count']
+        
+        if ordering in allowed_ordering:
+            if ordering == 'impression_count':
+                queryset = queryset.order_by('-impression_count')
+            else:
+                queryset = queryset.order_by(ordering)
+        else:
+            # Default ordering on first load: most viewed
+            queryset = queryset.order_by('-impression_count')
+
         return queryset
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        
-        # Add categories and manufacturers for filters
         context['categories'] = Category.objects.all()
         context['manufacturers'] = MedicalDevice.objects.values_list('manufacturer', flat=True).distinct()
         context['new_arrivals'] = MedicalDevice.objects.all().order_by('-created_at')[:10]
+
         # Add selected category for display
         category_id = self.request.GET.get('category')
         if category_id:
@@ -183,28 +197,35 @@ class ProductListView(ListView):
                 context['selected_category'] = Category.objects.get(id=category_id)
             except Category.DoesNotExist:
                 pass
-                
+
         return context
 
     def render_to_response(self, context, **response_kwargs):
         if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             # Return only the partial HTML (product grid + pagination)
             html = render_to_string('product_list_partial.html', context, self.request)
-            return HttpResponse(html)  # 🔥 raw HTML, not JSON
+            return HttpResponse(html)
         return super().render_to_response(context, **response_kwargs)
+    
 
 class ProductDetailView(DetailView):
     model = MedicalDevice
     template_name = 'product_detail.html'
     context_object_name = 'product'
+
+    def get_queryset(self):
+        return MedicalDevice.objects.select_related('category').prefetch_related('images', 'attributes__attribute')
+
     
     def get_object(self, queryset=None):
-        # Get the product with related data
-        return get_object_or_404(
-            MedicalDevice.objects.select_related('category')
-                          .prefetch_related('images', 'attributes__attribute'),
-            id=self.kwargs['pk']
-        )
+        obj = super().get_object(queryset)
+
+        ct = ContentType.objects.get_for_model(obj)
+        agg, _ = ImpressionAggregate.objects.get_or_create(content_type=ct, object_id=obj.pk)
+        ImpressionAggregate.objects.filter(pk=agg.pk).update(impression_count=F("impression_count") + 1)
+
+        return obj
+
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

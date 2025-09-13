@@ -5,6 +5,9 @@ from django.db.models import Avg
 import uuid
 from django.utils import timezone
 from datetime import timedelta
+from django.contrib.contenttypes.fields import GenericRelation
+
+
 
 class DosageForm(models.Model):
     name = models.CharField(max_length=50, unique=True)
@@ -44,6 +47,7 @@ class Supplier(models.Model):
 
 
 class Product(models.Model):
+    from Medical_device.models import ImpressionAggregate
     product_id = models.CharField(max_length=50, unique=True)
     image = models.ImageField(upload_to='product_images/', blank=True, null=True)
     name = models.CharField(max_length=100)
@@ -53,6 +57,7 @@ class Product(models.Model):
     stock_quantity = models.PositiveIntegerField()
     dosage_form = models.ForeignKey(DosageForm, on_delete=models.CASCADE, related_name='dosage')
     supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE, related_name='products')
+    impressions = GenericRelation(ImpressionAggregate)
 
     def __str__(self):
         return f"{self.name} ({self.strength})"
@@ -67,7 +72,6 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"Notification to {self.recipient.username}:"
-
 
 class ChatThread(models.Model):
     user_1 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='chat_threads_started')
@@ -192,7 +196,6 @@ class SocialMediaPost(models.Model):
 
     def __str__(self):
         return f"{self.supplier.name} - {self.post_date}"
-
 
 class ContactUs(models.Model):
     SUBJECT_CHOICES = [
