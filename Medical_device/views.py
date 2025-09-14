@@ -207,7 +207,6 @@ class ProductListView(ListView):
             return HttpResponse(html)
         return super().render_to_response(context, **response_kwargs)
     
-
 class ProductDetailView(DetailView):
     model = MedicalDevice
     template_name = 'product_detail.html'

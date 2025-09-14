@@ -22,51 +22,75 @@ def post_to_telegram():
 
 def post_next_supplier_products():
     """
-    Posts unposted products for **one supplier** per run to Telegram.
-    Retries up to 3 times if Telegram API fails.
+    Posts up to 20 unposted products PER SUPPLIER in round-robin order.
+    - Goes supplier by supplier, posting 20 each time.
+    - If all suppliers have no unposted products left, resets and starts again.
     """
     today = timezone.now().date()
-    # Loop through suppliers in order
-    for supplier in Supplier.objects.all().order_by("id"):
-        try:
-            # Check for unposted products
-            posted_product_ids = SocialMediaPost.objects.filter(supplier=supplier ,post_date=today).values_list('products__id', flat=True)
-            products = Product.objects.filter(supplier=supplier).exclude(id__in=posted_product_ids)[:20]
-            
-            if not products.exists():
-                continue  # Move to next supplier
+    suppliers = Supplier.objects.all().order_by("id")
 
-            # Generate post
+    any_posted = False
+
+    # Loop through all suppliers
+    for supplier in suppliers:
+        try:
+            # ✅ Get all products ever posted for this supplier
+            posted_product_ids = SocialMediaPost.objects.filter(
+                supplier=supplier
+            ).values_list("products__id", flat=True)
+
+            # Fetch next 20 unposted
+            products = Product.objects.filter(supplier=supplier).exclude(
+                id__in=posted_product_ids
+            )[:20]
+
+            if not products.exists():
+                continue  # No unposted left for this supplier
+
+            # ✅ Post found products
             post_text = generate_telegram_post(products)
             if not post_text:
-                print(f"No post generated for supplier {supplier.name}")
+                print(f"No post generated for {supplier.name}")
                 continue
 
-            # Send to Telegram
             send_telegram_post(post_text)
 
-            # Record post
+            # Save to DB
             with transaction.atomic():
                 tg_post = SocialMediaPost.objects.create(
                     supplier=supplier,
                     template_used=1,
                     post_date=today,
-                    posted=True
+                    posted=True,
                 )
                 tg_post.products.set(products)
-            tg_post.save()
 
             print(f"Posted {products.count()} products for {supplier.name}")
-
-            # **Stop after posting one supplier per run**
-            return f"Posted {products.count()} products for {supplier.name}"
+            any_posted = True
 
         except Exception as e:
-            print(f"Error posting for supplier {supplier.name}: {e}")
-            try:
-                self.retry(exc=e)
-            except self.MaxRetriesExceededError:
-                print(f"Max retries exceeded for supplier {supplier.name}")
+            print(f"Error posting for {supplier.name}: {e}")
+            continue
 
-    print("No suppliers with unposted products today.")
-    return "No suppliers with unposted products found today."
+    # 🔄 If no unposted products found for any supplier, reset cycle
+    if not any_posted:
+        print("✅ All products posted. Restarting cycle from first supplier.")
+        for supplier in suppliers:
+            products = Product.objects.filter(supplier=supplier).order_by("id")[:20]
+            if products.exists():
+                post_text = generate_telegram_post(products)
+                if post_text:
+                    send_telegram_post(post_text)
+                    with transaction.atomic():
+                        tg_post = SocialMediaPost.objects.create(
+                            supplier=supplier,
+                            template_used=1,
+                            post_date=today,
+                            posted=True,
+                        )
+                        tg_post.products.set(products)
+                    print(f"Restarted posting {products.count()} products for {supplier.name}")
+        return "Cycle restarted."
+
+    return "Finished posting for this run."
+

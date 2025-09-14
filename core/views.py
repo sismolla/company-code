@@ -30,7 +30,6 @@ from .utils import send_order_email,notify_user, send_presentation_email
 from rest_framework.pagination import PageNumberPagination
 from Medical_device.models import MedicalDevice, ImpressionAggregate
 from django.contrib.contenttypes.models import ContentType
-from .impression_based_ordering import top_products
 
 
 def logout_view(request):
@@ -81,7 +80,7 @@ class Pharmacy_page(ListView):
         if ordering in allowed_ordering:
             queryset = queryset.order_by(ordering)
         else:
-            queryset = top_products(limit=50)
+            queryset = queryset.order_by('-impression_count')
 
         return queryset.annotate(avg_rating=Avg("reviews__rating"))
 
