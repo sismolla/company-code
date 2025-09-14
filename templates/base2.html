@@ -271,40 +271,6 @@
             margin: 0.5rem 0;
         }
 
-        /* Top Bar */
-        .top-bar {
-            background-color: #f8f9fa;
-            color: #555;
-            padding: 8px 20px;
-            font-size: 0.9em;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #e9ecef;
-            flex-wrap: wrap;
-        }
-
-        .contact-info, .social-links {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-
-        .contact-info a, .social-links a {
-            color: #555;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            transition: color var(--transition-timing);
-        }
-
-        .contact-info a:hover, .social-links a:hover {
-            color: var(--primary-color);
-        }
-        
-        .contact-info i {
-            margin-right: 5px;
-        }
         
         /* Hamburger & Mobile Menu */
         .hamburger-menu {
@@ -559,23 +525,6 @@
 
 <div id="app" style="display:none;">
 
-    <div class="top-bar">
-        <div class="contact-info">
-            <a href="mailto:pharmagebeya@gmail.com">
-                <i class="fas fa-envelope"></i>
-                <span>pharmagebeya@gmail.com</span>
-            </a>
-            <a href="tel:+251952914235">
-                <i class="fas fa-phone-alt"></i>
-                <span>+251 95 291 4235</span>
-            </a>
-        </div>
-        <div class="social-links">
-            <a href="https://web.facebook.com/share/g/1F7Qi6wXsg/" target="_blank"><i class="fab fa-facebook-f"></i></a>
-            <a href="https://t.me/+l1QESCr3BpM3MTNk" target="_blank"><i class="fab fa-telegram"></i></a>
-            <a href="https://www.linkedin.com/company/pharma-%E1%8C%88%E1%89%A0%E1%8B%AB/" target="_blank"><i class="fab fa-linkedin-in"></i></a>
-        </div>
-    </div>
     <header>
         <nav class="navbar">
             <a href="/" class="logo">
@@ -583,10 +532,10 @@
                 <span>Pharma ገበያ</span>
             </a>
 
-            <div class="search-bar">
+            {% comment %} <div class="search-bar">
                 <input type="text" placeholder="Search medicine name..." id="search-input">
                 <button id="search-button"><i class="fas fa-search"></i></button>
-            </div>
+            </div> {% endcomment %}
 
             <button class="hamburger-menu" id="hamburger-menu">
                 <i class="fas fa-bars"></i>

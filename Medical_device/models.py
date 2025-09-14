@@ -37,7 +37,7 @@ class MedicalDevice(models.Model):
     brand = models.CharField(max_length=255, blank=True, null=True)
     model_number = models.CharField(max_length=100, blank=True, null=True)
     intended_use = models.TextField(blank=True, null=True)
-    description = models.TextField(blank=True, null=True)
+    description = models.TextField(max_length= 2000, blank=True, null=True)
     certifications = models.CharField(max_length=255, blank=True, null=True)  # e.g., "FDA, CE"
     brochure = models.FileField(upload_to="products/brochures/", blank=True, null=True)
     price = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)

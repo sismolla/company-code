@@ -623,12 +623,7 @@
             <button class="filter-tag-remove" data-filter="manufacturer" aria-label="Remove manufacturer filter">×</button>
         </div>
         {% endif %}
-        {% if request.GET.search %}
-        <div class="filter-tag">
-            Search: {{ request.GET.search }}
-            <button class="filter-tag-remove" data-filter="search" aria-label="Remove search filter">×</button>
-        </div>
-        {% endif %}
+
         {% if request.GET.search or request.GET.category or request.GET.manufacturer %}
         <button class="clear-filters" id="clear-filters">Clear all filters</button>
         {% endif %}
@@ -637,7 +632,16 @@
     <section class="showcase-layout">
         <!-- Main Product Area -->
         <main class="main-content">
+            
             <div class="filter-bar">
+               <label for="search-input" class="visually-hidden">Search products</label>
+                <input type="text" 
+                    id="search-input" 
+                    class="filter-input" 
+                    placeholder="Search products..." 
+                    value="{{ request.GET.search|default:'' }}"
+                    aria-label="Search products">
+
                 <label for="category-filter" class="visually-hidden">Filter by category</label>
                 <select class="filter-select" id="category-filter" aria-label="Filter by category">
                     <option value="">All Categories</option>
@@ -646,15 +650,16 @@
                     {% endfor %}
                 </select>
 
-                <label for="manufacturer-filter" class="visually-hidden">Filter by manufacturer</label>
-                <select class="filter-select" id="manufacturer-filter" aria-label="Filter by manufacturer">
-<option value="">All Manufacturers</option>
-{% for manufacturer in manufacturers %}
-    {% if manufacturer %}
-        <option value="{{ manufacturer }}" {% if request.GET.manufacturer == manufacturer %}selected{% endif %}>{{ manufacturer }}</option>
-    {% endif %}
-{% endfor %}
+                <label for="brand-filter" class="visually-hidden">Filter by brand</label>
+                <select class="filter-select" id="brand-filter" aria-label="Filter by brand">
+                    <option value="">All Brands</option>
+                    {% for brand in brands %}
+                        {% if brand %}
+                            <option value="{{ brand }}" {% if request.GET.brand == brand %}selected{% endif %}>{{ brand }}</option>
+                        {% endif %}
+                    {% endfor %}
                 </select>
+
             </div>
 
             <div class="product-grid" id="product-grid">
@@ -675,6 +680,11 @@
                     </figure>
                     <div class="product-content">
                         <h2 class="product-title" itemprop="name">{{ product.name }}</h2>
+                        {% if product.description %}
+                        <p class="product-description" itemprop="description">
+                            {{ product.description|truncatechars:100 }}
+                        </p>
+                        {% endif %}
                         <div class="product-meta">
                             <span itemprop="manufacturer">{{ product.manufacturer }}</span> |
                             <span itemprop="category">{{ product.category.name }}</span>
@@ -801,7 +811,7 @@
         const loadingOverlay = document.getElementById('loading-overlay');
         const searchInput = document.getElementById('search-input');
         const categoryFilter = document.getElementById('category-filter');
-        const manufacturerFilter = document.getElementById('manufacturer-filter');
+        const brandFilter = document.getElementById('brand-filter');
         const sortSelect = document.getElementById('sort-select');
         const clearFiltersBtn = document.getElementById('clear-filters');
         const filterTags = document.querySelectorAll('.filter-tag-remove');
@@ -818,8 +828,8 @@
                 params.set('category', categoryFilter.value);
             }
             
-            if (manufacturerFilter.value) {
-                params.set('manufacturer', manufacturerFilter.value);
+            if (brandFilter.value) {
+                params.set('brand', brandFilter.value);
             }
             
             if (sortSelect.value) {
@@ -841,9 +851,9 @@
             } else if (filterType === 'category') {
                 categoryFilter.value = '';
                 params.delete('category');
-            } else if (filterType === 'manufacturer') {
-                manufacturerFilter.value = '';
-                params.delete('manufacturer');
+            } else if (filterType === 'brand') {
+                brandFilter.value = '';
+                params.delete('brand');
             }
             
             // Preserve ordering if set
@@ -873,7 +883,7 @@
         // Add event listeners for filters
         searchInput.addEventListener('input', debounce(updateURL, 500));
         categoryFilter.addEventListener('change', updateURL);
-        manufacturerFilter.addEventListener('change', updateURL);
+        brandFilter.addEventListener('change', updateURL);
         sortSelect.addEventListener('change', updateURL);
         
         // Add event listeners for filter tags

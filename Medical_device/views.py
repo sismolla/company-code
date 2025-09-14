@@ -187,7 +187,7 @@ class ProductListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['categories'] = Category.objects.all()
-        context['manufacturers'] = MedicalDevice.objects.values_list('manufacturer', flat=True).distinct()
+        context['brands'] = MedicalDevice.objects.values_list('brand', flat=True).distinct()
         context['new_arrivals'] = MedicalDevice.objects.all().order_by('-created_at')[:10]
 
         # Add selected category for display
