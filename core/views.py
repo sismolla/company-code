@@ -714,13 +714,15 @@ def robots_txt(request):
 
 
 from django.http import HttpResponse
-from .tasks import post_next_supplier_products
+from .tasks import post_next_supplier_products,post_next_supplier_devices
 
 def google_calendar_webhook(request):
-    # Call your function here
     post_next_supplier_products()
     return HttpResponse("Task executed successfully", status=200)
 
+def google_calendar_devices(request):
+    post_next_supplier_devices()
+    return HttpResponse("Task executed successfully", status=200)
 
 
 def send_test(request):

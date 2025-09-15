@@ -3,6 +3,7 @@ import logging
 import os
 from .models import UserProducts,Post,Platform
 from dotenv import load_dotenv
+import random
 logger = logging.getLogger(__name__)
 
 LINKEDIN_ACCESS_TOKEN = os.getenv("LINKEDIN_ACCESS_TOKEN")
@@ -11,7 +12,6 @@ FACEBOOK_PAGE_ACCESS_TOKEN = os.getenv("FACEBOOK_PAGE_ACCESS_TOKEN")
 FACEBOOK_PAGE_ID = os.getenv("FACEBOOK_PAGE_ID")  # e.g., '123456789012345'
 INSTAGRAM_USER_ID = os.getenv("INSTAGRAM_USER_ID")
 INSTAGRAM_ACCESS_TOKEN = os.getenv("INSTAGRAM_ACCESS_TOKEN")
-
 
 POST_TEMPLATES = [
     """✨ {supplier_name} Pharmaceutical Import
@@ -67,6 +67,77 @@ def generate_telegram_post(products, post_templates=POST_TEMPLATES):
         catalog_url=catalog_url
     )
     return text
+
+POST_TEMPLATES = [
+    """🩺 {supplier_name} Medical Supplier
+✨ Explore our top medical devices!
+{products_list}
+
+💵 Competitive prices 💵
+🚚 Reliable nationwide delivery
+{contact_info}
+📍 Location: {location}
+
+🔗 See full supplier details: {link_url}
+🛒 Browse all medical devices and see there price: {catalog_url}
+"""
+]
+
+def generate_device_post(devices, post_templates=POST_TEMPLATES):
+    """
+    Generate a formatted Telegram post for a supplier's medical devices.
+    - Takes a queryset or list of MedicalDevice objects
+    - Returns a formatted string ready to send
+    """
+    if not devices:
+        return None
+
+    supplier = devices[0].supplier
+
+    # Prepare device list (up to 4–7 randomly)
+    device_list = ""
+    for idx, p in enumerate(devices[:random.choice([4, 5, 6, 7])], start=1):
+        extra = []
+        if p.brand:
+            extra.append(p.brand)
+        if p.model_number:
+            extra.append(p.model_number)
+        extra_str = f" ({', '.join(extra)})" if extra else ""
+        price_str = f" - {p.price} ETB" if p.price else ""
+        device_list += f"{idx}. {p.name}{extra_str}{price_str}\n"
+
+    # Contact info
+    contacts = []
+    if getattr(supplier, "telegram_link", None):
+        contacts.append(f"Telegram: {supplier.telegram_link}")
+    if getattr(supplier, "whatsapp_link", None):
+        contacts.append(f"WhatsApp: {supplier.whatsapp_link}")
+    if getattr(supplier, "phone", None):
+        contacts.append(f"Phone: {supplier.phone}")
+    contact_info = "\n".join(contacts) if contacts else "📞 Contact supplier directly."
+
+    # Pick template
+    template = post_templates[0]
+
+    # Link to supplier details
+    obj = supplier.devices.first()
+    link_url = (
+        f"https://pharmagebeya.com/list/device/{obj.id}/"
+        if obj else "https://pharmagebeya.com/list/device/"
+    )
+
+    catalog_url = "https://pharmagebeya.com/list/device/"
+
+    text = template.format(
+        supplier_name=supplier.name,
+        device_list=device_list,
+        contact_info=contact_info,
+        location=getattr(supplier, "address", "Not specified"),
+        link_url=link_url,
+        catalog_url=catalog_url,
+    )
+    return text
+
 
 def send_telegram_post_old(text):
     """

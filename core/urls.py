@@ -1,6 +1,6 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-from .views import google_calendar_webhook, ChatMessageCreateAPIView, ChatThreadCreateAPIView, ChatThreadListAPIView, ContactUsViewSet, CustomerDashboardView, FAQView, HelpPageView, MarkMessagesAsReadView, MessageView, NotificationApi, Pharmacy_page,DosageApi, ProductBulkUploadView, ProductDetailAPIView, ProductProvider, ProductProviderDetailPage, ProductViewSet, ProductsView, ProfilePageView, ReportAbuseCreateAPIView, ReviewCreateAPIView,ProductDetailView, SignUpPageView, SupplierOrderDetailPage, SupplierProfileViewSet, SupplierSignupAPIView, UserLoginAPIView, UserOrderDetailUpdateView, UserOrdersListView, UserProfileAPIView, logout_view, ProductProviderListPage,OrderCreateView, SupplierOrderPage,send_test
+from .views import google_calendar_webhook, ChatMessageCreateAPIView, ChatThreadCreateAPIView, ChatThreadListAPIView, ContactUsViewSet, CustomerDashboardView, FAQView, HelpPageView, MarkMessagesAsReadView, MessageView, NotificationApi, Pharmacy_page,DosageApi, ProductBulkUploadView, ProductDetailAPIView, ProductProvider, ProductProviderDetailPage, ProductViewSet, ProductsView, ProfilePageView, ReportAbuseCreateAPIView, ReviewCreateAPIView,ProductDetailView, SignUpPageView, SupplierOrderDetailPage, SupplierProfileViewSet, SupplierSignupAPIView, UserLoginAPIView, UserOrderDetailUpdateView, UserOrdersListView, UserProfileAPIView, logout_view, ProductProviderListPage,OrderCreateView, SupplierOrderPage,send_test, google_calendar_devices
 
 
 app_name = 'landing'
@@ -53,7 +53,7 @@ urlpatterns = [
     path('faq/',FAQView.as_view(),name='faq'),
 
     path('calendar-webhook/', google_calendar_webhook, name='calendar-webhook'),
-
+    path('device-webhook/',google_calendar_devices,name='devices-webhook'),
 ]
 
 urlpatterns += router.urls

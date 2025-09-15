@@ -189,7 +189,8 @@ class OrderItem(models.Model):
 
 class SocialMediaPost(models.Model):
     supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE, related_name='telegram_posts')
-    products = models.ManyToManyField(Product)
+    products = models.ManyToManyField(Product, blank=True)   # Pharma
+    devices = models.ManyToManyField("Medical_device.MedicalDevice", blank=True)  
     template_used = models.IntegerField(default=1)
     post_date = models.DateField(auto_now_add=True)
     posted = models.BooleanField(default=False)
