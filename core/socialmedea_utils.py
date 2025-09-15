@@ -138,7 +138,6 @@ def generate_device_post(devices, post_templates=POST_TEMPLATES):
     )
     return text
 
-
 def send_telegram_post_old(text):
     """
     Sends a Telegram message to a supplier group and a channel.
@@ -181,7 +180,6 @@ def send_telegram_post_old(text):
     except requests.exceptions.RequestException as e:
         logger.error(f"Failed to send Telegram message to channel {channel_id}: {e}")
         raise
-
 
 def send_telegram_post(text):
     """

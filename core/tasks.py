@@ -104,7 +104,6 @@ def post_next_supplier_products():
 
     return "No products available to restart cycle."
 
-
 def post_next_supplier_devices():
     """
     Posts up to N unposted medical devices for ONE supplier per cycle.
@@ -173,7 +172,7 @@ def post_next_supplier_devices():
     if devices.exists():
         post_text = generate_device_post(devices)
         if post_text:
-            send_telegram_post(post_text)
+            generate_device_post(post_text)
             with transaction.atomic():
                 tg_post = SocialMediaPost.objects.create(
                     supplier=first_supplier,
