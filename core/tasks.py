@@ -114,7 +114,7 @@ def post_next_supplier_devices():
             continue
 
         # Generate post
-        post_text = generate_telegram_post(devices)
+        post_text = generate_device_post(devices)
         if not post_text:
             return f"⚠️ No post generated for {supplier.name}"
 

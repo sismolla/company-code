@@ -84,19 +84,15 @@ POST_TEMPLATES = [
 ]
 
 def generate_device_post(devices, post_templates=POST_TEMPLATES):
-    """
-    Generate a formatted Telegram post for a supplier's medical devices.
-    - Takes a queryset or list of MedicalDevice objects
-    - Returns a formatted string ready to send
-    """
     if not devices:
         return None
 
     supplier = devices[0].supplier
 
-    # Prepare device list (up to 4–7 randomly)
+    # Prepare device list (4–7 items, or fewer if less available)
+    count = min(len(devices), random.choice([4, 5, 6, 7]))
     device_list = ""
-    for idx, p in enumerate(devices[:random.choice([4, 5, 6, 7])], start=1):
+    for idx, p in enumerate(devices[:count], start=1):
         extra = []
         if p.brand:
             extra.append(p.brand)
@@ -108,23 +104,17 @@ def generate_device_post(devices, post_templates=POST_TEMPLATES):
 
     # Contact info
     contacts = []
-    if getattr(supplier, "telegram_link", None):
-        contacts.append(f"Telegram: {supplier.telegram_link}")
-    if getattr(supplier, "whatsapp_link", None):
-        contacts.append(f"WhatsApp: {supplier.whatsapp_link}")
-    if getattr(supplier, "phone", None):
-        contacts.append(f"Phone: {supplier.phone}")
+    for attr in ["telegram_link", "whatsapp_link", "phone"]:
+        value = getattr(supplier, attr, None)
+        if value:
+            contacts.append(f"{attr.replace('_link','').capitalize()}: {value}")
     contact_info = "\n".join(contacts) if contacts else "📞 Contact supplier directly."
 
     # Pick template
     template = post_templates[0]
 
-    # Link to supplier details
-    obj = supplier.devices.first()
-    link_url = (
-        f"https://pharmagebeya.com/list/device/{obj.id}/"
-        if obj else "https://pharmagebeya.com/list/device/"
-    )
+    # Link to first device
+    link_url = f"https://pharmagebeya.com/list/device/{devices[0].id}/"
 
     catalog_url = "https://pharmagebeya.com/list/device/"
 
