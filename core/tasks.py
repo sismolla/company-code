@@ -21,7 +21,6 @@ def post_to_telegram():
             except Exception as e:
                 print(f"Failed: {e}")
 
-
 def post_next_supplier_products():
     """
     Posts up to 5 unposted products for ONE supplier per cycle (round-robin),
@@ -67,25 +66,37 @@ def post_next_supplier_products():
                     raise Exception(f"Failed to send Telegram post for {supplier.name}")
 
                 # Create SocialMediaPost and link products
-                tg_post = SocialMediaPost(supplier=supplier, template_used=1, posted=True)
+                tg_post = SocialMediaPost(
+                    supplier=supplier, 
+                    template_used=1, 
+                    posted=True,
+                    post_date=today  # Explicitly set the post date
+                )
                 tg_post.save()
-                tg_post.products.add(*products)
-                tg_post.save()
+                tg_post.products.set(products)  # Use set() instead of add() for clarity
+                
+                # No need to save again after set(), set() saves immediately
 
         except Exception as e:
-            return f"❌ Posting failed for {supplier.name}: {e}"
+            # Log the error for debugging
+            print(f"Error posting for {supplier.name}: {e}")
+            continue  # Continue to next supplier instead of returning
 
         return f"✅ Posted {products.count()} products for {supplier.name}"
 
-    # Reset if all products posted
+    # If we get here, no supplier had products to post
+    # Check if all products are posted and reset if needed
     all_product_ids = set(Product.objects.values_list("id", flat=True))
-    posted_product_ids = set(SocialMediaPost.objects.filter(products__isnull=False).values_list("products__id", flat=True))
+    posted_product_ids = set(SocialMediaPost.objects.filter(
+        products__isnull=False
+    ).values_list("products__id", flat=True))
 
-    if all_product_ids <= posted_product_ids:
+    if all_product_ids and all_product_ids <= posted_product_ids:
         SocialMediaPost.objects.filter(products__isnull=False).delete()
         return "🔄 All products exhausted. Cycle reset."
 
-    return "⚠️ No products found to post."
+    return "⚠️ No products found to post for any supplier."
+
 
 def post_next_supplier_devices():
     """
@@ -122,31 +133,40 @@ def post_next_supplier_devices():
         # Generate post text
         post_text = generate_device_post(devices)
         if not post_text:
-            return f"⚠️ No post generated for {supplier.name}"
+            continue  # skip this supplier and try next, don't return immediately
 
-        # Send post
-        if not send_telegram_post(post_text):
-            return f"❌ Failed to send Telegram post for {supplier.name}"
+        # Atomic transaction: send post and save to database
+        try:
+            with transaction.atomic():
+                # Send post first; raise exception if failed
+                if not send_telegram_post(post_text):
+                    raise Exception(f"Failed to send Telegram post for {supplier.name}")
 
-        # Save post and link devices
-        with transaction.atomic():
-            tg_post = SocialMediaPost.objects.create(
-                supplier=supplier,
-                template_used=2,
-                post_date=today,
-                posted=True,
-            )
-            tg_post.devices.set(devices)  # this links posted devices
+                # Save post and link devices
+                tg_post = SocialMediaPost.objects.create(
+                    supplier=supplier,
+                    template_used=2,
+                    post_date=today,
+                    posted=True,
+                )
+                tg_post.devices.set(devices)  # this links posted devices
+
+        except Exception as e:
+            # Log error and continue to next supplier
+            print(f"Error posting devices for {supplier.name}: {e}")
+            continue
 
         return f"✅ Posted {devices.count()} devices for {supplier.name}"
 
     # Check if all suppliers have no unposted devices
     all_devices_ids = set(MedicalDevice.objects.values_list("id", flat=True))
-    posted_devices_ids = set(SocialMediaPost.objects.filter(devices__isnull=False).values_list("devices__id", flat=True))
+    posted_devices_ids = set(SocialMediaPost.objects.filter(
+        devices__isnull=False
+    ).values_list("devices__id", flat=True))
 
-    if all_devices_ids <= posted_devices_ids:
+    if all_devices_ids and all_devices_ids <= posted_devices_ids:
         # reset for next cycle
         SocialMediaPost.objects.filter(devices__isnull=False).delete()
         return "🔄 All devices exhausted. Cycle reset."
 
-    return "⚠️ No devices found to post."
+    return "⚠️ No devices found to post for any supplier."
