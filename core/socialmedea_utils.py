@@ -71,7 +71,7 @@ def generate_telegram_post(products, post_templates=POST_TEMPLATES):
 POST_TEMPLATES = [
     """🩺 {supplier_name} Medical Supplier
 ✨ Explore our top medical devices!
-{products_list}
+{device_list}
 
 💵 Competitive prices 💵
 🚚 Reliable nationwide delivery
