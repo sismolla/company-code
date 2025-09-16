@@ -8,6 +8,8 @@ from Medical_device.models import MedicalDevice
 from celery import shared_task
 from django.utils import timezone
 from .models import Post
+import logging
+logger = logging.getLogger(__name__)
 
 @shared_task
 def post_to_telegram():
@@ -23,142 +25,122 @@ def post_to_telegram():
 
 def post_next_supplier_products():
     """
-    Posts up to N unposted products for ONE supplier per cycle.
-    - Goes supplier by supplier (round-robin).
-    - If a supplier has no unposted products, skips to the next.
-    - If all are exhausted, resets cycle.
+    Posts up to 5 unposted products for ONE supplier per cycle (round-robin).
+    - Finds the last supplier that posted.
+    - Moves to the next supplier.
+    - Posts their next 5 unposted products.
+    - If all suppliers are exhausted, clears SocialMediaPost and restarts fresh.
     """
-
     today = timezone.now().date()
     suppliers = list(Supplier.objects.all().order_by("id"))
 
     if not suppliers:
         return "⚠️ No suppliers found."
 
-    # ✅ Find the last supplier that posted
-    last_post = SocialMediaPost.objects.order_by("-post_date", "-id").first()
+    # Find the last supplier that posted
+    last_post = SocialMediaPost.objects.filter(products__isnull=False).order_by("-post_date", "-id").first()
     if last_post:
         try:
             last_index = suppliers.index(last_post.supplier)
         except ValueError:
             last_index = -1
     else:
-        last_index = -1  # no posts yet
+        last_index = -1  # nothing posted yet
 
-    # Start from the next supplier
     total_suppliers = len(suppliers)
+
+    # Try each supplier in round-robin order
     for i in range(total_suppliers):
         next_index = (last_index + 1 + i) % total_suppliers
         supplier = suppliers[next_index]
 
-        # ✅ Check which products already posted
+        # Already posted products
         posted_ids = SocialMediaPost.objects.filter(
-            supplier=supplier
+            supplier=supplier, products__isnull=False
         ).values_list("products__id", flat=True)
 
-        # Fetch unposted products
-        products = Product.objects.filter(supplier=supplier).exclude(
-            id__in=posted_ids
-        )[: random.choice([15, 20, 19, 25])]
+        # Unposted products (max 5)
+        products = Product.objects.filter(supplier=supplier).exclude(id__in=posted_ids)[:20]
 
         if not products.exists():
             continue  # skip to next supplier
 
-        # ✅ Generate post content
+        # Generate post
         post_text = generate_telegram_post(products)
         if not post_text:
             return f"⚠️ No post generated for {supplier.name}"
 
-        send_telegram_post(post_text)
+        # Send post
+        success = send_telegram_post(post_text)
+        if not success:
+            return f"❌ Failed to send Telegram post for {supplier.name}"
 
-        # ✅ Save to DB
+        # Save to DB
         with transaction.atomic():
             tg_post = SocialMediaPost.objects.create(
                 supplier=supplier,
-                template_used=1,
+                template_used="product_template",
                 post_date=today,
                 posted=True,
             )
             tg_post.products.set(products)
 
-        print(f"✅ Posted {products.count()} products for {supplier.name}")
-        return f"Posted {products.count()} products for {supplier.name}"
+        return f"✅ Posted {products.count()} products for {supplier.name}"
 
-    # 🔄 If we finish loop without posting, reset all
-    print("✅ All suppliers exhausted. Resetting cycle.")
-    first_supplier = suppliers[0]
-    products = Product.objects.filter(supplier=first_supplier)[:5]
-    if products.exists():
-        post_text = generate_telegram_post(products)
-        if post_text:
-            send_telegram_post(post_text)
-            with transaction.atomic():
-                tg_post = SocialMediaPost.objects.create(
-                    supplier=first_supplier,
-                    template_used=1,
-                    post_date=today,
-                    posted=True,
-                )
-                tg_post.products.set(products)
-            return f"Cycle restarted with {products.count()} products from {first_supplier.name}"
-
-    return "No products available to restart cycle."
+    # If no supplier had products left → reset cycle
+    if SocialMediaPost.objects.exists():
+        SocialMediaPost.objects.all().delete()
+        return "🔄 All suppliers exhausted. Cycle reset."
+    return "⚠️ No products found to post."
 
 def post_next_supplier_devices():
     """
-    Posts up to N unposted medical devices for ONE supplier per cycle.
-    - Goes supplier by supplier (round-robin).
-    - If supplier has no unposted devices, skips to next.
-    - If all exhausted, restarts cycle.
+    Posts up to 5 unposted devices for ONE supplier per cycle (round-robin).
+    Same logic as products, but for devices.
     """
-
     today = timezone.now().date()
     suppliers = list(Supplier.objects.all().order_by("id"))
 
     if not suppliers:
         return "⚠️ No suppliers found."
 
-    # ✅ Last device post
+    # Last device post
     last_post = SocialMediaPost.objects.filter(devices__isnull=False).order_by("-post_date", "-id").first()
-
     if last_post:
         try:
             last_index = suppliers.index(last_post.supplier)
         except ValueError:
             last_index = -1
     else:
-        last_index = -1  # no device posts yet
+        last_index = -1
 
     total_suppliers = len(suppliers)
+
     for i in range(total_suppliers):
         next_index = (last_index + 1 + i) % total_suppliers
         supplier = suppliers[next_index]
 
-        # ✅ Already posted device IDs
         posted_ids = SocialMediaPost.objects.filter(
-            supplier=supplier
+            supplier=supplier, devices__isnull=False
         ).values_list("devices__id", flat=True)
 
-        # Get unposted devices
-        devices = MedicalDevice.objects.filter(supplier=supplier).exclude(
-            id__in=posted_ids
-        )[: random.choice([4, 5, 6, 7])]
+        devices = MedicalDevice.objects.filter(supplier=supplier).exclude(id__in=posted_ids)[:5]
 
         if not devices.exists():
-            continue  # no unposted → skip supplier
+            continue
 
-        # ✅ Generate post text
-        post_text = generate_device_post(devices)
+        post_text = generate_telegram_post(devices)
         if not post_text:
             return f"⚠️ No post generated for {supplier.name}"
 
-        send_telegram_post(post_text)
+        success = send_telegram_post(post_text)
+        if not success:
+            return f"❌ Failed to send Telegram post for {supplier.name}"
 
-        # ✅ Save record
         with transaction.atomic():
             tg_post = SocialMediaPost.objects.create(
                 supplier=supplier,
-                template_used=1,
+                template_used="device_template",
                 post_date=today,
                 posted=True,
             )
@@ -166,21 +148,8 @@ def post_next_supplier_devices():
 
         return f"✅ Posted {devices.count()} devices for {supplier.name}"
 
-    # 🔄 All exhausted → reset with first supplier
-    first_supplier = suppliers[0]
-    devices = MedicalDevice.objects.filter(supplier=first_supplier)[:5]
-    if devices.exists():
-        post_text = generate_device_post(devices)
-        if post_text:
-            generate_device_post(post_text)
-            with transaction.atomic():
-                tg_post = SocialMediaPost.objects.create(
-                    supplier=first_supplier,
-                    template_used=1,
-                    post_date=today,
-                    posted=True,
-                )
-                tg_post.devices.set(devices)
-            return f"🔄 Restarted cycle with {devices.count()} devices from {first_supplier.name}"
-
-    return "⚠️ No devices available to restart cycle."
+    # Reset if exhausted
+    if SocialMediaPost.objects.exists():
+        SocialMediaPost.objects.all().delete()
+        return "🔄 All suppliers exhausted. Cycle reset."
+    return "⚠️ No devices found to post."
