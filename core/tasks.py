@@ -1,13 +1,10 @@
 from django.utils import timezone
-from .models import Supplier, Product, SocialMediaPost
+from .models import Supplier, Product, SocialMediaPost, Post
 from .socialmedea_utils import generate_telegram_post, send_telegram_post , generate_device_post
 from django.db import transaction
 import random
 from Medical_device.models import MedicalDevice
-
 from celery import shared_task
-from django.utils import timezone
-from .models import Post
 import logging
 logger = logging.getLogger(__name__)
 
