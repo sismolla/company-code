@@ -1,6 +1,6 @@
 import requests
 import logging
-import os
+import os,time
 from .models import UserProducts,Post,Platform
 from dotenv import load_dotenv
 import random
@@ -171,28 +171,35 @@ def send_telegram_post_old(text):
         logger.error(f"Failed to send Telegram message to channel {channel_id}: {e}")
         raise
 
-def send_telegram_post(text):
-    """
-    Sends a Telegram message only to a channel.
-    Raises exception if a request fails, so Celery can retry.
-    """
+def send_telegram_post(text, retries=3, delay=2):
     load_dotenv()
-    channel_id = os.getenv("TELEGRAM_CHANNEL_BOT_ID")
     BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+    CHANNEL_ID = os.getenv("TELEGRAM_CHANNEL_BOT_ID")
 
+    """
+    Sends a Telegram message to a channel.
+    Raises exception if a request fails, so Celery or caller can retry.
+    Retries automatically `retries` times with `delay` seconds.
+    """
     base_url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
-
-    # Send to the channel only
-    payload_channel = {
-        "chat_id": channel_id,
+    payload = {
+        "chat_id": CHANNEL_ID,
         "text": text,
         "parse_mode": "HTML",
     }
 
-    try:
-        response_channel = requests.post(base_url, json=payload_channel, timeout=10)
-        response_channel.raise_for_status()
-        logger.info(f"Telegram message sent to channel {channel_id}")
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Failed to send Telegram message to channel {channel_id}: {e}")
-        raise
+    last_exception = None
+    for attempt in range(1, retries + 1):
+        try:
+            response = requests.post(base_url, json=payload, timeout=10)
+            response.raise_for_status()
+            logger.info(f"Telegram message sent to channel {CHANNEL_ID}")
+            return True
+        except requests.exceptions.RequestException as e:
+            last_exception = e
+            logger.warning(f"Attempt {attempt}/{retries} failed to send Telegram message: {e}")
+            time.sleep(delay)
+
+    # All retries failed
+    logger.error(f"Failed to send Telegram message after {retries} attempts: {last_exception}")
+    raise last_exception
