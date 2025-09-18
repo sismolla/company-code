@@ -1,6 +1,7 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from .models import ReportAbuse, Notification  # import your models
+from django.contrib.auth.models import User
+from .models import ReportAbuse, Notification, UniversalNotification, Supplier  # import your models
 # from django.core.mail import send_mail
 
 @receiver(post_save, sender=ReportAbuse)
@@ -30,3 +31,19 @@ def notify_seller_on_abuse_report(sender, instance, created, **kwargs):
 
         else:
             print(f"Supplier {seller} has no linked user.")
+
+@receiver(post_save, sender=UniversalNotification)
+def send_universal_notification(sender, instance, created, **kwargs):
+    if created and not instance.sent:
+        # Get all users
+        users = User.objects.all()
+
+        notifications = [
+            Notification(recipient=user, message=instance.message)
+            for user in users
+        ]
+        Notification.objects.bulk_create(notifications)
+
+        # Mark universal notification as sent
+        instance.sent = True
+        instance.save()

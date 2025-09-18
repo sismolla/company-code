@@ -267,3 +267,7 @@ def supplier_products(request, pk):
 
     return render(request, "provider/device_detail.html", {"supplier": supplier, "products": products,'contact_info': contact_info,"member_since": member_since,
 })
+
+class SupplierListPage(TemplateView):
+    template_name = 'suppliers/list.html'
+

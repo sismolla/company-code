@@ -84,6 +84,8 @@ MIDDLEWARE = [
     'core.middleware.UpdateLastActivityMiddleware',
 ]
 
+SITE_URL = "https://pharmagebeya.com/"
+
 ROOT_URLCONF = 'Pharmacy.urls'
 
 TEMPLATES = [

@@ -5,11 +5,10 @@ from django.views import View
 from django.views.generic.list import ListView
 from rest_framework.permissions import AllowAny
 from rest_framework import generics
-from rest_framework.filters import SearchFilter,OrderingFilter
+from rest_framework.filters import SearchFilter
 from .models import ChatMessage, ChatThread, ContactUs, DosageForm, Order, Product, ReportAbuse, Review, Supplier, Notification, UserProducts
 from .filters import ProductFilter
 from .serializers import ChatMessageSerializer, ChatThreadCreateSerializer, ChatThreadSerializer, ContactUsSerializer, DosageFormSerializer, NotificationSerializer, OrderSerializer, ProductDetailSerializer, ProductProviderSerializer, SupplierOrderSerializer, SupplierUpdateSerializer, ReportAbuseSerializer, ReviewSerializer, SupplierSignupSerializer, UserSerializer
-from django_filters.rest_framework import DjangoFilterBackend
 from django.views.generic import TemplateView
 from rest_framework import  permissions
 from django.shortcuts import get_object_or_404

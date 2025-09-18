@@ -141,8 +141,6 @@ class UserProducts(models.Model):
     bulk_discount_available = models.BooleanField(default=False)
     offer_delivery = models.BooleanField(default=False)
 
-
-
 class Order(models.Model):
     STATUS_CHOICES = [
         ('pending', 'pending'),
@@ -185,7 +183,6 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.quantity} x {self.product.name}"
-
 
 class SocialMediaPost(models.Model):
     supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE, related_name='telegram_posts')
@@ -231,3 +228,27 @@ class Post(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+class UniversalNotification(models.Model):
+    message = models.CharField(max_length=1000)
+    created_at = models.DateTimeField(auto_now_add=True)
+    sent = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"Universal Notification: {self.message[:50]}"
+
+    def send_to_all_users(self):
+        if self.sent:
+            return  # Already sent, prevent duplicates
+
+        users = User.objects.all()
+        notifications = [
+            Notification(recipient=user, message=self.message)
+            for user in users
+        ]
+        # Bulk create for efficiency
+        Notification.objects.bulk_create(notifications)
+
+        # Mark as sent
+        self.sent = True
+        self.save()

@@ -1,6 +1,6 @@
 from django.utils import timezone
 from .models import Supplier, Product, SocialMediaPost, Post
-from .socialmedea_utils import generate_telegram_post, send_telegram_post , generate_device_post
+from .socialmedea_utils import generate_telegram_post, send_telegram_post , generate_device_post, send_telegram_photo
 from django.db import transaction
 import random
 from Medical_device.models import MedicalDevice
@@ -141,7 +141,8 @@ def post_next_supplier_products():
 def post_next_supplier_devices():
     """
     Posts up to 5 unposted devices for ONE supplier per cycle (round-robin),
-    ensuring the entire posting and saving process is atomic.
+    sending either a photo+caption or a plain text post,
+    and saving everything atomically.
     """
     logger.info("Starting post_next_supplier_devices cycle.")
     today = timezone.now().date()
@@ -153,7 +154,6 @@ def post_next_supplier_devices():
 
     # Last supplier that posted devices
     last_post = SocialMediaPost.objects.filter(Q(devices__isnull=False)).order_by("-post_date", "-id").first()
-    
     last_index = -1
     if last_post and last_post.supplier in suppliers:
         try:
@@ -180,36 +180,47 @@ def post_next_supplier_devices():
             logger.info(f"No new devices to post for {supplier.name}. Skipping.")
             continue
 
-        # Generate post text
-        post_text = generate_device_post(devices_to_post)
-        if not post_text:
-            logger.warning(f"Failed to generate post text for {supplier.name}'s devices. Skipping.")
-            continue # skip this supplier
+        # Generate caption + image
+        caption, image_url = generate_device_post(devices_to_post)
+
+        if not caption:
+            logger.warning(f"Failed to generate caption for {supplier.name}'s devices. Skipping.")
+            continue
 
         # Atomic block: Send post to Telegram AND save to database
         try:
             with transaction.atomic():
                 logger.info(f"Entering atomic transaction for {supplier.name}'s devices.")
-                
-                # Step 1: Send the post to Telegram
-                if not send_telegram_post(post_text):
-                    raise Exception(f"send_telegram_post returned False for {supplier.name}'s devices.")
 
-                # Step 2: If Telegram post was successful, save to database
-                tg_post = SocialMediaPost(supplier=supplier, template_used=2, posted=True, post_date=today)
+                # Step 1: Send to Telegram (photo if image exists, else text)
+                if image_url:
+                    logger.info(f"Sending Telegram photo post for {supplier.name}.")
+                    success = send_telegram_photo(devices_to_post, caption)  # <-- fixed here
+                else:
+                    logger.info(f"Sending Telegram text post for {supplier.name}.")
+                    success = send_telegram_post(caption)
+
+                if not success:
+                    raise Exception(f"Telegram send failed for {supplier.name}'s devices.")
+
+                # Step 2: Save post info in DB
+                tg_post = SocialMediaPost(
+                    supplier=supplier, template_used=2, posted=True, post_date=today
+                )
                 tg_post.save()
-                tg_post.devices.add(*devices_to_post) # Use add for multiple instances
-                tg_post.save() # Optional, but harmless
+                tg_post.devices.add(*devices_to_post)
+                tg_post.save()
+
                 logger.info(f"Successfully posted {devices_to_post.count()} devices for {supplier.name} and saved to DB.")
 
         except Exception as e:
             logger.error(f"Transaction failed for {supplier.name}'s devices: {e}", exc_info=True)
             return f"❌ Posting failed for {supplier.name}: {e}"
-        
+
         logger.info(f"Finished processing and posted for {supplier.name}.")
         return f"✅ Posted {devices_to_post.count()} devices for {supplier.name}"
 
-    # --- Cycle Reset Logic (if no devices were posted for any supplier) ---
+    # --- Cycle Reset Logic ---
     logger.info("No suppliers had new devices to post in this cycle. Checking for reset conditions.")
     all_device_ids = set(MedicalDevice.objects.values_list("id", flat=True))
     posted_device_ids = set(

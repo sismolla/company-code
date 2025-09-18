@@ -12,7 +12,8 @@ from .models import (
     Order,
     OrderItem,
     SocialMediaPost,
-    Post
+    Post,
+    UniversalNotification
 )
 # Register your models here.
 @admin.register(Post)
@@ -24,4 +25,4 @@ class PostAdmin(admin.ModelAdmin):
     def approve_posts(self, request, queryset):
         queryset.update(approved=True)
 
-admin.site.register([DosageForm,Supplier,Notification,ChatThread,Product,ChatMessage,Review,ReportAbuse,UserProducts,Order,OrderItem,SocialMediaPost])
+admin.site.register([DosageForm,Supplier,Notification,ChatThread,Product,ChatMessage,Review,ReportAbuse,UserProducts,Order,OrderItem,SocialMediaPost,UniversalNotification])

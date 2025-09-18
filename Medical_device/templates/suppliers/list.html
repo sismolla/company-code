@@ -1,0 +1,609 @@
+{% extends 'base2.html' %}
+{% load querystring %}
+{% load static %}
+{% block meta %}
+<meta name="description" content="Browse a list of verified Ethiopian medical devices wholesalers on Pharma ገበያ. Connect directly with trusted suppliers for bulk medical devices orders." />
+{% endblock meta %}
+
+{% block title %}MediSource | Professional Medical Device Sellers Directory{% endblock title %}
+
+{% block style %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2b6cb0;
+            --secondary: #4299e1;
+            --accent: #38b2ac;
+            --light: #f7fafc;
+            --dark: #2d3748;
+            --gray: #718096;
+            --success: #48bb78;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo i {
+            margin-right: 10px;
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+        
+        nav ul li {
+            margin-left: 1.5rem;
+        }
+        
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+        
+        nav ul li a:hover {
+            color: #e2e8f0;
+        }
+        
+        /* Hero Section */
+        .hero {
+            padding: 4rem 0;
+            text-align: center;
+            background: url('https://images.unsplash.com/photo-1582719471384-894fbb16e074?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') no-repeat center center/cover;
+            color: white;
+            position: relative;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(43, 108, 176, 0.85);
+        }
+        
+        .hero-content {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .hero h1 {
+            font-size: 2.8rem;
+            margin-bottom: 1rem;
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+        }
+        
+        /* Search and Filters */
+        .search-filters {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            margin-top: -40px;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .search-box {
+            display: flex;
+            margin-bottom: 1.5rem;
+        }
+        
+        .search-box input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 5px 0 0 5px;
+            font-size: 1rem;
+        }
+        
+        .search-box button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0 20px;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .search-box button:hover {
+            background: var(--secondary);
+        }
+        
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .filter-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            color: var(--dark);
+        }
+        
+        /* Sellers Grid */
+        .sellers-section {
+            padding: 3rem 0;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            color: var(--dark);
+        }
+        
+        .sellers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+        }
+        
+        .seller-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+        
+        .seller-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .seller-image {
+            height: 180px;
+            overflow: hidden;
+        }
+        
+        .seller-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: var(--transition);
+        }
+        
+        .seller-card:hover .seller-image img {
+            transform: scale(1.05);
+        }
+        
+        .seller-info {
+            padding: 1.5rem;
+        }
+        
+        .seller-name {
+            font-size: 1.4rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+        
+        .seller-specialty {
+            color: var(--accent);
+            font-weight: 500;
+            margin-bottom: 1rem;
+        }
+        
+        .seller-details {
+            margin-bottom: 1.5rem;
+            color: var(--gray);
+        }
+        
+        .seller-details div {
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .seller-details i {
+            margin-right: 10px;
+            color: var(--primary);
+        }
+        
+        .seller-actions {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .btn {
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            background: var(--secondary);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+        
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+        
+        /* Newsletter */
+        .newsletter {
+            background: var(--primary);
+            color: white;
+            padding: 4rem 0;
+            text-align: center;
+        }
+        
+        .newsletter h2 {
+            margin-bottom: 1rem;
+        }
+        
+        .newsletter p {
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+        
+        .newsletter-form {
+            display: flex;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .newsletter-form input {
+            flex: 1;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 5px 0 0 5px;
+            font-size: 1rem;
+        }
+        
+        .newsletter-form button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0 20px;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .newsletter-form button:hover {
+            background: #2c9c97;
+        }
+        
+        /* Footer */
+        footer {
+            background: var(--dark);
+            color: white;
+            padding: 3rem 0 1.5rem;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-bottom: 2rem;
+        }
+        
+        .footer-column h3 {
+            font-size: 1.2rem;
+            margin-bottom: 1.2rem;
+            position: relative;
+            padding-bottom: 10px;
+        }
+        
+        .footer-column h3::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 40px;
+            height: 2px;
+            background: var(--accent);
+        }
+        
+        .footer-column ul {
+            list-style: none;
+        }
+        
+        .footer-column ul li {
+            margin-bottom: 0.8rem;
+        }
+        
+        .footer-column ul li a {
+            color: #cbd5e0;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        
+        .footer-column ul li a:hover {
+            color: white;
+            padding-left: 5px;
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #4a5568;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            
+            nav ul {
+                margin-top: 1rem;
+                justify-content: center;
+            }
+            
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+            
+            .hero p {
+                font-size: 1rem;
+            }
+            
+            .search-filters {
+                margin-top: -20px;
+            }
+            
+            .newsletter-form {
+                flex-direction: column;
+            }
+            
+            .newsletter-form input {
+                border-radius: 5px;
+                margin-bottom: 10px;
+            }
+            
+            .newsletter-form button {
+                border-radius: 5px;
+                padding: 12px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            nav ul {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            nav ul li {
+                margin: 0.5rem 0;
+            }
+            
+            .filters {
+                flex-direction: column;
+            }
+            
+            .seller-actions {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+
+{%endblock style%}
+{% block content %}
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Find Trusted Medical Device Sellers</h1>
+                <p>Discover our curated directory of certified medical equipment suppliers and manufacturers worldwide</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Search and Filters -->
+    <div class="container">
+        <div class="search-filters">
+            <div class="search-box">
+                <input type="text" placeholder="Search for medical devices, companies, or specialties...">
+                <button><i class="fas fa-search"></i></button>
+            </div>
+            <div class="filters">
+                <div class="filter-group">
+                    <select>
+                        <option value="">All Categories</option>
+                        <option value="">Diagnostic Equipment</option>
+                        <option value="">Surgical Instruments</option>
+                        <option value="">Patient Monitoring</option>
+                        <option value="">Therapeutic Equipment</option>
+                        <option value="">Laboratory Equipment</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <select>
+                        <option value="">All Locations</option>
+                        <option value="">North America</option>
+                        <option value="">Europe</option>
+                        <option value="">Asia Pacific</option>
+                        <option value="">Middle East</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <select>
+                        <option value="">Certification</option>
+                        <option value="">ISO 13485</option>
+                        <option value="">FDA Approved</option>
+                        <option value="">CE Certified</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sellers Section -->
+    <!-- Sellers Section -->
+<section class="sellers-section">
+    <div class="container">
+        <h2 class="section-title">Featured Medical Device Suppliers</h2>
+        <div class="sellers-grid">
+
+            <!-- Example Supplier Card -->
+            <div class="seller-card">
+                <div class="seller-image">
+                    <img src="https://images.unsplash.com/photo-1585435557343-3b092031d5ad?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Supplier Name">
+                </div>
+                <div class="seller-info">
+                    <h3 class="seller-name">MedTech Solutions</h3>
+                    <div class="seller-specialty">Diagnostic & Imaging Equipment</div>
+                    <div class="seller-details">
+                        <div><i class="fas fa-map-marker-alt"></i> Addis Ababa, Ethiopia</div>
+                        <div><i class="fas fa-envelope"></i> contact@medtech.com</div>
+                        <div><i class="fas fa-phone"></i> +251 912 345 678</div>
+                        <div><i class="fas fa-star"></i> 4.8 (256 reviews)</div>
+                    </div>
+                    <div class="seller-actions">
+                        <a href="#" class="btn btn-primary">View Profile</a>
+                        <a href="#" class="btn btn-outline">Contact</a>
+                    </div>
+                    <div class="seller-about">
+                        <p>MedTech Solutions is a certified supplier of high-quality diagnostic and imaging devices across Ethiopia, committed to providing excellent customer service.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Another Example Supplier Card -->
+            <div class="seller-card">
+                <div class="seller-image">
+                    <img src="https://images.unsplash.com/photo-1516549655169-df83a0774514?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Supplier Name">
+                </div>
+                <div class="seller-info">
+                    <h3 class="seller-name">Surgical Innovations</h3>
+                    <div class="seller-specialty">Surgical Instruments & Tools</div>
+                    <div class="seller-details">
+                        <div><i class="fas fa-map-marker-alt"></i> Bahir Dar, Ethiopia</div>
+                        <div><i class="fas fa-envelope"></i> info@surgicalinnovations.com</div>
+                        <div><i class="fas fa-phone"></i> +251 923 456 789</div>
+                        <div><i class="fas fa-star"></i> 4.9 (312 reviews)</div>
+                    </div>
+                    <div class="seller-actions">
+                        <a href="#" class="btn btn-primary">View Profile</a>
+                        <a href="#" class="btn btn-outline">Contact</a>
+                    </div>
+                    <div class="seller-about">
+                        <p>Surgical Innovations provides high-quality surgical instruments and tools, supporting hospitals and clinics with certified equipment.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add more supplier cards as needed -->
+
+        </div>
+    </div>
+</section>
+
+
+    <!-- Newsletter -->
+    <section class="newsletter">
+        <div class="container">
+            <h2>Stay Updated with Medical Equipment Trends</h2>
+            <p>Subscribe to our newsletter for the latest updates on medical devices, industry news, and exclusive offers from trusted suppliers.</p>
+            <form class="newsletter-form">
+                <input type="email" placeholder="Enter your email address">
+                <button type="submit">Subscribe</button>
+            </form>
+        </div>
+    </section>
+{% endblock content %}
+
+{% block script %}
+    <script>
+        // Basic filtering functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.querySelector('.search-box input');
+            const categoryFilter = document.querySelectorAll('.filter-group select')[0];
+            const locationFilter = document.querySelectorAll('.filter-group select')[1];
+            const sellerCards = document.querySelectorAll('.seller-card');
+            
+            function filterSellers() {
+                const searchText = searchInput.value.toLowerCase();
+                const categoryValue = categoryFilter.value;
+                const locationValue = locationFilter.value;
+                
+                sellerCards.forEach(card => {
+                    const sellerName = card.querySelector('.seller-name').textContent.toLowerCase();
+                    const sellerSpecialty = card.querySelector('.seller-specialty').textContent.toLowerCase();
+                    const sellerLocation = card.querySelector('.seller-details div:first-child').textContent.toLowerCase();
+                    
+                    const matchesSearch = sellerName.includes(searchText) || sellerSpecialty.includes(searchText);
+                    const matchesCategory = categoryValue === '' || sellerSpecialty.includes(categoryValue.toLowerCase());
+                    const matchesLocation = locationValue === '' || sellerLocation.includes(locationValue.toLowerCase());
+                    
+                    if (matchesSearch && matchesCategory && matchesLocation) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            }
+            
+            searchInput.addEventListener('keyup', filterSellers);
+            categoryFilter.addEventListener('change', filterSellers);
+            locationFilter.addEventListener('change', filterSellers);
+        });
+    </script>
+{% endblock %}
