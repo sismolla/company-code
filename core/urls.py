@@ -1,6 +1,6 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-from .views import google_calendar_webhook, ChatMessageCreateAPIView, ChatThreadCreateAPIView, ChatThreadListAPIView, ContactUsViewSet, CustomerDashboardView, FAQView, HelpPageView, MarkMessagesAsReadView, MessageView, NotificationApi, Pharmacy_page,DosageApi, ProductBulkUploadView, ProductDetailAPIView, ProductProvider, ProductProviderDetailPage, ProductViewSet, ProductsView, ProfilePageView, ReportAbuseCreateAPIView, ReviewCreateAPIView,ProductDetailView, SignUpPageView, SupplierOrderDetailPage, SupplierProfileViewSet, SupplierSignupAPIView, UserLoginAPIView, UserOrderDetailUpdateView, UserOrdersListView, UserProfileAPIView, logout_view, ProductProviderListPage,OrderCreateView, SupplierOrderPage,send_test, google_calendar_devices
+from .views import google_calendar_webhook, ChatMessageCreateAPIView, ChatThreadCreateAPIView, ChatThreadListAPIView, ContactUsViewSet, CustomerDashboardView, FAQView, HelpPageView, MarkMessagesAsReadView, MessageView, NotificationApi, Pharmacy_page,DosageApi, ProductBulkUploadView, ProductDetailAPIView, ProductProvider, ProductProviderDetailPage, ProductViewSet, ProductsView, ProfilePageView, ReportAbuseCreateAPIView, ReviewCreateAPIView,ProductDetailView, SignUpPageView, SupplierOrderDetailPage, SupplierProfileViewSet, SupplierSignupAPIView, UserLoginAPIView, UserOrderDetailUpdateView, UserOrdersListView, UserProfileAPIView, logout_view, ProductProviderListPage,OrderCreateView, SupplierOrderPage,send_test, google_calendar_devices, dosage_forms_map
 
 
 app_name = 'landing'
@@ -54,6 +54,8 @@ urlpatterns = [
 
     path('calendar-webhook/', google_calendar_webhook, name='calendar-webhook'),
     path('device-webhook/',google_calendar_devices,name='devices-webhook'),
+
+    path('dosage-forms-map/',dosage_forms_map,name="dosage-forms-name" )
 ]
 
 urlpatterns += router.urls

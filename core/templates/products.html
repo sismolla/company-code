@@ -1057,10 +1057,12 @@ the correct this styling for the page and correct it for more responsiveness and
 
 <!-- Bulk Upload Instructions Section -->
 <section class="bulk-upload-docs" aria-labelledby="bulk-upload-title">
-    <h3 id="bulk-upload-title"><i class="fas fa-exclamation-triangle" aria-hidden="true"></i> Important: Bulk Upload Instructions</h3>
-    
-    <p><strong>Quick Note:</strong> Required fields: <span class="highlight">name, strength, price, stock quantity, dosage form</span>.</p>
-    
+    <h3 id="bulk-upload-title">
+        <i class="fas fa-exclamation-triangle" aria-hidden="true"></i> Important: Bulk Upload Instructions
+    </h3>
+
+    <p><strong>Quick Note: If you want to upload your data in excel read this carefully, </strong> Required fields: <span class="highlight">name, strength, price, stock quantity, dosage form</span>.</p>
+
     <!-- Collapsible detailed section -->
     <div class="bulk-upload-details" id="bulkUploadDetails" style="display: none;">
         <h4>1. File Structure</h4>
@@ -1069,7 +1071,7 @@ the correct this styling for the page and correct it for more responsiveness and
             <thead>
                 <tr>
                     <th>Field</th>
-                    <th>Accepted Header Names Of Your Excel</th>
+                    <th>Accepted Header Names</th>
                 </tr>
             </thead>
             <tbody>
@@ -1083,19 +1085,24 @@ the correct this styling for the page and correct it for more responsiveness and
         </table>
 
         <h4>2. Supported Dosage Forms</h4>
-        <p>Only the following dosage forms are accepted (case-insensitive):</p>
+        <p>These are the accepted dosage forms (case-insensitive). The system will attempt flexible matching if the exact form is not found:</p>
         <ul>
             <li>Tablet, Capsule, Injection, Syrup, Suspension</li>
             <li>Cream, Ointment, Gel, Lotion, Suppository</li>
-            <li>Powder, Drops (Eye/Ear/Nasal), Inhaler, Patch, Granules</li>
-            <li>Mouthwash, Lozenge, Solution, Emulsion, Spray</li>
+            <li>Powder, Inhaler, Patch, Granules, Mouthwash</li>
+            <li>Lozenge, Solution, Emulsion, Spray, Chewable Tablet</li>
+            <li>Effervescent Tablet, Dispersible Tablet, Extended/Controlled Release Tablet, Sachet, Ampoule</li>
+            <li>Vial, Powder for Injection, Infusion Solution, Shampoo (Medicated), Dental Paste</li>
+            <li>Nebulizer Solution, Nasal Spray, Eye Drops, Eye Ointment, Ear Drops</li>
+            <li>Nasal Drops, Enema, Vaginal Tablet, Vaginal Cream, Buccal Film/Tablet</li>
+            <li>Sublingual Tablet, Implant</li>
         </ul>
 
         <h4>3. Data Rules</h4>
         <ul>
-            <li>Required fields: name, strength, price, stock_quantity, dosage_form_id.</li>
-            <li>Dosage Form must match exactly one of the supported forms.</li>
-            <li>Expiration Date is optional; if present, it must be a valid date (YYYY-MM-DD, MM/DD/YYYY).</li>
+            <li>Required fields: <strong>name, strength, price, stock_quantity, dosage_form_id</strong>.</li>
+            <li>Dosage Form must match one of the supported forms; flexible matching will attempt to find close variations (e.g., "tablet coated" → "Tablet").</li>
+            <li>Expiration Date is optional; if present, it must be a valid date (YYYY-MM-DD or MM/DD/YYYY).</li>
         </ul>
 
         <h4>4. Upload Behavior</h4>
@@ -1103,12 +1110,14 @@ the correct this styling for the page and correct it for more responsiveness and
             <li>Existing products (same name, strength, dosage form, supplier) are updated.</li>
             <li>New products are created if no match exists.</li>
             <li>Errors are recorded per row; upload continues even if some rows fail.</li>
+            <li>Ambiguous dosage forms are logged; the system picks the closest match automatically.</li>
         </ul>
 
         <h4>5. Post-Upload Feedback</h4>
         <ul>
             <li>Success: shows how many new products were created and how many existing products were updated.</li>
             <li>Errors: lists row numbers with problems for easy correction.</li>
+            <li>Warnings: lists rows where dosage form was ambiguous or auto-corrected.</li>
         </ul>
     </div>
 
@@ -1116,6 +1125,8 @@ the correct this styling for the page and correct it for more responsiveness and
         Show More
     </button>
 </section>
+
+
 
 <table class="products-table" data-role="product-table">
     <thead>
@@ -1151,13 +1162,21 @@ the correct this styling for the page and correct it for more responsiveness and
 // Global variables for product management
 let allProducts = [];
 let filteredProducts = [];
-const DOSAGE_FORMS_MAP = {
-    "Tablet": 1, "Capsule": 2, "Injection": 3, "Syrup": 4, "Suspension": 5,
-    "Cream": 6, "Ointment": 7, "Gel": 8, "Lotion": 9, "Suppository": 10,
-    "Powder": 11, "Drops (Eye/Ear/Nasal)": 12, "Inhaler": 13, "Patch": 14,
-    "Granules": 15, "Mouthwash": 16, "Lozenge": 17, "Solution": 18,
-    "Emulsion": 19, "Spray": 20
-};
+let DOSAGE_FORMS_MAP = {}; // define it first
+
+async function loadDosageForms() {
+    try {
+        const response = await fetch('/dosage-forms-map/');
+        DOSAGE_FORMS_MAP = await response.json();
+        console.log(DOSAGE_FORMS_MAP);
+        initYourApp(); // call the rest of your code here
+    } catch (error) {
+        console.error('Error loading dosage forms:', error);
+    }
+}
+
+loadDosageForms();
+
 
 // Utility Functions
 function getCsrfToken() {
@@ -2129,8 +2148,8 @@ async function handleExcelUpload(event) {
     }
 
     // Validate file size (max 20MB)
-    if (file.size > 20 * 1024 * 1024) {
-        showMessage('error', 'File size exceeds the 20MB limit.');
+    if (file.size > 10 * 1024 * 1024) {
+        showMessage('error', 'File size exceeds the 10MB limit.');
         return;
     }
 

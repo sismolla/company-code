@@ -1,4 +1,4 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.views import View
@@ -12,7 +12,7 @@ from .serializers import ChatMessageSerializer, ChatThreadCreateSerializer, Chat
 from django.views.generic import TemplateView
 from rest_framework import  permissions
 from django.shortcuts import get_object_or_404
-from django.db.models import Q, Avg, F
+from django.db.models import Q, Avg, F, Case, When
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -20,6 +20,7 @@ from rest_framework import viewsets
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import logout
 import uuid
+from django.db import models
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 import openpyxl
@@ -29,31 +30,74 @@ from .utils import send_order_email,notify_user, send_presentation_email
 from rest_framework.pagination import PageNumberPagination
 from Medical_device.models import MedicalDevice, ImpressionAggregate
 from django.contrib.contenttypes.models import ContentType
+import logging
+from django.template.loader import render_to_string
+
+
+logger = logging.getLogger(__name__)
+def dosage_forms_map(request):
+    # Get all dosage forms ordered by ID (or any field you want)
+    dosage_forms = DosageForm.objects.all().order_by('id')  # or use a specific ordering field
+    data = {df.name: df.id for df in dosage_forms}
+    return JsonResponse(data)
 
 
 def logout_view(request):
     logout(request)  # This clears the session
     return redirect('landing:landing-page')  # Redirect to your login page or home
 
+
+
 class Pharmacy_page(ListView):
     model = Product
     template_name = "pharmacy.html"
     context_object_name = "products"
-    paginate_by = 50  # change as needed
+    paginate_by = 50
+
+    # High-level categories mapping to all 42 dosage forms
+    CATEGORY_MAP = {
+        "Oral": [
+            "Tablet", "Capsule", "Syrup", "Suspension", "Chewable Tablet",
+            "Effervescent Tablet", "Dispersible Tablet", "Extended/Controlled Release Tablet",
+            "Granules", "Lozenge", "Sachet", "Mouthwash"
+        ],
+        "Injectable": [
+            "Injection", "Powder for Injection", "Ampoule", "Vial", "Infusion Solution"
+        ],
+        "Topical": [
+            "Cream", "Ointment", "Gel", "Lotion", "Patch",
+            "Shampoo (Medicated)", "Dental Paste"
+        ],
+        "Respiratory": [
+            "Inhaler", "Nebulizer Solution", "Spray", "Nasal Spray"
+        ],
+        "Ophthalmic/Otic/Nasal": [
+            "Eye Drops", "Eye Ointment", "Ear Drops", "Nasal Drops"
+        ],
+        "Rectal/Vaginal": [
+            "Suppository", "Enema", "Vaginal Tablet", "Vaginal Cream"
+        ],
+        "Specialized": [
+            "Buccal Film/Tablet", "Sublingual Tablet", "Implant"
+        ]
+    }
 
     def get_queryset(self):
         queryset = Product.objects.all().select_related("dosage_form", "supplier")
+        queryset = queryset.annotate(impression_count=F("impressions__impression_count"))
 
-        # annotate impressions
-        queryset = queryset.annotate(
-            impression_count=F("impressions__impression_count")
-        )
-
-        # Filters
+        # Category filter
+        category = self.request.GET.get("category")
         dosage_form = self.request.GET.get("dosage_form")
+
+        if category and category in self.CATEGORY_MAP:
+            allowed_forms = DosageForm.objects.filter(name__in=self.CATEGORY_MAP[category])
+            queryset = queryset.filter(dosage_form__in=allowed_forms)
+
         if dosage_form:
             queryset = queryset.filter(dosage_form_id=dosage_form)
 
+        # Price filter
         min_price = self.request.GET.get("price__gte")
         max_price = self.request.GET.get("price__lte")
         if min_price:
@@ -61,6 +105,7 @@ class Pharmacy_page(ListView):
         if max_price:
             queryset = queryset.filter(price__lte=max_price)
 
+        # Search
         search = self.request.GET.get("search")
         if search:
             queryset = queryset.filter(
@@ -69,13 +114,9 @@ class Pharmacy_page(ListView):
                 Q(dosage_form__name__icontains=search)
             )
 
-        # Ordering (user-selected)
+        # Ordering
         ordering = self.request.GET.get("ordering")
-        allowed_ordering = [
-            "price", "stock_quantity", "name",
-            "-price", "-stock_quantity", "-name"
-        ]
-
+        allowed_ordering = ["price", "stock_quantity", "name", "-price", "-stock_quantity", "-name"]
         if ordering in allowed_ordering:
             queryset = queryset.order_by(ordering)
         else:
@@ -85,11 +126,33 @@ class Pharmacy_page(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["dosage_forms"] = DosageForm.objects.all()
+
+        # Pass categories with their dosage forms
+        categories = []
+        for cat_name, forms in self.CATEGORY_MAP.items():
+            categories.append({
+                "id": cat_name,
+                "name": cat_name,
+                "dosage_forms": DosageForm.objects.filter(name__in=forms).order_by(
+                    Case(*[When(name=f, then=i) for i, f in enumerate(forms)])
+                )
+            })
+        context["categories"] = categories
+
+        # Selected category for frontend
+        selected_category_name = self.request.GET.get("category")
+        context["selected_category"] = next((c for c in categories if c["id"] == selected_category_name), None)
         context["filters"] = self.request.GET
+
         return context
-    
-    
+
+    def render_to_response(self, context, **response_kwargs):
+        # AJAX response with products partial
+        if self.request.headers.get("x-requested-with") == "XMLHttpRequest":
+            html = render_to_string('products_list_partial.html', context, request=self.request)
+            return JsonResponse({'html': html})
+        return super().render_to_response(context, **response_kwargs)
+
 from django.views.generic import DetailView
 
 class ProductDetailView(DetailView):
@@ -559,6 +622,7 @@ class SupplierOrderDetailPage(LoginRequiredMixin,View):
 
         return render(request, self.template_name, context)
 
+
 class ProductBulkUploadView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -584,13 +648,53 @@ class ProductBulkUploadView(APIView):
         return normalized
 
     def resolve_dosage_form(self, value):
+        """
+        Flexible dosage form matching:
+        - Exact match first
+        - Then search by keywords (all words must be present)
+        - Then search by partial word match
+        Returns DosageForm object or None
+        """
         if not value:
             return None
-        value = str(value).strip()
+        value = str(value).strip().lower()
+
+        # Exact match
         try:
-            return DosageForm.objects.get(name__iexact=value)  # return object
+            return DosageForm.objects.get(name__iexact=value)
         except DosageForm.DoesNotExist:
-            return None
+            pass
+
+        # Split words for keyword search
+        words = value.split()
+        candidates = DosageForm.objects.all()
+        matched = []
+
+        # All-words keyword match
+        for form in candidates:
+            form_name_lower = form.name.lower()
+            if all(word in form_name_lower for word in words):
+                matched.append(form)
+
+        # Partial word match fallback
+        if not matched:
+            for form in candidates:
+                form_name_lower = form.name.lower()
+                if any(word in form_name_lower for word in words):
+                    matched.append(form)
+
+        # Handle multiple matches
+        if matched:
+            matched.sort(key=lambda x: len(x.name), reverse=True)  # longest name first
+            if len(matched) > 1:
+                logger.warning(
+                    f"Ambiguous dosage form match for '{value}': {[m.name for m in matched]}"
+                )
+            return matched[0]
+
+        # No match
+        logger.warning(f"Could not resolve dosage form '{value}'")
+        return None
 
     def post(self, request, *args, **kwargs):
         excel_file = request.FILES.get("file")
@@ -605,7 +709,7 @@ class ProductBulkUploadView(APIView):
         errors = []
 
         try:
-            wb = openpyxl.load_workbook(abs_path)
+            wb = openpyxl.load_workbook(abs_path, data_only=True)
             sheet = wb.active
             supplier = get_object_or_404(Supplier, user=request.user)
 
@@ -617,7 +721,7 @@ class ProductBulkUploadView(APIView):
                     raw_row = dict(zip(headers, row))
                     row_data = {header_map.get(k): v for k, v in raw_row.items() if header_map.get(k)}
 
-                    # Validate required fields (None or empty string is missing)
+                    # Validate required fields
                     missing = [f for f in ["name", "strength", "price", "stock_quantity", "dosage_form_id"]
                                if row_data.get(f) in [None, ""]]
                     if missing:
@@ -626,10 +730,10 @@ class ProductBulkUploadView(APIView):
 
                     dosage_form = self.resolve_dosage_form(row_data["dosage_form_id"])
                     if not dosage_form:
-                        errors.append(f"Row {i}: Invalid dosage form '{row_data['dosage_form_id']}'")
+                        errors.append(f"Row {i}: Invalid or unresolvable dosage form '{row_data['dosage_form_id']}'")
                         continue
 
-                    # Parse expire_date
+                    # Parse expire_date safely
                     expire_date = None
                     if row_data.get("expire_date"):
                         try:
@@ -638,7 +742,7 @@ class ProductBulkUploadView(APIView):
                             errors.append(f"Row {i}: Invalid date format '{row_data['expire_date']}'")
                             continue
 
-                    # Try update first
+                    # Try updating existing product
                     product = Product.objects.filter(
                         name=str(row_data.get("name")).strip(),
                         strength=str(row_data.get("strength")).strip(),
@@ -666,7 +770,8 @@ class ProductBulkUploadView(APIView):
                         created_count += 1
 
                 except Exception as e:
-                    errors.append(f"Row {i}: {str(e)}")
+                    errors.append(f"Row {i}: Unexpected error: {str(e)}")
+                    logger.exception(f"Error processing row {i}")
 
         finally:
             default_storage.delete(file_path)
@@ -678,7 +783,7 @@ class ProductBulkUploadView(APIView):
             },
             status=status.HTTP_201_CREATED,
         )
-    
+
 class ContactUsViewSet(viewsets.ModelViewSet):
     queryset = ContactUs.objects.all()
     serializer_class = ContactUsSerializer

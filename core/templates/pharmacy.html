@@ -4,534 +4,558 @@
 
 {% block style %}
 <style>
-    /* -------------------- General Layout & Typography -------------------- */
-    :root {
-        --primary-color: #2980b9;
-        --secondary-color: #6c757d;
-        --background-light: #f4f7f9;
-        --card-bg: #ffffff;
-        --border-color: #e9ecef;
-        --text-color: #2c3e50;
-        --muted-text: #868e96;
-        --success-color: #27ae60;
-        --danger-color: #e74c3c;
-    }
+/* --- Variables --- */
+:root {
+    --primary: #3498db;
+    --primary-dark: #2980b9;
+    --secondary: #95a5a6;
+    --background: #ecf0f1;
+    --card-bg: #fff;
+    --border: #e2e8f0;
+    --text: #34495e;
+    --muted: #7f8c8d;
+    --success: #2ecc71;
+    --danger: #e74c3c;
+    --radius-lg: 12px;
+    --radius-sm: 8px;
+    --transition: all 0.3s ease;
+    --shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
 
-    body {
-        background-color: var(--background-light);
-        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    }
+body {
+    background-color: var(--background);
+}
 
-    .main-container {
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 2.5rem 1.5rem;
-    }
+/* --- Layout & Main Container --- */
+.pharmacy-main {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1.5rem 1rem;
+    display: flex;
+    gap: 2rem;
+    position: relative;
+}
 
-    h2, h3 {
-        color: var(--text-color);
-        font-weight: 600;
-        margin: 0;
-    }
+/* --- Sidebar Filters --- */
+.pharmacy-sidebar {
+    flex: 0 0 300px; /* Fixed width sidebar for desktop */
+    background: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    height: fit-content;
+    position: sticky;
+    top: 1.5rem;
+    transition: var(--transition);
+}
 
-    /* -------------------- Filter Section -------------------- */
-    .filter-section {
-        background: var(--card-bg);
-        border-radius: 12px;
-        padding: 2rem;
-        margin-bottom: 2rem;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
-    }
+.pharmacy-filter-toggle {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    width: 60px;
+    height: 60px;
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: var(--transition);
+}
+.pharmacy-filter-toggle:hover {
+    background: var(--primary-dark);
+    transform: scale(1.05);
+}
 
-    /* New CSS for the restructured filter layout */
-    .filter-top {
-        margin-bottom: 2rem;
-    }
-    
-    .filter-bottom {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 2rem;
-    }
+.pharmacy-filter-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
 
-    .filter-group h3 {
-        font-size: 1.1rem;
-        margin-bottom: 1rem;
-    }
+.pharmacy-sidebar h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
 
-    .filter-options {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-    }
+.pharmacy-sidebar h3 .close-btn {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 1.5rem;
+    cursor: pointer;
+}
 
-    .filter-chip {
-        padding: 0.5rem 1rem;
-        background: var(--background-light);
-        border-radius: 20px;
-        font-size: 0.9rem;
-        transition: all 0.2s ease;
-        border: 1px solid var(--border-color);
-        cursor: pointer;
-    }
+.pharmacy-filter-group {
+    margin-bottom: 1.5rem;
+}
 
-    .filter-chip:hover {
-        background: var(--border-color);
-    }
+.pharmacy-filter-group h4 {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+    color: var(--text);
+    font-weight: 600;
+}
 
-    .filter-chip.active {
-        background: var(--primary-color);
-        color: white;
-        border-color: var(--primary-color);
-    }
+.pharmacy-filter-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
 
-    .filter-chip a {
-        text-decoration: none;
-        color: inherit;
-    }
+.pharmacy-filter-chip {
+    padding: 0.45rem 1rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    border: 1px solid var(--border);
+    background: var(--background);
+    cursor: pointer;
+    transition: var(--transition);
+}
 
-    .filter-group input, .filter-group select {
+.pharmacy-filter-chip a {
+    color: var(--text);
+    text-decoration: none;
+    display: block;
+}
+
+.pharmacy-filter-chip.active {
+    background: var(--primary);
+    border-color: var(--primary);
+}
+
+.pharmacy-filter-chip.active a {
+    color: #fff;
+}
+
+.pharmacy-filter-input-group input,
+.pharmacy-filter-input-group select {
+    width: 100%;
+    padding: 0.65rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+    transition: var(--transition);
+}
+
+.pharmacy-filter-input-group input:focus,
+.pharmacy-filter-input-group select:focus {
+    border-color: var(--primary);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+}
+
+.pharmacy-filter-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+}
+
+.pharmacy-btn {
+    padding: 0.6rem 1.2rem;
+    border-radius: var(--radius-sm);
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: var(--transition);
+    font-size: 0.95rem;
+    text-decoration: none;
+    text-align: center;
+    display: block;
+}
+
+.pharmacy-btn-primary {
+    background: var(--primary);
+    color: #fff;
+}
+.pharmacy-btn-primary:hover {
+    background: var(--primary-dark);
+}
+
+.pharmacy-btn-secondary {
+    background: var(--secondary);
+    color: #fff;
+}
+.pharmacy-btn-secondary:hover {
+    background: #7f8c8d;
+}
+
+/* --- Products Grid --- */
+.pharmacy-products {
+    flex: 1;
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+
+.pharmacy-card {
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    text-decoration: none;
+    color: var(--text);
+}
+
+.pharmacy-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.product-image {
+    width: 100%;
+    height: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--background);
+    overflow: hidden;
+}
+
+.product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 1rem;
+    transition: transform 0.3s ease;
+}
+
+.pharmacy-card:hover .product-image img {
+    transform: scale(1.05);
+}
+
+.product-image i {
+    font-size: 4rem;
+    color: var(--muted);
+}
+
+.pharmacy-card-body {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.pharmacy-card-category {
+    font-size: 0.8rem;
+    color: var(--muted);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.25rem;
+}
+
+.pharmacy-card h3 {
+    font-size: 1.2rem;
+    margin: 0.25rem 0;
+    color: var(--text);
+    line-height: 1.2;
+    flex-grow: 1;
+}
+
+.pharmacy-card .price {
+    font-weight: 700;
+    color: var(--primary-dark);
+    font-size: 1.35rem;
+    margin-top: 0.5rem;
+}
+
+.pharmacy-stock {
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.3rem 0.6rem;
+    border-radius: 16px;
+    display: inline-block;
+    margin-top: 0.5rem;
+}
+
+.in-stock {
+    background: rgba(46, 204, 113, 0.15);
+    color: var(--success);
+}
+.out-stock {
+    background: rgba(231, 76, 60, 0.15);
+    color: var(--danger);
+}
+
+/* --- Reviews --- */
+.pharmacy-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.pharmacy-rating span.filled {
+    color: #f1c40f;
+}
+.pharmacy-rating span {
+    font-size: 1rem;
+    color: var(--border);
+}
+
+.pharmacy-review-count {
+    font-size: 0.8rem;
+    color: var(--muted);
+}
+
+/* --- Pagination --- */
+.pharmacy-pagination {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 2rem;
+}
+
+.pharmacy-pagination a,
+.pharmacy-pagination span {
+    padding: 0.6rem 1rem;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-align: center;
+    transition: var(--transition);
+    border: 1px solid var(--border);
+}
+
+.pharmacy-pagination a {
+    color: var(--primary);
+    background-color: var(--card-bg);
+}
+.pharmacy-pagination a:hover {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+}
+.pharmacy-pagination span.current {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+}
+
+/* --- Responsive Design --- */
+@media (max-width: 1200px) {
+    .pharmacy-sidebar {
+        flex: 0 0 250px;
+    }
+}
+
+@media (max-width: 992px) {
+    .pharmacy-main {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    .pharmacy-sidebar {
+        flex: auto;
         width: 100%;
-        padding: 0.75rem 1rem;
-        border: 1px solid var(--border-color);
-        border-radius: 8px;
-        font-size: 0.95rem;
-        transition: all 0.2s ease;
+        position: static;
+        padding: 1.5rem 1rem;
+        border-radius: 0;
+        box-shadow: none;
     }
-
-    .filter-group input:focus, .filter-group select:focus {
-        outline: none;
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 4px rgba(41, 128, 185, 0.15);
+    .pharmacy-products {
+        grid-template-columns: repeat(2, 1fr);
     }
+}
 
-    .filter-actions {
-        display: flex;
+@media (max-width: 768px) {
+    .pharmacy-main {
+        padding: 1rem 0.5rem;
+    }
+    .pharmacy-products {
+        grid-template-columns: repeat(2, 1fr); /* 2 products per row on mobile */
         gap: 1rem;
-        align-items: flex-end;
     }
-
-    .btn {
-        padding: 0.75rem 1.5rem;
-        border: none;
-        border-radius: 8px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    .pharmacy-sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 80%;
+        height: 100%;
+        z-index: 1001;
+        transform: translateX(-100%);
+        transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+        overflow-y: auto;
+        box-shadow: 4px 0 15px rgba(0,0,0,0.1);
+        border-radius: 0;
     }
-
-    .btn-primary {
-        background: var(--primary-color);
-        color: white;
+    .pharmacy-sidebar.show {
+        transform: translateX(0);
     }
-
-    .btn-primary:hover {
-        background: #2374a5;
-        transform: translateY(-2px);
-    }
-
-    .btn-secondary {
-        background: var(--secondary-color);
-        color: white;
-    }
-
-    .btn-secondary:hover {
-        background: #5a6268;
-        transform: translateY(-2px);
-    }
-
-    /* -------------------- Products Grid & Cards -------------------- */
-    .products-header {
+    .pharmacy-filter-toggle {
         display: flex;
-        justify-content: space-between;
+        justify-content: center;
         align-items: center;
-        margin-bottom: 2rem;
     }
-
-    .products-header h2 {
-        font-size: 1.8rem;
-    }
-
-    .products-count {
-        font-size: 1rem;
-        color: var(--muted-text);
-        font-weight: 400;
-    }
-
-    .products-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 2rem;
-        padding-top: 1rem;
-    }
-
-    .product-card-link {
-        text-decoration: none;
-        color: inherit;
+    .pharmacy-filter-overlay.show {
         display: block;
     }
-
-    .product-card {
-        background: var(--card-bg);
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-        transition: all 0.3s ease;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
+    .pharmacy-sidebar h3 .close-btn {
+        display: block;
     }
+}
 
-    .product-card:hover {
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
-        transform: translateY(-5px);
-    }
-
-    .product-image {
-        height: 200px;
-        background: var(--border-color);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-    }
-
-    .product-real-image {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.3s ease;
-    }
-
-    .product-card:hover .product-real-image {
-        transform: scale(1.05);
-    }
-
-    .product-image .fas {
-        font-size: 3rem;
-        color: var(--muted-text);
-        opacity: 0.5;
-    }
-
-    .product-details {
-        padding: 1.5rem;
-        flex-grow: 1;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .product-category {
-        font-size: 0.8rem;
-        color: var(--muted-text);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin-bottom: 0.5rem;
-        font-weight: 600;
-    }
-
-    .product-title {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: var(--text-color);
-        margin: 0 0 0.5rem 0;
-        line-height: 1.3;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-    }
-
-    .product-price {
-        font-size: 1.6rem;
-        font-weight: 700;
-        color: var(--primary-color);
-        margin: 0 0 1rem 0;
-    }
-
-    .product-reviews {
-        display: flex;
-        align-items: center;
-        margin-bottom: 1rem;
-    }
-
-    .star-rating {
-        color: #ffc107;
-        font-size: 1rem;
-        margin-right: 0.5rem;
-    }
-
-    .star {
-        color: #e9ecef;
-    }
-
-    .star.filled {
-        color: #ffc107;
-    }
-    
-    .review-count {
-        font-size: 0.9rem;
-        color: var(--muted-text);
-    }
-
-    .product-meta {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: auto;
-        padding-top: 1rem;
-        border-top: 1px solid var(--border-color);
-    }
-
-    .product-meta span:first-child {
-        font-size: 0.9rem;
-        color: var(--muted-text);
-    }
-
-    .stock-status {
-        font-size: 0.85rem;
-        font-weight: 600;
-        padding: 0.25rem 0.75rem;
-        border-radius: 20px;
-    }
-
-    .in-stock {
-        background-color: #d4edda;
-        color: #155724;
-    }
-
-    .out-of-stock {
-        background-color: #f8d7da;
-        color: #721c24;
-    }
-
-    /* -------------------- Pagination -------------------- */
-    .pagination {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin-top: 3rem;
-        gap: 0.75rem;
-    }
-
-    .pagination a, .pagination span {
-        padding: 0.6rem 1rem;
-        border-radius: 8px;
-        text-decoration: none;
-        font-weight: 500;
-        font-size: 1rem;
-        transition: all 0.2s ease;
-    }
-
-    .pagination a {
-        background: var(--card-bg);
-        color: var(--primary-color);
-        border: 1px solid var(--border-color);
-    }
-
-    .pagination a:hover {
-        background: var(--border-color);
-        transform: translateY(-1px);
-    }
-
-    .pagination span {
-        background: var(--primary-color);
-        color: white;
-        border: 1px solid var(--primary-color);
-    }
-
-    /* -------------------- Empty State -------------------- */
-    .empty-state {
-        grid-column: 1 / -1;
-        text-align: center;
-        padding: 4rem 2rem;
-        color: var(--muted-text);
-    }
-
-    .empty-state i {
-        font-size: 4rem;
-        margin-bottom: 1.5rem;
-        opacity: 0.4;
-    }
-
-    .empty-state p {
-        font-size: 1.25rem;
-        margin: 0;
-    }
-
-    /* -------------------- Responsive Design -------------------- */
-    @media (max-width: 768px) {
-        .filter-section {
-            padding: 1.5rem;
-        }
-
-        .products-header {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 0.5rem;
-        }
-
-        /* Update media query to handle the new layout */
-        .filter-bottom {
-            grid-template-columns: 1fr;
-        }
-
-        .filter-actions {
-            flex-direction: column;
-            width: 100%;
-        }
-
-        .filter-actions .btn {
-            width: 100%;
-        }
-
-        .products-grid {
-            grid-template-columns: 1fr;
-        }
-    }
 </style>
 {% endblock style %}
 
 {% block content %}
-<main class="main-container">
-    <div class="filter-section">
+<main class="pharmacy-main">
+    <button class="pharmacy-filter-toggle" id="filter-toggle">
+        <i class="fas fa-filter"></i>
+    </button>
+    <div class="pharmacy-filter-overlay" id="filter-overlay"></div>
+
+    <aside class="pharmacy-sidebar" id="pharmacy-sidebar">
+        <div class="filter-header">
+            <h3>Filters <button class="close-btn" id="close-filter">&times;</button></h3>
+        </div>
         <form method="get">
-            <div class="filter-top">
-                <div class="filter-group">
-                    <h3>Categories</h3>
-                    <div class="filter-options">
-                        <div class="filter-chip {% if not filters.dosage_form %}active{% endif %}">
-                            <a href="{% url_replace page=1 dosage_form='' %}">All</a>
-                        </div>
-                        {% for d in dosage_forms %}
-                        <div class="filter-chip {% if filters.dosage_form == d.id|stringformat:'s' %}active{% endif %}">
-                            <a href="{% url_replace page=1 dosage_form=d.id %}">{{ d.name }}</a>
-                        </div>
-                        {% endfor %}
+            <div class="pharmacy-filter-group">
+                <h4>Category</h4>
+                <div class="pharmacy-filter-options">
+                    <div class="pharmacy-filter-chip {% if not filters.category %}active{% endif %}">
+                        <a href="{% url_replace category='' page=1 %}">All</a>
                     </div>
+                    {% for cat in categories %}
+                    <div class="pharmacy-filter-chip {% if filters.category == cat.id|stringformat:'s' %}active{% endif %}">
+                        <a href="{% url_replace category=cat.id page=1 %}">{{ cat.name }}</a>
+                    </div>
+                    {% endfor %}
                 </div>
             </div>
 
-            <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 2rem 0;">
-
-            <div class="filter-bottom">
-                <div class="filter-group">
-                    <h3>Price Range ($)</h3>
-                    <div style="display: flex; gap: 8px; align-items: center;">
-                        <input type="number" name="price__gte" value="{{ filters.price__gte|default:'' }}" min="0" placeholder="Min">
-                        <span>-</span>
-                        <input type="number" name="price__lte" value="{{ filters.price__lte|default:'' }}" min="0" placeholder="Max">
+            {% if selected_category %}
+            <div class="pharmacy-filter-group">
+                <h4>Dosage Form</h4>
+                <div class="pharmacy-filter-options">
+                    <div class="pharmacy-filter-chip {% if not filters.dosage_form %}active{% endif %}">
+                        <a href="{% url_replace dosage_form='' category=selected_category.id page=1 %}">All</a>
                     </div>
+                    {% for df in selected_category.dosage_forms %}
+                    <div class="pharmacy-filter-chip {% if filters.dosage_form == df.id|stringformat:'s' %}active{% endif %}">
+                        <a href="{% url_replace dosage_form=df.id category=selected_category.id page=1 %}">{{ df.name }}</a>
+                    </div>
+                    {% endfor %}
                 </div>
+            </div>
+            {% endif %}
 
-                <div class="filter-group">
-                    <h3>Search</h3>
-                    <input type="text" name="search" value="{{ filters.search }}" placeholder="Product name or strength...">
+            <div class="pharmacy-filter-group">
+                <h4>Price (ETB)</h4>
+                <div class="pharmacy-filter-input-group">
+                    <input type="number" name="price__gte" value="{{ filters.price__gte|default:'' }}" placeholder="Min">
+                    <input type="number" name="price__lte" value="{{ filters.price__lte|default:'' }}" placeholder="Max">
                 </div>
+            </div>
 
-                <div class="filter-group">
-                    <h3>Sort By</h3>
-                    <select name="ordering">
-                        <option value="">Default</option>
-                        <option value="price" {% if filters.ordering == "price" %}selected{% endif %}>Price: Low to High</option>
-                        <option value="-price" {% if filters.ordering == "-price" %}selected{% endif %}>Price: High to Low</option>
-                        <option value="name" {% if filters.ordering == "name" %}selected{% endif %}>Name: A-Z</option>
-                        <option value="-name" {% if filters.ordering == "-name" %}selected{% endif %}>Name: Z-A</option>
-                        <option value="stock_quantity" {% if filters.ordering == "stock_quantity" %}selected{% endif %}>Stock: Low to High</option>
-                        <option value="-stock_quantity" {% if filters.ordering == "-stock_quantity" %}selected{% endif %}>Stock: High to Low</option>
-                        <option value="-avg_rating" {% if filters.ordering == "-avg_rating" %}selected{% endif %}>Rating: High to Low</option>
-                        <option value="avg_rating" {% if filters.ordering == "avg_rating" %}selected{% endif %}>Rating: Low to High</option>
-                    </select>
-                </div>
+            <div class="pharmacy-filter-group">
+                <h4>Search</h4>
+                <input type="text" name="search" value="{{ filters.search }}" placeholder="Product name or supplier...">
+            </div>
 
-                <div class="filter-actions">
-                    <button type="submit" class="btn btn-primary">Apply Filters</button>
-                    <a href="{% url 'landing:landing-page' %}" class="btn btn-secondary">Reset</a>
-                </div>
+            <div class="pharmacy-filter-group">
+                <h4>Sort By</h4>
+                <select name="ordering">
+                    <option value="">Popularity</option>
+                    <option value="price" {% if filters.ordering == "price" %}selected{% endif %}>Price: Low to High</option>
+                    <option value="-price" {% if filters.ordering == "-price" %}selected{% endif %}>Price: High to Low</option>
+                    <option value="name" {% if filters.ordering == "name" %}selected{% endif %}>Name: A-Z</option>
+                </select>
+            </div>
+
+            <div class="pharmacy-filter-actions">
+                <button type="submit" class="pharmacy-btn pharmacy-btn-primary">Apply Filters</button>
+                <a href="{% url 'landing:landing-page' %}" class="pharmacy-btn pharmacy-btn-secondary">Reset Filters</a>
             </div>
         </form>
-    </div>
+    </aside>
 
-    <div class="products-header">
-        <h2>Available Products <span class="products-count">({{ page_obj.paginator.count }} listings)</span></h2>
-    </div>
+    <section class="pharmacy-products" id="products-container">
+    {% include 'products_list_partial.html' %}
+    </section>
 
-    <div class="products-grid">
-        {% for p in products %}
-        <a href="{%url 'landing:detail' p.id%}" class="product-card-link">
-            <div class="product-card">
-                <div class="product-image">
-                    {% if p.image %}
-                        <img src="{{ p.image.url }}" alt="{{ p.name }} {{ p.strength }}" class="product-real-image">
-                    {% else %}
-                        <i class="fas fa-pills"></i>
-                    {% endif %}
-                </div>
-                <div class="product-details">
-                    <div class="product-category">{{ p.dosage_form.name }}</div>
-                    <h3 class="product-title">{{ p.name }} {{ p.strength }}</h3>
-                    <div class="product-price">{{ p.price }}(ETB)</div>
-                    <div class="product-reviews">
-                        {% with avg=p.avg_rating %}
-                            {% if avg %}
-                                <div class="star-rating">
-                                    {% for i in "12345"|make_list %}
-                                        {% if forloop.counter <= avg|floatformat:0 %}
-                                            <span class="star filled">★</span>
-                                        {% else %}
-                                            <span class="star">★</span>
-                                        {% endif %}
-                                    {% endfor %}
-                                </div>
-                                <span class="review-count"> ({{ p.reviews.count }})</span>
-                            {% else %}
-                                <span class="review-count">No reviews</span>
-                            {% endif %}
-                        {% endwith %}
-                    </div>
-                    <div class="product-meta">
-                        <span>Available: {{ p.stock_quantity }}+</span>
-                        <span class="stock-status {{ p.stock_quantity|yesno:'in-stock,out-of-stock' }}">
-                            {% if p.stock_quantity > 0 %}In Stock{% else %}Out of Stock{% endif %}
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </a>
-        {% empty %}
-        <div class="empty-state">
-            <i class="fas fa-search"></i>
-            <p>No products found matching your criteria.</p>
-        </div>
-        {% endfor %}
-    </div>
 
-    {% if page_obj.paginator.num_pages > 1 %}
-    <div class="pagination">
-        {% if page_obj.has_previous %}
-            <a href="{% url_replace page=page_obj.previous_page_number %}">Previous</a>
-        {% endif %}
-        
-        {% with current_page=page_obj.number %}
-        {% for num in page_obj.paginator.page_range %}
-            {% if num == 1 or num == page_obj.paginator.num_pages or num == current_page or num == current_page|add:'-1' or num == current_page|add:'1' %}
-                {% if num == current_page %}
-                    <span>{{ num }}</span>
-                {% else %}
-                    <a href="{% url_replace page=num %}">{{ num }}</a>
-                {% endif %}
-            {% elif num == current_page|add:'-2' or num == current_page|add:'2' %}
-                <span class="ellipsis">...</span>
-            {% endif %}
-        {% endfor %}
-        {% endwith %}
-
-        {% if page_obj.has_next %}
-            <a href="{% url_replace page=page_obj.next_page_number %}">Next</a>
-        {% endif %}
-    </div>
-    {% endif %}
 </main>
-{% endblock %}
-{% block script %}{% endblock script %}
+
+{% endblock content %}
+{% block script %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggleButton = document.getElementById('filter-toggle');
+        const closeButton = document.getElementById('close-filter');
+        const sidebar = document.getElementById('pharmacy-sidebar');
+        const overlay = document.getElementById('filter-overlay');
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('show');
+            overlay.classList.toggle('show');
+        }
+
+        toggleButton.addEventListener('click', toggleSidebar);
+        closeButton.addEventListener('click', toggleSidebar);
+        overlay.addEventListener('click', toggleSidebar);
+    });
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('.pharmacy-sidebar form');
+    const productsContainer = document.getElementById('products-container');
+
+    function fetchProducts(url, data) {
+        fetch(url + '?' + new URLSearchParams(data), {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            productsContainer.innerHTML = data.html;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    }
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
+        fetchProducts(window.location.pathname, data);
+    });
+
+    // Handle pagination
+    productsContainer.addEventListener('click', function(e) {
+        if(e.target.classList.contains('pagination-link')) {
+            e.preventDefault();
+            const page = e.target.dataset.page;
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+            data.page = page;
+            fetchProducts(window.location.pathname, data);
+        }
+    });
+});
+</script>
+
+{% endblock script %}

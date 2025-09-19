@@ -1,0 +1,53 @@
+{% for p in products %}
+<a href="{% url 'landing:detail' p.id %}" class="pharmacy-card">
+    <div class="product-image">
+        {% if p.image %}
+        <img src="{{ p.image.url }}" alt="{{ p.name }} {{ p.strength }}">
+        {% else %}
+        <i class="fas fa-pills"></i>
+        {% endif %}
+    </div>
+    <div class="pharmacy-card-body">
+        <div class="pharmacy-card-category">{{ p.dosage_form.name }}</div>
+        <h3>{{ p.name }} {{ p.strength }}</h3>
+        <div class="pharmacy-rating">
+            {% with avg=p.avg_rating|default:0 %}
+            {% for i in "12345"|make_list %}
+            <span class="{% if forloop.counter <= avg|floatformat:0 %}filled{% endif %}">★</span>
+            {% endfor %}
+            <span class="pharmacy-review-count">({{ p.reviews.count }})</span>
+            {% endwith %}
+        </div>
+        <div class="price">
+            {% if p.price and p.price > 0 %}
+                {{ p.price }} ETB
+            {% else %}
+                Price Unavailable
+            {% endif %}
+        </div>
+        <span class="pharmacy-stock {% if p.stock_quantity > 0 %}in-stock{% else %}out-stock{% endif %}">
+            {% if p.stock_quantity > 0 %}In Stock{% else %}Out of Stock{% endif %}
+        </span>
+    </div>
+</a>
+{% empty %}
+<p>No products found matching your criteria. Try adjusting your filters.</p>
+{% endfor %}
+
+{% if page_obj.paginator.num_pages > 1 %}
+<div class="pharmacy-pagination">
+    {% if page_obj.has_previous %}
+    <a href="#" class="pagination-link" data-page="{{ page_obj.previous_page_number }}">&laquo; Prev</a>
+    {% endif %}
+    {% for num in page_obj.paginator.page_range %}
+        {% if num == page_obj.number %}
+            <span class="current">{{ num }}</span>
+        {% else %}
+            <a href="#" class="pagination-link" data-page="{{ num }}">{{ num }}</a>
+        {% endif %}
+    {% endfor %}
+    {% if page_obj.has_next %}
+    <a href="#" class="pagination-link" data-page="{{ page_obj.next_page_number }}">Next &raquo;</a>
+    {% endif %}
+</div>
+{% endif %}

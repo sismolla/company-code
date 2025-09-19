@@ -2,22 +2,35 @@ from django import template
 
 register = template.Library()
 
+# templatetags/custom_filters.py
+from django import template
+from urllib.parse import urlencode, parse_qs
+
+register = template.Library()
+
 @register.simple_tag(takes_context=True)
 def url_replace(context, **kwargs):
     """
-    Returns the full URL with the given kwargs replaced in the GET query.
+    Returns the current URL's query string updated with the provided kwargs.
+    
+    Usage in template:
+        {% url_replace page=2 category='Oral' %}
+        
+    - If value is None, the parameter is removed from the query string.
+    - Preserves all other GET parameters.
+    - Handles multiple values for the same key.
     """
     request = context['request']
-    query = request.GET.dict()
+    
+    # Get current GET parameters as a mutable dict with lists for multiple values
+    query = parse_qs(request.META.get('QUERY_STRING', ''), keep_blank_values=True)
+    
     for key, value in kwargs.items():
-        if value is not None:
-            query[key] = value
-        else:
+        if value is None:
             query.pop(key, None)
-            
-    # Remove the old 'page' parameter if a new one is set
-    # This is a key part of solving your specific problem
-    if 'page' in kwargs:
-        query['page'] = kwargs['page']
-        
-    return '?' + '&'.join(f"{key}={value}" for key, value in query.items())
+        else:
+            # Always store as a list to preserve multi-value parameters
+            query[key] = [str(value)]
+    
+    # Encode query string safely
+    return '?' + urlencode(query, doseq=True)
