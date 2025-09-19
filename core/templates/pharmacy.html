@@ -475,17 +475,6 @@ body {
                 <h4>Search</h4>
                 <input type="text" name="search" value="{{ filters.search }}" placeholder="Product name or supplier...">
             </div>
-
-            <div class="pharmacy-filter-group">
-                <h4>Sort By</h4>
-                <select name="ordering">
-                    <option value="">Popularity</option>
-                    <option value="price" {% if filters.ordering == "price" %}selected{% endif %}>Price: Low to High</option>
-                    <option value="-price" {% if filters.ordering == "-price" %}selected{% endif %}>Price: High to Low</option>
-                    <option value="name" {% if filters.ordering == "name" %}selected{% endif %}>Name: A-Z</option>
-                </select>
-            </div>
-
             <div class="pharmacy-filter-actions">
                 <button type="submit" class="pharmacy-btn pharmacy-btn-primary">Apply Filters</button>
                 <a href="{% url 'landing:landing-page' %}" class="pharmacy-btn pharmacy-btn-secondary">Reset Filters</a>
