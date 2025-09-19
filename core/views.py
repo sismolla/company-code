@@ -6,7 +6,7 @@ from django.views.generic.list import ListView
 from rest_framework.permissions import AllowAny
 from rest_framework import generics
 from rest_framework.filters import SearchFilter
-from .models import ChatMessage, ChatThread, ContactUs, DosageForm, Order, Product, ReportAbuse, Review, Supplier, Notification, UserProducts
+from .models import ChatMessage, ChatThread, ContactUs, DosageForm, Order, Product, ReportAbuse, Review, Supplier, Notification, UserProducts, City
 from .filters import ProductFilter
 from .serializers import ChatMessageSerializer, ChatThreadCreateSerializer, ChatThreadSerializer, ContactUsSerializer, DosageFormSerializer, NotificationSerializer, OrderSerializer, ProductDetailSerializer, ProductProviderSerializer, SupplierOrderSerializer, SupplierUpdateSerializer, ReportAbuseSerializer, ReviewSerializer, SupplierSignupSerializer, UserSerializer
 from django.views.generic import TemplateView
@@ -214,8 +214,6 @@ class ChatThreadCreateAPIView(generics.CreateAPIView):
     def perform_create(self, serializer):
         serializer.save(user_1=self.request.user)
 
-    
-
 class ChatThreadListAPIView(generics.ListAPIView):
     serializer_class = ChatThreadSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -311,8 +309,13 @@ class ProductsView(LoginRequiredMixin,TemplateView):
         return render(request, self.template_name, context)
 
 class SignUpPageView(TemplateView):
-    template_name = 'signup/sighup.html'
-    
+    template_name = 'signup/sighup.html'  # fix typo if needed
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Pass all cities to the template
+        context['cities'] = City.objects.all().order_by('name')
+        return context
 
 class SupplierSignupAPIView(generics.CreateAPIView):
     queryset = Supplier.objects.all()
@@ -400,6 +403,7 @@ class ProductProvider(viewsets.ModelViewSet):
                 "phone": item["supplier"]["phone"],
                 "email": item["supplier"]["email"],
                 "address": item["supplier"]["address"],
+                "city":item['supplier']['city'],
                 "description": item["description"],
                 "average_rating": [p["average_rating"] for p in item["products"]],
                 "logo": item["supplier"]["logo"],  # ✅ single supplier logo

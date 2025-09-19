@@ -16,6 +16,13 @@ class DosageForm(models.Model):
         return self.name
 
 
+class City(models.Model):
+    name = models.CharField(max_length=100)
+    region = models.CharField(max_length=100, blank=True, null=True)  # optional, for info
+
+    def __str__(self):
+        return self.name
+
 class Supplier(models.Model):
 
     RESPONSE_TIME_CHOICES = [
@@ -24,7 +31,6 @@ class Supplier(models.Model):
         ('longer', 'A little longer'),
     ]
 
-
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='supplier_profile', null=True, blank=True)
     name = models.CharField(max_length=100)
     phone = models.CharField(max_length=20, blank=False, null=False)
@@ -32,6 +38,7 @@ class Supplier(models.Model):
     telegram_link = models.URLField(blank=True, null=True)
     logo = models.ImageField(upload_to='supplier_logos/', blank=True, null=True)
     address = models.TextField(blank=True, null=True)
+    city = models.ForeignKey(City, on_delete=models.SET_NULL, null=True, blank=True)
     response_time = models.CharField(max_length=10, choices=RESPONSE_TIME_CHOICES, default='instantly')
     created_at = models.DateTimeField(auto_now=True)
     last_activity = models.DateTimeField(null=True, blank=True)

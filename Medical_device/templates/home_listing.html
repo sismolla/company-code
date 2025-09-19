@@ -674,7 +674,6 @@
 
 {% block content %}
 
-
 <div class="container">
     <div class="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-4">
     <a href="{% url 'landing:user-products' %}" 
@@ -880,7 +879,6 @@ document.addEventListener('DOMContentLoaded', () => {
     qs('#close-form').addEventListener('click', closeForm);
     qs('#product-form').addEventListener('submit', submitProductForm);
     qs('#delete-btn').addEventListener('click', onDeleteProductClicked);
-    qs('#create-new-btn').addEventListener('click', openEmptyForm);
     
     // Search and filter event listeners
     qs('#search-btn').addEventListener('click', applyFilters);
@@ -892,29 +890,7 @@ document.addEventListener('DOMContentLoaded', () => {
     qs('#manufacturer-filter').addEventListener('change', applyFilters);
     qs('#price-range-filter').addEventListener('change', applyFilters);
     qs('#sort-by').addEventListener('change', applyFilters);
-    
-    // View toggle
-    qs('#grid-view-btn').addEventListener('click', () => toggleView(true));
-    qs('#list-view-btn').addEventListener('click', () => toggleView(false));
 });
-
-/* ---------- Toggle between grid and list view ---------- */
-function toggleView(gridView) {
-    isGridView = gridView;
-    const productList = qs('#product-list');
-    
-    if (isGridView) {
-        productList.classList.remove('list-view');
-        qs('#grid-view-btn').classList.add('active');
-        qs('#list-view-btn').classList.remove('active');
-    } else {
-        productList.classList.add('list-view');
-        qs('#grid-view-btn').classList.remove('active');
-        qs('#list-view-btn').classList.add('active');
-    }
-    
-    renderProductList(filteredProducts.length ? filteredProducts : allProducts);
-}
 
 /* ---------- Clear search and filters ---------- */
 function clearSearch() {
@@ -952,6 +928,11 @@ async function fetchCategories() {
 /* ---------- Populate category filter ---------- */
 function populateCategoryFilter() {
     const filter = qs('#category-filter');
+    // Clear existing options except the first one
+    while (filter.options.length > 1) {
+        filter.remove(1);
+    }
+    
     categoriesData.forEach(c => {
         const opt = document.createElement('option');
         opt.value = c.id;
@@ -971,7 +952,10 @@ async function fetchProducts() {
         filteredProducts = [...allProducts];
         
         // Extract unique manufacturers
-        manufacturers = [...new Set(allProducts.map(p => p.manufacturer).filter(Boolean))];
+        manufacturers = [...new Set(allProducts
+            .map(p => p.manufacturer)
+            .filter(Boolean)
+            .sort())];
         populateManufacturerFilter();
         
         renderProductList(allProducts);
@@ -1002,7 +986,7 @@ function populateManufacturerFilter() {
         filter.remove(1);
     }
     
-    manufacturers.sort().forEach(m => {
+    manufacturers.forEach(m => {
         const opt = document.createElement('option');
         opt.value = m;
         opt.textContent = m;
@@ -1012,75 +996,99 @@ function populateManufacturerFilter() {
 
 /* ---------- Apply search and filters ---------- */
 function applyFilters() {
-    const searchTerm = qs('#search-input').value.toLowerCase();
-    const categoryFilter = qs('#category-filter').value;
-    const manufacturerFilter = qs('#manufacturer-filter').value;
-    const priceRange = qs('#price-range-filter').value;
-    const sortBy = qs('#sort-by').value;
-    
-    filteredProducts = [...allProducts];
-    
-    // Apply search
-    if (searchTerm) {
-        filteredProducts = filteredProducts.filter(product => 
-            (product.name && product.name.toLowerCase().includes(searchTerm)) ||
-            (product.manufacturer && product.manufacturer.toLowerCase().includes(searchTerm)) ||
-            (product.description && product.description.toLowerCase().includes(searchTerm)) ||
-            (product.intended_use && product.intended_use.toLowerCase().includes(searchTerm))
-        );
-    }
-    
-    // Apply category filter
-    if (categoryFilter) {
-        filteredProducts = filteredProducts.filter(product => 
-            String(product.category) === categoryFilter
-        );
-    }
-    
-    // Apply manufacturer filter
-    if (manufacturerFilter) {
-        filteredProducts = filteredProducts.filter(product => 
-            product.manufacturer === manufacturerFilter
-        );
-    }
-    
-    // Apply price range filter
-    if (priceRange) {
-        if (priceRange === '1000+') {
+    try {
+        const searchTerm = (qs('#search-input').value || '').toLowerCase().trim();
+        const categoryFilter = qs('#category-filter').value;
+        const manufacturerFilter = qs('#manufacturer-filter').value;
+        const priceRange = qs('#price-range-filter').value;
+        const sortBy = qs('#sort-by').value;
+
+        // Start fresh
+        filteredProducts = Array.isArray(allProducts) ? [...allProducts] : [];
+
+        // Search by name, manufacturer, and description
+        if (searchTerm) {
+            filteredProducts = filteredProducts.filter(product => {
+                if (!product) return false;
+                
+                const nameMatch = product.name && product.name.toLowerCase().includes(searchTerm);
+                const manufacturerMatch = product.manufacturer && product.manufacturer.toLowerCase().includes(searchTerm);
+                const descriptionMatch = product.description && product.description.toLowerCase().includes(searchTerm);
+                const intendedUseMatch = product.intended_use && product.intended_use.toLowerCase().includes(searchTerm);
+                
+                return nameMatch || manufacturerMatch || descriptionMatch || intendedUseMatch;
+            });
+        }
+
+        // Category filter
+        if (categoryFilter) {
             filteredProducts = filteredProducts.filter(product => 
-                product.price && parseFloat(product.price) >= 1000
-            );
-        } else {
-            const [min, max] = priceRange.split('-').map(Number);
-            filteredProducts = filteredProducts.filter(product => 
-                product.price && parseFloat(product.price) >= min && parseFloat(product.price) <= max
+                product && String(product.category) === String(categoryFilter)
             );
         }
+
+        // Manufacturer filter
+        if (manufacturerFilter) {
+            filteredProducts = filteredProducts.filter(product =>
+                product && product.manufacturer === manufacturerFilter
+            );
+        }
+
+        // Price filter
+        if (priceRange) {
+            filteredProducts = filteredProducts.filter(product => {
+                if (!product || !product.price) return false;
+                
+                const price = parseFloat(product.price);
+                if (isNaN(price)) return false;
+
+                if (priceRange === '1000+') return price >= 1000;
+                
+                const [min, max] = priceRange.split('-').map(Number);
+                return price >= min && price <= max;
+            });
+        }
+
+        // Sorting
+        if (sortBy) {
+            const sortField = sortBy.startsWith('-') ? sortBy.substring(1) : sortBy;
+            const sortOrder = sortBy.startsWith('-') ? -1 : 1;
+
+            filteredProducts.sort((a, b) => {
+                if (!a || !b) return 0;
+                
+                let aValue = a[sortField] ?? '';
+                let bValue = b[sortField] ?? '';
+
+                if (sortField === 'price') {
+                    aValue = parseFloat(aValue) || 0;
+                    bValue = parseFloat(bValue) || 0;
+                } else {
+                    aValue = String(aValue).toLowerCase();
+                    bValue = String(bValue).toLowerCase();
+                }
+
+                if (aValue < bValue) return -1 * sortOrder;
+                if (aValue > bValue) return 1 * sortOrder;
+                return 0;
+            });
+        }
+
+        // Render results
+        renderProductList(filteredProducts);
+        updateResultsCount(filteredProducts.length);
+
+    } catch (err) {
+        console.error("Error applying filters:", err);
+        qs('#product-list').innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h3>Something went wrong</h3>
+                <p>We couldn't apply filters. Please try again.</p>
+                <button class="btn btn-outline" onclick="clearSearch()">Clear filters</button>
+            </div>
+        `;
     }
-    
-    // Apply sorting
-    if (sortBy) {
-        const sortField = sortBy.startsWith('-') ? sortBy.substring(1) : sortBy;
-        const sortOrder = sortBy.startsWith('-') ? -1 : 1;
-        
-        filteredProducts.sort((a, b) => {
-            let aValue = a[sortField] || '';
-            let bValue = b[sortField] || '';
-            
-            // Handle numeric sorting for price
-            if (sortField === 'price') {
-                aValue = parseFloat(aValue) || 0;
-                bValue = parseFloat(bValue) || 0;
-            }
-            
-            if (aValue < bValue) return -1 * sortOrder;
-            if (aValue > bValue) return 1 * sortOrder;
-            return 0;
-        });
-    }
-    
-    renderProductList(filteredProducts);
-    updateResultsCount(filteredProducts.length);
 }
 
 /* ---------- Show/hide loading spinner ---------- */
@@ -1092,7 +1100,7 @@ function showLoading(show) {
 function renderProductList(products) {
     const container = qs('#product-list');
     
-    if (!products.length) {
+    if (!products || !products.length) {
         container.innerHTML = `
             <div class="empty-state">
                 <i class="fas fa-search"></i>
@@ -1109,6 +1117,8 @@ function renderProductList(products) {
     
     container.innerHTML = '';
     products.forEach(p => {
+        if (!p) return;
+        
         const card = document.createElement('div');
         card.className = 'product-card';
         
@@ -1132,7 +1142,6 @@ function renderProductList(products) {
                 </div>
                 
                 <div class="product-actions">
-
                     <button class="btn" data-action="edit" data-id="${p.id}">
                         <i class="fas fa-edit"></i> Edit
                     </button>
@@ -1144,13 +1153,6 @@ function renderProductList(products) {
 
     // attach handlers
     qsa('[data-action="edit"]').forEach(b => b.addEventListener('click', (e)=> editProduct(e.target.closest('button').dataset.id)));
-    qsa('[data-action="view"]').forEach(b => b.addEventListener('click', (e)=> viewProduct(e.target.closest('button').dataset.id)));
-}
-
-/* ---------- View product details ---------- */
-function viewProduct(id) {
-    alert(`View details for product ${id}. This could open a modal or detail page in a real application.`);
-    // In a real app, this would show a modal or navigate to a detail page
 }
 
 /* ---------- Get category name by ID ---------- */

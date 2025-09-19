@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import ChatMessage, ChatThread, ContactUs, DosageForm, Notification, Order, OrderItem, Product, ReportAbuse, Review, UserProducts
+from .models import ChatMessage, ChatThread, ContactUs, DosageForm, Notification, Order, OrderItem, Product, ReportAbuse, Review, UserProducts, City
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from django.db.models import Q
@@ -186,24 +186,28 @@ class ChatThreadCreateSerializer(serializers.ModelSerializer):
     
 
 class SupplierSignupSerializer(serializers.ModelSerializer):
-    # Fields for User creation
     username = serializers.CharField(write_only=True)
     email = serializers.EmailField(write_only=True)
     password = serializers.CharField(write_only=True)
-    
+
     whatsapp_link = serializers.URLField(required=False, allow_blank=True)
     telegram_link = serializers.URLField(required=False, allow_blank=True)
-    address = serializers.CharField(required=False, allow_blank=True)
     logo = serializers.ImageField(required=False)
     response_time = serializers.CharField(required=False, allow_blank=True)
+    
+    city = serializers.PrimaryKeyRelatedField(
+        queryset=City.objects.all(),
+        required=True,
+        write_only=True
+    )
+    address = serializers.CharField(required=False, allow_blank=True)
 
     class Meta:
         model = Supplier
         fields = [
             'username', 'email', 'password', 'name', 'phone',
-            'whatsapp_link', 'telegram_link', 'logo', 'address', 'response_time'
+            'whatsapp_link', 'telegram_link', 'logo', 'city', 'address', 'response_time'
         ]
-
 
     def validate_username(self, value):
         if User.objects.filter(username=value).exists():
@@ -216,18 +220,15 @@ class SupplierSignupSerializer(serializers.ModelSerializer):
         return value
 
     def create(self, validated_data):
-        # Extract user data
         username = validated_data.pop('username')
         email = validated_data.pop('email')
         password = validated_data.pop('password')
 
-        # Create User
         user = User(username=username, email=email)
         user.set_password(password)
         user.save()
 
         supplier = Supplier.objects.create(user=user, **validated_data)
-
         return supplier
 
 class UserLoginSerializer(serializers.Serializer):
@@ -293,6 +294,7 @@ class ProductSupplierSerializer(serializers.ModelSerializer):
             'name',
             'email',
             'phone',
+            'city',
             'whatsapp_link',
             'telegram_link',
             'logo',
@@ -320,6 +322,7 @@ class ProductProviderSerializer(serializers.ModelSerializer):
             'bulk_discount_available',
             'offer_delivery',
             'medical_devices',
+
         ]
 
     def get_products(self, obj):

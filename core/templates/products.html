@@ -4,6 +4,8 @@
 {% block title %}My Products - Medical Product Management System{% endblock %}
 {% block meta_description %}Manage your medical Device products, inventory, and pricing efficiently with our comprehensive product management system.{% endblock %}
 
+the correct this styling for the page and correct it for more responsiveness and 
+
 {% block style %}
     <style>
         :root {
@@ -964,21 +966,36 @@
             </span>
         </div>
         
-        <div class="search-box">
-            <i class="fas fa-search search-icon"></i>
-            <input type="text" class="search-input" id="searchInput" placeholder="Search products by medicine name...">
-        </div>
-        
         <div class="filter-content" id="filterContent" style="display: none;">
+            <div class="search-box">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" id="searchInput" placeholder="Search products by medicine name or description...">
+            </div>
+
             <div class="filter-group">
                 <label for="categoryFilter">Category</label>
                 <select class="filter-select" id="categoryFilter">
                     <option value="">All Categories</option>
-                    <option value="tablet">Tablets</option>
-                    <option value="capsule">Capsules</option>
-                    <option value="syrup">Syrups</option>
-                    <option value="injection">Injections</option>
-                    <option value="cream">Creams</option>
+                    <option value="Tablet">Tablets</option>
+                    <option value="Capsule">Capsules</option>
+                    <option value="Syrup">Syrups</option>
+                    <option value="Injection">Injections</option>
+                    <option value="Cream">Creams</option>
+                    <option value="Suspension">Suspensions</option>
+                    <option value="Ointment">Ointments</option>
+                    <option value="Gel">Gels</option>
+                    <option value="Lotion">Lotions</option>
+                    <option value="Suppository">Suppositories</option>
+                    <option value="Powder">Powders</option>
+                    <option value="Drops (Eye/Ear/Nasal)">Drops</option>
+                    <option value="Inhaler">Inhalers</option>
+                    <option value="Patch">Patches</option>
+                    <option value="Granules">Granules</option>
+                    <option value="Mouthwash">Mouthwashes</option>
+                    <option value="Lozenge">Lozenges</option>
+                    <option value="Solution">Solutions</option>
+                    <option value="Emulsion">Emulsions</option>
+                    <option value="Spray">Sprays</option>
                 </select>
             </div>
             
@@ -986,9 +1003,9 @@
                 <label for="stockFilter">Stock Status</label>
                 <select class="filter-select" id="stockFilter">
                     <option value="">All Statuses</option>
-                    <option value="in_stock">In Stock</option>
-                    <option value="low_stock">Low Stock</option>
-                    <option value="out_of_stock">Out of Stock</option>
+                    <option value="in_stock">In Stock ( > 10 )</option>
+                    <option value="low_stock">Low Stock (1-10)</option>
+                    <option value="out_of_stock">Out of Stock (0)</option>
                 </select>
             </div>
             
@@ -1035,98 +1052,99 @@
                 <option value="expiry_asc">Expiry (Soonest)</option>
                 <option value="expiry_desc">Expiry (Farthest)</option>
             </select>
-        </div>
     </div>
+</div>
 
-    <!-- Bulk Upload Instructions Section -->
-    <section class="bulk-upload-docs" aria-labelledby="bulk-upload-title">
-        <h3 id="bulk-upload-title"><i class="fas fa-exclamation-triangle" aria-hidden="true"></i> Important: Bulk Upload Instructions</h3>
-        
-        <p><strong>Quick Note:</strong> Required fields: <span class="highlight">name, strength, price, stock quantity, dosage form</span>.</p>
-        
-        <!-- Collapsible detailed section -->
-        <div class="bulk-upload-details" id="bulkUploadDetails" style="display: none;">
-            <h4>1. File Structure</h4>
-            <p>The first row of your Excel must contain headers. Common accepted names:</p>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Field</th>
-                        <th>Accepted Header Names Of Your Excel</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr><td>Product Name</td><td>name, product name, product_name</td></tr>
-                    <tr><td>Strength</td><td>strength, dose</td></tr>
-                    <tr><td>Price</td><td>price, cost, unit price</td></tr>
-                    <tr><td>Stock Quantity</td><td>stock_quantity, stock quantity, quantity, stock, stock qty</td></tr>
-                    <tr><td>Dosage Form</td><td>dosage_form_id, dosage, dosage form, form</td></tr>
-                    <tr><td>Expiration Date (optional)</td><td>expire_date, expiry, expire date, expiry date, expiration date</td></tr>
-                </tbody>
-            </table>
-
-            <h4>2. Supported Dosage Forms</h4>
-            <p>Only the following dosage forms are accepted (case-insensitive):</p>
-            <ul>
-                <li>Tablet, Capsule, Injection, Syrup, Suspension</li>
-                <li>Cream, Ointment, Gel, Lotion, Suppository</li>
-                <li>Powder, Drops (Eye/Ear/Nasal), Inhaler, Patch, Granules</li>
-                <li>Mouthwash, Lozenge, Solution, Emulsion, Spray</li>
-            </ul>
-
-            <h4>3. Data Rules</h4>
-            <ul>
-                <li>Required fields: name, strength, price, stock_quantity, dosage_form_id.</li>
-                <li>Dosage Form must match exactly one of the supported forms.</li>
-                <li>Expiration Date is optional; if present, it must be a valid date (YYYY-MM-DD, MM/DD/YYYY).</li>
-            </ul>
-
-            <h4>4. Upload Behavior</h4>
-            <ul>
-                <li>Existing products (same name, strength, dosage form, supplier) are updated.</li>
-                <li>New products are created if no match exists.</li>
-                <li>Errors are recorded per row; upload continues even if some rows fail.</li>
-            </ul>
-
-            <h4>5. Post-Upload Feedback</h4>
-            <ul>
-                <li>Success: shows how many new products were created and how many existing products were updated.</li>
-                <li>Errors: lists row numbers with problems for easy correction.</li>
-            </ul>
-        </div>
-
-        <button class="toggle-details-btn" onclick="toggleBulkUploadDetails()" aria-expanded="false" aria-controls="bulkUploadDetails">
-            Show More
-        </button>
-    </section>
-
-    <table class="products-table" data-role="product-table">
-        <thead>
-            <tr>
-                <th scope="col">Product</th>
-                <th scope="col">Strength</th>
-                <th scope="col">Price (ETB)</th>
-                <th scope="col">Stock</th>
-                <th scope="col">Expiration Date</th>
-                <th scope="col">Reviews</th>
-                <th scope="col">Actions</th>
-            </tr>
-        </thead>
-        <tbody id="productTableBody" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-            <!-- Products will be loaded here -->
-        </tbody>
-    </table>
-
-    <div class="mobile-products" id="mobileProductCards" data-role="product-card">
-        <!-- Mobile product cards will be loaded here -->
-    </div>
+<!-- Bulk Upload Instructions Section -->
+<section class="bulk-upload-docs" aria-labelledby="bulk-upload-title">
+    <h3 id="bulk-upload-title"><i class="fas fa-exclamation-triangle" aria-hidden="true"></i> Important: Bulk Upload Instructions</h3>
     
-    <!-- Pagination -->
-    <div class="pagination" id="pagination">
-        <!-- Pagination buttons will be added here -->
+    <p><strong>Quick Note:</strong> Required fields: <span class="highlight">name, strength, price, stock quantity, dosage form</span>.</p>
+    
+    <!-- Collapsible detailed section -->
+    <div class="bulk-upload-details" id="bulkUploadDetails" style="display: none;">
+        <h4>1. File Structure</h4>
+        <p>The first row of your Excel must contain headers. Common accepted names:</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Accepted Header Names Of Your Excel</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>Product Name</td><td>name, product name, product_name</td></tr>
+                <tr><td>Strength</td><td>strength, dose</td></tr>
+                <tr><td>Price</td><td>price, cost, unit price</td></tr>
+                <tr><td>Stock Quantity</td><td>stock_quantity, stock quantity, quantity, stock, stock qty</td></tr>
+                <tr><td>Dosage Form</td><td>dosage_form_id, dosage, dosage form, form</td></tr>
+                <tr><td>Expiration Date (optional)</td><td>expire_date, expiry, expire date, expiry date, expiration date</td></tr>
+            </tbody>
+        </table>
+
+        <h4>2. Supported Dosage Forms</h4>
+        <p>Only the following dosage forms are accepted (case-insensitive):</p>
+        <ul>
+            <li>Tablet, Capsule, Injection, Syrup, Suspension</li>
+            <li>Cream, Ointment, Gel, Lotion, Suppository</li>
+            <li>Powder, Drops (Eye/Ear/Nasal), Inhaler, Patch, Granules</li>
+            <li>Mouthwash, Lozenge, Solution, Emulsion, Spray</li>
+        </ul>
+
+        <h4>3. Data Rules</h4>
+        <ul>
+            <li>Required fields: name, strength, price, stock_quantity, dosage_form_id.</li>
+            <li>Dosage Form must match exactly one of the supported forms.</li>
+            <li>Expiration Date is optional; if present, it must be a valid date (YYYY-MM-DD, MM/DD/YYYY).</li>
+        </ul>
+
+        <h4>4. Upload Behavior</h4>
+        <ul>
+            <li>Existing products (same name, strength, dosage form, supplier) are updated.</li>
+            <li>New products are created if no match exists.</li>
+            <li>Errors are recorded per row; upload continues even if some rows fail.</li>
+        </ul>
+
+        <h4>5. Post-Upload Feedback</h4>
+        <ul>
+            <li>Success: shows how many new products were created and how many existing products were updated.</li>
+            <li>Errors: lists row numbers with problems for easy correction.</li>
+        </ul>
     </div>
+
+    <button class="toggle-details-btn" onclick="toggleBulkUploadDetails()" aria-expanded="false" aria-controls="bulkUploadDetails">
+        Show More
+    </button>
+</section>
+
+<table class="products-table" data-role="product-table">
+    <thead>
+        <tr>
+            <th scope="col">Product</th>
+            <th scope="col">Strength</th>
+            <th scope="col">Price (ETB)</th>
+            <th scope="col">Stock</th>
+            <th scope="col">Expiration Date</th>
+            <th scope="col">Reviews</th>
+            <th scope="col">Actions</th>
+        </tr>
+    </thead>
+    <tbody id="productTableBody" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <!-- Products will be loaded here -->
+    </tbody>
+</table>
+
+<div class="mobile-products" id="mobileProductCards" data-role="product-card">
+    <!-- Mobile product cards will be loaded here -->
+</div>
+
+<!-- Pagination -->
+<div class="pagination" id="pagination">
+    <!-- Pagination buttons will be added here -->
+</div>
 </main>
 {% endblock %}
+
 
 {% block script %}
 <script>
@@ -1195,9 +1213,11 @@ function toggleBulkUploadDetails() {
     if (details.style.display === 'none') {
         details.style.display = 'block';
         btn.textContent = 'See Less';
+        btn.setAttribute('aria-expanded', 'true');
     } else {
         details.style.display = 'none';
         btn.textContent = 'Show More';
+        btn.setAttribute('aria-expanded', 'false');
     }
 }
 
@@ -1207,11 +1227,6 @@ function initFilters() {
     const filterContent = document.getElementById('filterContent');
     const filterToggleBtn = document.getElementById('filterToggleBtn');
     const searchInput = document.getElementById('searchInput');
-    const categoryFilter = document.getElementById('categoryFilter');
-    const stockFilter = document.getElementById('stockFilter');
-    const minPrice = document.getElementById('minPrice');
-    const maxPrice = document.getElementById('maxPrice');
-    const expiryFilter = document.getElementById('expiryFilter');
     const applyFilters = document.getElementById('applyFilters');
     const resetFilters = document.getElementById('resetFilters');
     const sortSelect = document.getElementById('sortSelect');
@@ -1220,11 +1235,13 @@ function initFilters() {
     if (filterToggle && filterContent) {
         filterToggle.addEventListener('click', function() {
             if (filterContent.style.display === 'none') {
-                filterContent.style.display = 'grid';
+                filterContent.style.display = 'grid'; // Changed to grid for better layout
                 filterToggleBtn.innerHTML = '<i class="fas fa-chevron-up"></i>';
+                filterToggleBtn.setAttribute('aria-expanded', 'true');
             } else {
                 filterContent.style.display = 'none';
                 filterToggleBtn.innerHTML = '<i class="fas fa-chevron-down"></i>';
+                filterToggleBtn.setAttribute('aria-expanded', 'false');
             }
         });
     }
@@ -1236,26 +1253,31 @@ function initFilters() {
     
     if (resetFilters) {
         resetFilters.addEventListener('click', function() {
-            searchInput.value = '';
-            categoryFilter.value = '';
-            stockFilter.value = '';
-            minPrice.value = '';
-            maxPrice.value = '';
-            expiryFilter.value = '';
+            document.getElementById('searchInput').value = '';
+            document.getElementById('categoryFilter').value = '';
+            document.getElementById('stockFilter').value = '';
+            document.getElementById('minPrice').value = '';
+            document.getElementById('maxPrice').value = '';
+            document.getElementById('expiryFilter').value = '';
             sortSelect.value = 'name_asc';
             localStorage.setItem('currentPage', '1');
-            filteredProducts = [...allProducts];
-            sortProducts();
-            updateProductDisplay();
-            updatePagination();
-            updateResultsCount();
+            // Re-apply filters to reset the display
+            filterProducts(); 
         });
     }
     
+    // Search input will also trigger filter on debounce
     if (searchInput) {
         searchInput.addEventListener('keyup', debounce(filterProducts, 300));
     }
     
+    // Other filter fields (category, stock, price, expiry) will also trigger filter on change
+    document.getElementById('categoryFilter').addEventListener('change', filterProducts);
+    document.getElementById('stockFilter').addEventListener('change', filterProducts);
+    document.getElementById('minPrice').addEventListener('change', filterProducts);
+    document.getElementById('maxPrice').addEventListener('change', filterProducts);
+    document.getElementById('expiryFilter').addEventListener('change', filterProducts);
+
     if (sortSelect) {
         sortSelect.addEventListener('change', function() {
             sortProducts();
@@ -1281,26 +1303,25 @@ function filterProducts() {
     const expiryStatus = expiryFilter.value;
     
     filteredProducts = allProducts.filter(product => {
-        // Search term filter
+        // Search term filter (name, description, strength)
         if (searchTerm && !(
             product.name.toLowerCase().includes(searchTerm) ||
             (product.description && product.description.toLowerCase().includes(searchTerm)) ||
-            (product.category && product.category.toLowerCase().includes(searchTerm))
-            (console.log(product.category.toLowerCase().includes(searchTerm)))
+            (product.strength && product.strength.toLowerCase().includes(searchTerm))
         )) {
             return false;
         }
         
-        // Category filter
+        // Category filter (using dosage_form_name which should match option values like "Tablet")
         if (category && product.dosage_form_name !== category) {
             return false;
         }
         
         // Stock status filter
         if (stockStatus) {
-            if (stockStatus === 'in_stock' && product.stock_quantity <= 0) return false;
-            if (stockStatus === 'low_stock' && (product.stock_quantity <= 0 || product.stock_quantity > 10)) return false;
-            if (stockStatus === 'out_of_stock' && product.stock_quantity > 0) return false;
+            if (stockStatus === 'in_stock' && product.stock_quantity <= 10) return false; // In Stock ( > 10 )
+            if (stockStatus === 'low_stock' && (product.stock_quantity === 0 || product.stock_quantity > 10)) return false; // Low Stock (1-10)
+            if (stockStatus === 'out_of_stock' && product.stock_quantity > 0) return false; // Out of Stock (0)
         }
         
         // Price range filter
@@ -1311,13 +1332,16 @@ function filterProducts() {
         // Expiry status filter
         if (expiryStatus) {
             const today = new Date();
+            today.setHours(0, 0, 0, 0); // Normalize today's date to start of day
             const expiryDate = new Date(product.expire_date);
-            const diffTime = expiryDate - today;
+            expiryDate.setHours(0, 0, 0, 0); // Normalize expiry date to start of day
+
+            const diffTime = expiryDate.getTime() - today.getTime();
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
             
-            if (expiryStatus === 'expired' && diffDays >= 0) return false;
-            if (expiryStatus === 'expiring_soon' && (diffDays > 30 || diffDays < 0)) return false;
-            if (expiryStatus === 'valid' && diffDays < 0) return false;
+            if (expiryStatus === 'expired' && diffDays >= 0) return false; // Expired if diffDays < 0
+            if (expiryStatus === 'expiring_soon' && (diffDays > 30 || diffDays <= 0)) return false; // Expiring soon if 1 <= diffDays <= 30
+            if (expiryStatus === 'valid' && diffDays <= 30) return false; // Valid if diffDays > 30
         }
         
         return true;
@@ -1326,6 +1350,8 @@ function filterProducts() {
     // Sort products
     sortProducts();
     
+    // Reset to first page after applying filters
+    localStorage.setItem('currentPage', '1');
     updateProductDisplay();
     updatePagination();
     updateResultsCount();
@@ -1482,6 +1508,8 @@ async function fetchProducts() {
         allProducts = data.results || [];
         filteredProducts = [...allProducts];
         
+        // Initial display after fetching
+        sortProducts(); // Apply default sort
         updateProductDisplay();
         updatePagination();
         updateResultsCount();
@@ -1673,7 +1701,7 @@ function createDeleteConfirmationModal(product) {
             <button class="close-modal-btn">&times;</button>
         </div>
         <div class="modal-body">
-            <p>Are you sure you want to delete the product **${product.name}**?</p>
+            <p>Are you sure you want to delete the product <strong>${product.name}</strong>?</p>
             <div class="modal-actions" style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px;">
                 <button type="button" 
                         class="btn btn-secondary close-modal-btn" 
@@ -1922,15 +1950,15 @@ function showReviewsModal(product) {
             <button class="close-modal-btn" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #6c757d;">&times;</button>
         </div>
         <div class="modal-body" style="padding: 20px;">
-            ${product.reviews.length > 0 ? `
+            ${product.reviews && product.reviews.length > 0 ? `
                 <ul class="reviews-list" style="list-style: none; padding: 0; margin: 0;">
                     ${product.reviews.map(review => `
                         <li class="review-item" style="background: #f8f9fa; border-radius: 8px; padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
                             <div class="review-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                                <strong style="font-size: 16px; color: #2c3e50;">${review.reviewer_name}</strong>
+                                <strong style="font-size: 16px; color: #2c3e50;">${review.reviewer_name || 'Anonymous'}</strong>
                                 <span class="star-rating" style="color: #FFD700; font-size: 18px; letter-spacing: 2px;">${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}</span>
                             </div>
-                            <p class="review-comment" style="margin: 0 0 12px 0; color: #34495e; line-height: 1.5; font-size: 14px;">${review.comment}</p>
+                            <p class="review-comment" style="margin: 0 0 12px 0; color: #34495e; line-height: 1.5; font-size: 14px;">${review.comment || 'No comment'}</p>
                             <span class="review-date" style="font-size: 12px; color: #7f8c8d;">${new Date(review.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
                         </li>
                     `).join('')}
@@ -1992,7 +2020,7 @@ function createProductTableRow(product) {
         </td>
         <td>${new Date(product.expire_date).toLocaleDateString()}</td>
         <td>
-            <button class="show-reviews-btn review-link" data-product-id="${product.id}">${product.reviews.length} reviews</button>
+            <button class="show-reviews-btn review-link" data-product-id="${product.id}">${product.reviews ? product.reviews.length : 0} reviews</button>
         </td>
         <td>
             <button class="action-btn edit-btn" title="Edit" data-id="${product.id}">
@@ -2043,7 +2071,7 @@ function createProductMobileCard(product) {
             <div><strong>Exp. Date:</strong> ${new Date(product.expire_date).toLocaleDateString()}</div>
             <div>
                 <strong>Reviews:</strong> 
-                <button class="show-reviews-btn review-link" data-product-id="${product.id}">${product.reviews.length}</button>
+                <button class="show-reviews-btn review-link" data-product-id="${product.id}">${product.reviews ? product.reviews.length : 0}</button>
             </div>
         </div>
         <div class="product-card-actions">
@@ -2076,12 +2104,11 @@ function createProductMobileCard(product) {
 
 // Helper function to determine stock status CSS class
 function getStockStatusClass(stock) {
-    if (stock > 50) return 'in-stock';
+    if (stock > 10) return 'in-stock';
     if (stock > 0) return 'low-stock';
     return 'out-of-stock';
 }
 
-// Excel Upload Handling
 // Excel Upload Handling
 async function handleExcelUpload(event) {
     const file = event.target.files[0];

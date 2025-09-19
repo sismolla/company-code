@@ -689,7 +689,18 @@ body {
                 {% endif %}
             </h1>
             <div class="supplier-meta">
-                <div class="meta-item"><i class="fas fa-map-marker-alt"></i> {{ supplier.address|default:"Location not specified" }}</div>
+            <div class="meta-item">
+            <i class="fas fa-map-marker-alt"></i>
+            {% if supplier.city and supplier.address %}
+                {{ supplier.city }}, {{ supplier.address }}
+            {% elif supplier.city %}
+                {{ supplier.city }}
+            {% elif supplier.address %}
+                {{ supplier.address }}
+            {% else %}
+                N/A
+            {% endif %}
+            </div>
                 <div class="meta-item"><i class="fas fa-boxes"></i> {{ products|length }} Devices</div>
             </div>
         </div>

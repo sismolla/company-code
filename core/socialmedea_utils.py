@@ -54,6 +54,13 @@ def generate_telegram_post(products, post_templates=POST_TEMPLATES):
 
     # Pick template
     template = post_templates[0]  # you can still random.choice(post_templates)
+    city = getattr(supplier, "city", "") or ""
+    address = getattr(supplier, "address", "") or ""
+
+    if city or address:
+        location = f"{city} {address}".strip()
+    else:
+        location = "Not specified"
 
     # Link ID fallback
     obj = UserProducts.objects.filter(supplier=supplier).first()
@@ -65,7 +72,7 @@ def generate_telegram_post(products, post_templates=POST_TEMPLATES):
         supplier_name=supplier.name,
         products_list=products_list,
         contact_info=contact_info,
-        location=supplier.address or "",
+        location=location,
         link_url=link_url,
         catalog_url=catalog_url
     )
@@ -271,6 +278,14 @@ def generate_device_post(devices, post_templates=POST_TEMPLATES_PHOTO, as_captio
     contact_info = "\n".join(contacts) if contacts else "📞 Contact supplier directly"
 
     # Template
+    city = getattr(supplier, "city", "") or ""
+    address = getattr(supplier, "address", "") or ""
+
+    if city or address:
+        location = f"{city} {address}".strip()
+    else:
+        location = "Not specified"
+
     template = post_templates[0]
 
     catalog_url = "https://pharmagebeya.com/list/device/"
@@ -278,7 +293,7 @@ def generate_device_post(devices, post_templates=POST_TEMPLATES_PHOTO, as_captio
         supplier_name=supplier.name,
         device_list=device_list,
         contact_info=contact_info,
-        location=getattr(supplier, "address", "Not specified"),
+        location=location,
         catalog_url=catalog_url,
     )
 

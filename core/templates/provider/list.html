@@ -334,8 +334,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="supplier-info">
                         <h3 class="supplier-name">${supplier.supplier}</h3>
                         <div class="supplier-location">
-                            <i class="fas fa-map-marker-alt"></i> ${supplier.address || 'N/A'}
+                            <i class="fas fa-map-marker-alt"></i> 
+                            ${ (supplier.city && supplier.address) 
+                                ? supplier.city + ', ' + supplier.address 
+                                : (supplier.city || supplier.address || 'N/A') }
                         </div>
+
                         ${ratingHtml}
                     </div>
                 </div>

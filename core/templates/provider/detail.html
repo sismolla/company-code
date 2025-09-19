@@ -1168,7 +1168,16 @@
                 meta.content = `${data.supplier.name} - Trusted Ethiopian pharmaceutical wholesaler`;
 
                 document.getElementById('supplier-name').textContent = data.supplier.name;
-                document.getElementById('supplier-address').textContent = data.supplier.address || 'N/A';
+                const supplier = data.supplier || {};
+                const city = supplier.city || '';
+                const address = supplier.address || '';
+
+                let supplierText = 'N/A';
+                if (city || address) {
+                    supplierText = [city, address].filter(Boolean).join(' ');
+                }
+
+                document.getElementById('supplier-address').textContent = supplierText;
                 document.getElementById('product-count').textContent = `${allProducts.length} product${allProducts.length !== 1 ? 's' : ''}`;
                 document.getElementById('supplier-description').textContent = data.description || 'No description available.';
                 document.getElementById('business-name').textContent = data.supplier.name;
