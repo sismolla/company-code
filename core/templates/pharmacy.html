@@ -1001,9 +1001,6 @@
                     {% endif %}
                     {{ p.price }} ETB
                 </div>
-                <button class="add-to-cart" onclick="event.preventDefault(); alert('Add to cart functionality would go here');" aria-label="Add to cart">
-                    <i class="fas fa-plus"></i>
-                </button>
             </div>
             
             <span class="pharmacy-stock {% if p.stock_quantity > 0 %}in-stock{% else %}out-stock{% endif %}">
