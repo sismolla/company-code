@@ -239,6 +239,7 @@
                 <button id="showContactBtn" class="w-full py-2 md:py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition flex items-center justify-center">
                     <i class="fas fa-comment-dots mr-2"></i> Contact Wholesaler
                 </button>
+                
                 <div id="contactDetails" class="hidden mt-4 bg-gray-100 p-3 md:p-4 rounded-lg">
                     <p class="text-base md:text-lg font-bold text-gray-700 mb-2">Seller Contact:</p>
                     <div class="contact-details flex flex-col md:flex-row items-start md:items-center space-y-2 md:space-y-0 md:space-x-4">
@@ -255,6 +256,11 @@
                         </a>
                     </div>
                 </div>
+                <div class="mt-4">
+                <button id="shareProductBtn" class="w-full py-2 md:py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition flex items-center justify-center">
+                    <i class="fas fa-share-alt mr-2"></i> Share this Product
+                </button>
+            </div>
             </div>
         </main>
         
@@ -404,6 +410,40 @@
 
 
 {% block script %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+    const shareBtn = document.getElementById('shareProductBtn');
+    const productName = document.getElementById('productName').innerText;
+    const productUrl = window.location.href;
+
+    shareBtn.addEventListener('click', async () => {
+        if (navigator.share) {
+            // Use Web Share API if supported (mobile & some desktop browsers)
+            try {
+                await navigator.share({
+                    title: productName,
+                    url: productUrl
+                });
+                console.log('Product shared successfully!');
+            } catch (err) {
+                console.error('Error sharing:', err);
+            }
+        } else {
+            // Fallback: copy link to clipboard
+            try {
+                await navigator.clipboard.writeText(productUrl);
+                alert('Product link copied to clipboard!');
+            } catch (err) {
+                console.error('Failed to copy link:', err);
+                alert('Unable to share product link. Please copy it manually: ' + productUrl);
+            }
+        }
+    });
+
+});
+</script>
+
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         const productId = {{product.id}}; // You can change this to load different products

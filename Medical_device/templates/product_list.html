@@ -633,17 +633,19 @@
         <!-- Main Product Area -->
         <main class="main-content">
             
-            <div class="filter-bar">
-               <label for="search-input" class="visually-hidden">Search products</label>
+            <!-- Search & Filters Form -->
+            <form method="get" class="filter-bar">
+                <label for="search-input" class="visually-hidden">Search products</label>
                 <input type="text" 
                     id="search-input" 
+                    name="search"
                     class="filter-input" 
                     placeholder="Search products..." 
                     value="{{ request.GET.search|default:'' }}"
                     aria-label="Search products">
 
                 <label for="category-filter" class="visually-hidden">Filter by category</label>
-                <select class="filter-select" id="category-filter" aria-label="Filter by category">
+                <select class="filter-select" id="category-filter" name="category" aria-label="Filter by category">
                     <option value="">All Categories</option>
                     {% for category in categories %}
                     <option value="{{ category.id }}" {% if request.GET.category == category.id|stringformat:"s" %}selected{% endif %}>{{ category.name }}</option>
@@ -651,7 +653,7 @@
                 </select>
 
                 <label for="brand-filter" class="visually-hidden">Filter by brand</label>
-                <select class="filter-select" id="brand-filter" aria-label="Filter by brand">
+                <select class="filter-select" id="brand-filter" name="brand" aria-label="Filter by brand">
                     <option value="">All Brands</option>
                     {% for brand in brands %}
                         {% if brand %}
@@ -660,7 +662,8 @@
                     {% endfor %}
                 </select>
 
-            </div>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> Search</button>
+            </form>
 
             <div class="product-grid" id="product-grid">
                 {% for product in products %}
@@ -803,114 +806,35 @@
 </div>
 {% endblock content %}
 
-
-
 {% block script %}
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const loadingOverlay = document.getElementById('loading-overlay');
-        const searchInput = document.getElementById('search-input');
-        const categoryFilter = document.getElementById('category-filter');
-        const brandFilter = document.getElementById('brand-filter');
-        const sortSelect = document.getElementById('sort-select');
-        const clearFiltersBtn = document.getElementById('clear-filters');
-        const filterTags = document.querySelectorAll('.filter-tag-remove');
-        
-        // Function to update URL with current filters
-        function updateURL() {
-            const params = new URLSearchParams();
-            
-            if (searchInput.value) {
-                params.set('search', searchInput.value);
-            }
-            
-            if (categoryFilter.value) {
-                params.set('category', categoryFilter.value);
-            }
-            
-            if (brandFilter.value) {
-                params.set('brand', brandFilter.value);
-            }
-            
-            if (sortSelect.value) {
-                params.set('ordering', sortSelect.value);
-            }
-            
-            // Update URL and reload the page
-            const newURL = window.location.pathname + '?' + params.toString();
-            window.location.href = newURL;
-        }
-        
-        // Function to remove a specific filter
-        function removeFilter(filterType) {
-            const params = new URLSearchParams(window.location.search);
-            
-            if (filterType === 'search') {
-                searchInput.value = '';
-                params.delete('search');
-            } else if (filterType === 'category') {
-                categoryFilter.value = '';
-                params.delete('category');
-            } else if (filterType === 'brand') {
-                brandFilter.value = '';
-                params.delete('brand');
-            }
-            
-            // Preserve ordering if set
-            if (sortSelect.value && sortSelect.value !== '-created_at') {
-                params.set('ordering', sortSelect.value);
-            }
-            
-            // Update URL and reload the page
-            const newURL = window.location.pathname + '?' + params.toString();
-            window.location.href = newURL;
-        }
-        
-        // Function to clear all filters
-        function clearAllFilters() {
-            const params = new URLSearchParams();
-            
-            // Preserve ordering if set
-            if (sortSelect.value && sortSelect.value !== '-created_at') {
-                params.set('ordering', sortSelect.value);
-            }
-            
-            // Update URL and reload the page
-            const newURL = window.location.pathname + '?' + params.toString();
-            window.location.href = newURL;
-        }
-        
-        // Add event listeners for filters
-        searchInput.addEventListener('input', debounce(updateURL, 500));
-        categoryFilter.addEventListener('change', updateURL);
-        brandFilter.addEventListener('change', updateURL);
-        sortSelect.addEventListener('change', updateURL);
-        
-        // Add event listeners for filter tags
-        filterTags.forEach(tag => {
-            tag.addEventListener('click', function() {
-                const filterType = this.getAttribute('data-filter');
-                removeFilter(filterType);
-            });
-        });
-        
-        // Add event listener for clear all filters button
-        if (clearFiltersBtn) {
-            clearFiltersBtn.addEventListener('click', clearAllFilters);
-        }
-        
-        // Debounce function to limit API calls during typing
-        function debounce(func, wait) {
-            let timeout;
-            return function executedFunction(...args) {
-                const later = () => {
-                    clearTimeout(timeout);
-                    func(...args);
-                };
-                clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
-            };
-        }
+document.addEventListener('DOMContentLoaded', function() {
+    const clearFiltersBtn = document.getElementById('clear-filters');
+    const filterTags = document.querySelectorAll('.filter-tag-remove');
+    const sortSelect = document.getElementById('sort-select');
+
+    // Sorting only reload
+    sortSelect.addEventListener('change', function() {
+        this.form?.submit();
     });
+
+    // Remove filter tags
+    filterTags.forEach(tag => {
+        tag.addEventListener('click', function() {
+            const filterType = this.getAttribute('data-filter');
+            const params = new URLSearchParams(window.location.search);
+            params.delete(filterType);
+            window.location.href = window.location.pathname + '?' + params.toString();
+        });
+    });
+
+    // Clear all filters
+    if (clearFiltersBtn) {
+        clearFiltersBtn.addEventListener('click', function() {
+            const params = new URLSearchParams();
+            window.location.href = window.location.pathname + '?' + params.toString();
+        });
+    }
+});
 </script>
 {% endblock script %}

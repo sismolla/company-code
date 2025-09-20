@@ -94,8 +94,15 @@ class Pharmacy_page(ListView):
             allowed_forms = DosageForm.objects.filter(name__in=self.CATEGORY_MAP[category])
             queryset = queryset.filter(dosage_form__in=allowed_forms)
 
+            # ✅ Reset dosage_form if it's not in the allowed set
+            if dosage_form and not allowed_forms.filter(id=dosage_form).exists():
+                dosage_form = None
+
         if dosage_form:
             queryset = queryset.filter(dosage_form_id=dosage_form)
+
+        
+
 
         # Price filter
         min_price = self.request.GET.get("price__gte")

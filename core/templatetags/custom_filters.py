@@ -1,9 +1,4 @@
 from django import template
-
-register = template.Library()
-
-# templatetags/custom_filters.py
-from django import template
 from urllib.parse import urlencode, parse_qs
 
 register = template.Library()
@@ -34,3 +29,23 @@ def url_replace(context, **kwargs):
     
     # Encode query string safely
     return '?' + urlencode(query, doseq=True)
+
+
+@register.filter
+def round_count(value):
+    """
+    Round the number to nearest 10, 50, 100, or 1000 for display.
+    """
+    try:
+        value = int(value)
+    except (ValueError, TypeError):
+        return value
+
+    if value < 10:
+        return value
+    elif value < 100:
+        return (value + 9) // 10 * 10
+    elif value < 1000:
+        return ((value + 49) // 50 * 50)
+    else:
+        return ((value + 999) // 1000 * 1000)
