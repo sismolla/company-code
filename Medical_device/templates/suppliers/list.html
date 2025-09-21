@@ -613,7 +613,11 @@
                     {% for supplier in suppliers %}
                     <article class="supplier-card supplier-item bg-white p-7 rounded-2xl shadow-lg flex flex-col h-full">
                         <div class="flex items-start mb-5">
-                            <img src="{% if supplier.user.logo %}{{ supplier.user.logo.url }}{% else %}https://placehold.co/60x60/e0e7ff/1e40af?text={{ supplier.user.name|first }}{% endif %}" alt="{{ supplier.user.name }} Logo" class="w-14 h-14 rounded-full object-cover mr-4 border-2 border-blue-500 flex-shrink-0" loading="lazy">
+                            <img src="{% if supplier.logo %}{{ supplier.logo.url }}{% else %}https://placehold.co/60x60/e0e7ff/1e40af?text={{ supplier.name|first }}{% endif %}" 
+                            alt="{{ supplier.name }} Logo" 
+                            class="w-14 h-14 rounded-full object-cover mr-4 border-2 border-blue-500 flex-shrink-0" 
+                            loading="lazy">
+
                             <div>
                                 <h3 class="text-xl font-bold text-gray-900 leading-tight flex items-center">
                                     {{ supplier.user.name }}
@@ -622,24 +626,31 @@
                                     {% endif %}
                                 </h3>
                                 <p class="text-sm text-gray-500 mt-1">
-                                    <i class="fas fa-map-marker-alt text-blue-500 mr-2" aria-hidden="true"></i>
-                                    {% if supplier.cities.first %}{{ supplier.cities.first.name }}{% else %}Location not specified{% endif %}
+                                <i class="fas fa-map-marker-alt text-blue-500 mr-2" aria-hidden="true"></i>
+                                {% if supplier.supplierprofile.user.city %}
+                                    {{ supplier.supplierprofile.user.city.name }}
+                                {% else %}
+                                    Location not specified
+                                {% endif %}
                                 </p>
+
+
                             </div>
                         </div>
                         <p class="text-gray-700 text-sm mb-5 flex-grow">
-                            {% if supplier.user.user_supplier.description %}
-                                {{ supplier.user.user_supplier.description|truncatewords:30 }}
+                            {% if supplier.user_supplier.description %}
+                                {{ supplier.user_supplier.description|truncatewords:30 }}
                             {% else %}
                                 No description available.
                             {% endif %}
                         </p>
 
-                        <div class="flex flex-wrap gap-2 mb-5">
+
+                    <div class="flex flex-wrap gap-2 mb-5">
                         <p style="width: 100%; margin-bottom: 8px; font-weight: 600; color: #374151; font-size: 14px;">Specialized Equipments</p>
-                        {% if supplier.specialized_equipment.all %}
-                            {% for industry in supplier.specialized_equipment.all %}
-                            <span class="bg-blue-50 text-blue-700 text-xs font-medium px-3 py-1.5 rounded-full">{{ industry.name }}</span>
+                        {% if supplier.supplierprofile.specialized_equipment.all %}
+                            {% for equipment in supplier.supplierprofile.specialized_equipment.all %}
+                            <span class="bg-blue-50 text-blue-700 text-xs font-medium px-3 py-1.5 rounded-full">{{ equipment.name }}</span>
                             {% endfor %}
                         {% else %}
                             <span class="bg-gray-100 text-gray-500 text-xs font-medium px-3 py-1.5 rounded-full">N/A</span>
@@ -648,8 +659,8 @@
 
                     <div class="flex flex-wrap gap-2 mb-5">
                         <p style="width: 100%; margin-bottom: 8px; font-weight: 600; color: #374151; font-size: 14px;">Working Industries</p>
-                        {% if supplier.industries.all %}
-                            {% for industry in supplier.industries.all %}
+                        {% if supplier.supplierprofile.industries.all %}
+                            {% for industry in supplier.supplierprofile.industries.all %}
                             <span class="bg-blue-50 text-blue-700 text-xs font-medium px-3 py-1.5 rounded-full">{{ industry.name }}</span>
                             {% endfor %}
                         {% else %}

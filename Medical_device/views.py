@@ -272,34 +272,35 @@ def supplier_products(request, pk):
 })
 
 class SupplierListPage(ListView):
-    model = SupplierProfile
+    model = Supplier
     template_name = 'suppliers/list.html'
     context_object_name = "suppliers"
-    paginate_by = 10  # optional
+    paginate_by = 10
 
     def get_queryset(self):
-        # Only suppliers that have at least one MedicalDevice
-        queryset = SupplierProfile.objects.filter(
-            user__devices__isnull=False  # user = Supplier, and Supplier has devices
-        ).select_related("user").prefetch_related("industries", "cities").distinct()
+        # Start with suppliers that have at least one device
+        queryset = Supplier.objects.prefetch_related(
+            'supplierprofile__industries',
+            'supplierprofile__cities',
+            'devices'
+        ).filter(devices__isnull=False).distinct()  # only suppliers with at least one device
 
-        # Get filter params
+        # Get filter parameters
         search = self.request.GET.get("search", "").strip()
         city_id = self.request.GET.get("city")
         industry_id = self.request.GET.get("industry")
 
-        # Search by supplier name (from Supplier model)
+        # Filter by supplier name
         if search:
-            queryset = queryset.filter(
-                Q(user__name__icontains=search)            )
+            queryset = queryset.filter(name__icontains=search)
 
-        # Filter by city (from SupplierProfile relation)
+        # Filter by city from Supplier model
         if city_id:
-            queryset = queryset.filter(cities__id=city_id)
+            queryset = queryset.filter(city__id=city_id)
 
-        # Filter by industry (from SupplierProfile relation)
+        # Filter by industry via SupplierProfile
         if industry_id:
-            queryset = queryset.filter(industries__id=industry_id)
+            queryset = queryset.filter(supplierprofile__industries__id=industry_id)
 
         return queryset.distinct()
 
