@@ -14,6 +14,7 @@ class StaticViewSitemap(Sitemap):
             'terms-policy',
 
             'medical_device:product_list',
+            'medical_device:device-supplier-list',
         ]  # your named URLs
 
     def location(self, item):

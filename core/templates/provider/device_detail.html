@@ -667,7 +667,7 @@ body {
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'landing:landing-page' %}">Home</a></li>
             <li class="breadcrumb-divider">/</li>
-            <li class="breadcrumb-item"><a href="{% url 'medical_device:device-supplier-list' %}">Suppliers</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'medical_device:device-supplier-list' %}">Medical Suppliers</a></li>
             <li class="breadcrumb-divider">/</li>
             <li class="breadcrumb-item active" aria-current="page">{{ supplier.name }}</li>
         </ol>
@@ -721,7 +721,17 @@ body {
                     </div>
                     <div class="detail-item">
                         <div class="label">Supplier Address</div>
-                        <div class="value">{{ supplier.address|yesno:"Available,Not Available" }}</div>
+                        <div class="value">
+                            {% if supplier.city and supplier.address %}
+                                {{ supplier.city.name }}, {{ supplier.address }}
+                            {% elif supplier.city %}
+                                {{ supplier.city.name }}
+                            {% elif supplier.address %}
+                                {{ supplier.address }}
+                            {% else %}
+                                Not Available
+                            {% endif %}
+                        </div>
                     </div>
                     <div class="detail-item">
                         <div class="label">Member Since</div>
@@ -741,19 +751,26 @@ body {
                                 <div class="product-card">
                                     <div class="product-image-container">
                                         {% if product.images.all %}
-                                        <div class="main-image">
-                                            <a href="{% url 'medical_device:product_detail' product.id %}"><img src="{{ product.images.all.0.image.url }}" alt="{{ product.name }}" class="active-image" id="mainImage{{ product.id }}"></a>
-                                        </div>
-                                        <div class="thumbnail-row">
-                                            {% for image in product.images.all %}
-                                            <img src="{{ image.image.url }}" alt="{{ product.name }}" 
-                                                class="thumbnail-img {% if forloop.first %}selected{% endif %}"
-                                                onclick="changeMainImage('{{ product.id }}', this.src, this)">
-                                            {% endfor %}
-                                        </div>
+                                            <div class="main-image">
+                                                <a href="{% url 'medical_device:product_detail' product.id %}">
+                                                    <img src="{{ product.images.all.0.image.url }}" alt="{{ product.name }}" class="active-image" id="mainImage{{ product.id }}">
+                                                </a>
+                                            </div>
+                                            <div class="thumbnail-row">
+                                                {% for image in product.images.all %}
+                                                <img src="{{ image.image.url }}" alt="{{ product.name }}" 
+                                                    class="thumbnail-img {% if forloop.first %}selected{% endif %}"
+                                                    onclick="changeMainImage('{{ product.id }}', this.src, this)">
+                                                {% endfor %}
+                                            </div>
                                         {% else %}
-                                        <div class="no-image"><i class="fas fa-image"></i></div>
+                                            <div class="no-image">
+                                                <a href="{% url 'medical_device:product_detail' product.id %}">
+                                                    <i class="fas fa-image"></i>
+                                                </a>
+                                            </div>
                                         {% endif %}
+
 
                                         <div class="product-actions">
                                             <button class="quick-view-btn" data-bs-toggle="tooltip" title="Quick View">

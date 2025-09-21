@@ -817,17 +817,23 @@
                     <span class="spec-value ">No phone data available</span>
                 </div>
                 {%endif%}
-                {% if supplier.address %}
                 <div class="spec-item">
-                    <span class="spec-label"><i class="fas fa-location"></i> Location</span>
-                    <address><span class="spec-value">{{supplier.address}}</span></address>
-                </div>
-                {%else%}
-                <div class="spec-item">
-                    <span class="spec-label"><i class="fas fa-location"></i> Location</span>
-                    <span class="spec-value">No address data available</span>
-                </div>
-                {%endif%}
+                <span class="spec-label"><i class="fas fa-location"></i> Location</span>
+                <address>
+                    <span class="spec-value">
+                        {% if supplier.city and supplier.address %}
+                            {{ supplier.city.name }}, {{ supplier.address }}
+                        {% elif supplier.city %}
+                            {{ supplier.city.name }}
+                        {% elif supplier.address %}
+                            {{ supplier.address }}
+                        {% else %}
+                            No address data available
+                        {% endif %}
+                    </span>
+                </address>
+            </div>
+
 
                 {% if supplier.warranty %}
                 <div class="spec-item">
