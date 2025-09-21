@@ -4,6 +4,8 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from rest_framework.response import Response 
 from rest_framework.views import APIView
+
+from setting.models import Industry, SupplierProfile
 from .serializer import CategorySerializer, ProductSerializer
 from .models import MedicalDevice, Category, ProductAttributeValue, ProductImage, ImpressionAggregate
 from django.views.generic import TemplateView
@@ -14,7 +16,7 @@ from django.shortcuts import get_object_or_404
 from django.views.generic import DetailView
 from django.template.loader import render_to_string
 from rest_framework.permissions import IsAuthenticated
-from core.models import Supplier
+from core.models import City, Supplier
 from core.models import UserProducts
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.contenttypes.models import ContentType
@@ -269,6 +271,40 @@ def supplier_products(request, pk):
     return render(request, "provider/device_detail.html", {"supplier": supplier, "products": products,'contact_info': contact_info,"member_since": member_since,
 })
 
-class SupplierListPage(TemplateView):
+class SupplierListPage(ListView):
+    model = SupplierProfile
     template_name = 'suppliers/list.html'
+    context_object_name = "suppliers"
+    paginate_by = 10  # optional
 
+    def get_queryset(self):
+        # Only suppliers that have at least one MedicalDevice
+        queryset = SupplierProfile.objects.filter(
+            user__devices__isnull=False  # user = Supplier, and Supplier has devices
+        ).select_related("user").prefetch_related("industries", "cities").distinct()
+
+        # Get filter params
+        search = self.request.GET.get("search", "").strip()
+        city_id = self.request.GET.get("city")
+        industry_id = self.request.GET.get("industry")
+
+        # Search by supplier name (from Supplier model)
+        if search:
+            queryset = queryset.filter(
+                Q(user__name__icontains=search)            )
+
+        # Filter by city (from SupplierProfile relation)
+        if city_id:
+            queryset = queryset.filter(cities__id=city_id)
+
+        # Filter by industry (from SupplierProfile relation)
+        if industry_id:
+            queryset = queryset.filter(industries__id=industry_id)
+
+        return queryset.distinct()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["cities"] = City.objects.all()
+        context["industries"] = Industry.objects.all()
+        return context

@@ -71,6 +71,7 @@ INSTALLED_APPS = [
     'django.contrib.sitemaps',
     'pwa',
     'Medical_device',
+    'setting',
 ]
 
 MIDDLEWARE = [

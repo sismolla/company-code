@@ -667,7 +667,7 @@ body {
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'landing:landing-page' %}">Home</a></li>
             <li class="breadcrumb-divider">/</li>
-            <li class="breadcrumb-item"><a href="{% url 'landing:suppliers-list' %}">Suppliers</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'medical_device:device-supplier-list' %}">Suppliers</a></li>
             <li class="breadcrumb-divider">/</li>
             <li class="breadcrumb-item active" aria-current="page">{{ supplier.name }}</li>
         </ol>
@@ -705,11 +705,6 @@ body {
             </div>
         </div>
     </header>
-    <a href="{% url 'landing:product-provider-detail' supplier.id%}" 
-            class="btn btn-outline" style="border-color: var(--primary-color); color: var(--primary-color);">
-                <i class="fas fa-eye mr-2"></i> Su
-                pplier Pharmaceutical Products
-            </a>
 
     <div class="main-content">
         <div class="main-panel">

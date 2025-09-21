@@ -75,6 +75,7 @@ urlpatterns = [
          name='password_reset_complete'),
 
     path('',include('Medical_device.urls')),
+    path('', include('setting.urls'))
 
 
 ]

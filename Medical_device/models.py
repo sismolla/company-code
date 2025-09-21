@@ -79,3 +79,15 @@ class ProductAttributeValue(models.Model):
         return f"{self.product.name} - {self.attribute.name}: {self.value}"
 
 
+
+
+
+##the medical device provider list page 
+
+
+
+
+
+
+
+

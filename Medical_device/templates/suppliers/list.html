@@ -8,602 +8,1033 @@
 {% block title %}MediSource | Professional Medical Device Sellers Directory{% endblock title %}
 
 {% block style %}
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Preload critical resources -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap">
+    <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Tailwind CSS CDN for utility-first styling (Consider compiling locally for production) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Inter font from Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    
+    <!-- Structured data for SEO -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Medi-Connect",
+      "url": "https://www.medi-connect.com/",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://www.medi-connect.com/suppliers?search={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
     <style>
         :root {
-            --primary: #2b6cb0;
-            --secondary: #4299e1;
-            --accent: #38b2ac;
-            --light: #f7fafc;
-            --dark: #2d3748;
-            --gray: #718096;
-            --success: #48bb78;
-            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            --transition: all 0.3s ease;
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --primary: #2563eb; /* blue-600 */
+            --primary-dark: #1d4ed8; /* blue-700 */
+            --secondary: #64748b; /* slate-500 */
+            --light: #f8fafc; /* slate-50 */
+            --dark: #1e293b; /* slate-800 */
+            --blue-50: #eff6ff;
+            --blue-100: #dbeafe;
+            --blue-700: #1d4ed8;
+            --blue-800: #1e40af;
         }
         
         body {
-            background-color: #f5f7fa;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--light);
             color: var(--dark);
-            line-height: 1.6;
+            scroll-behavior: smooth;
         }
         
-        .container {
-            width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-        
-        
-        
-        .logo {
-            font-size: 1.8rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-        }
-        
-        .logo i {
-            margin-right: 10px;
-        }
-        
-        nav ul {
-            display: flex;
-            list-style: none;
-        }
-        
-        nav ul li {
-            margin-left: 1.5rem;
-        }
-        
-        nav ul li a {
-            color: white;
-            text-decoration: none;
-            font-weight: 500;
-            transition: var(--transition);
-        }
-        
-        nav ul li a:hover {
-            color: #e2e8f0;
-        }
-        
-        /* Hero Section */
-        .hero {
-            padding: 4rem 0;
-            text-align: center;
-            background: url('https://images.unsplash.com/photo-1582719471384-894fbb16e074?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') no-repeat center center/cover;
-            color: white;
-            position: relative;
-        }
-        
-        .hero::before {
-            content: '';
+        /* Skip link for accessibility */
+        .skip-link {
             position: absolute;
+            top: -9999px; /* Hide off-screen */
+            left: 0;
+            background: var(--primary);
+            color: white;
+            padding: 0.5rem 1rem;
+            z-index: 1000;
+            transition: top 0.3s ease-in-out;
+            border-radius: 0 0 0.5rem 0;
+        }
+        
+        .skip-link:focus {
+            top: 0;
+            left: 0;
+            outline: none;
+        }
+        
+        /* Focus styles for accessibility */
+        a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, .supplier-card:focus-within {
+            outline: 3px solid var(--primary);
+            outline-offset: 3px;
+            border-radius: 0.5rem; /* Match card border radius */
+        }
+
+        .supplier-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .supplier-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        }
+        
+        .pagination-link {
+            transition: all 0.2s ease-in-out;
+        }
+        
+        .pagination-link:hover {
+            transform: translateY(-1px);
+        }
+        
+        .sticky-top {
+            position: sticky;
+            top: 1.5rem; /* Adjusted for better spacing */
+            align-self: flex-start; /* Ensures it sticks properly within flex/grid */
+        }
+        
+        .filter-group {
+            border-bottom: 1px solid #e2e8f0; /* slate-200 */
+            padding-bottom: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .filter-group:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+            margin-bottom: 0;
+        }
+        
+        /* Custom checkbox styling */
+        input[type="checkbox"] {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 1.25rem; /* 20px */
+            height: 1.25rem; /* 20px */
+            background-color: #fff;
+            border: 1px solid #cbd5e1; /* slate-300 */
+            border-radius: 0.25rem; /* 4px */
+            position: relative;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.2s ease-in-out;
+            flex-shrink: 0; /* Prevent shrinking in flex layouts */
+        }
+        
+        input[type="checkbox"]:checked {
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+        
+        input[type="checkbox"]:checked::after {
+            content: '\2713'; /* Checkmark character */
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 0.75rem; /* 12px */
+            font-weight: bold;
+        }
+        
+        input[type="checkbox"]:focus-visible {
+            box-shadow: 0 0 0 3px var(--primary); /* Focus ring */
+        }
+        
+        /* Loading animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        
+        /* Mobile menu animation (if base2.html uses this) */
+        .mobile-menu-overlay {
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(43, 108, 176, 0.85);
+            background: rgba(0,0,0,0.5);
+            z-index: 99; /* Below filter drawer */
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease;
         }
-        
-        .hero-content {
-            position: relative;
-            max-width: 800px;
-            margin: 0 auto;
+
+        .mobile-menu-overlay.open {
+            opacity: 1;
+            visibility: visible;
         }
-        
-        .hero h1 {
-            font-size: 2.8rem;
-            margin-bottom: 1rem;
-        }
-        
-        .hero p {
-            font-size: 1.2rem;
-            margin-bottom: 2rem;
-        }
-        
-        /* Search and Filters */
-        .search-filters {
+
+        .mobile-menu-drawer {
+            position: fixed;
+            top: 0;
+            right: -100%; /* Start off-screen to the right */
+            width: 80%;
+            max-width: 300px;
+            height: 100vh;
             background: white;
+            z-index: 100;
+            overflow-y: auto;
+            transition: right 0.3s ease;
+            box-shadow: -2px 0 10px rgba(0,0,0,0.1);
             padding: 1.5rem;
-            border-radius: 10px;
-            box-shadow: var(--shadow);
-            margin-top: -40px;
-            position: relative;
-            z-index: 10;
+        }
+
+        .mobile-menu-drawer.open {
+            right: 0;
+        }
+
+        /* Lazy loading for images */
+        img.lazy {
+            opacity: 0;
+            transition: opacity 0.3s;
         }
         
-        .search-box {
-            display: flex;
-            margin-bottom: 1.5rem;
+        img.lazy.loaded {
+            opacity: 1;
         }
         
-        .search-box input {
-            flex: 1;
-            padding: 12px 15px;
-            border: 2px solid #e2e8f0;
-            border-radius: 5px 0 0 5px;
-            font-size: 1rem;
+        /* Loading skeleton for cards */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+            border-radius: 0.5rem;
         }
         
-        .search-box button {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 0 20px;
-            border-radius: 0 5px 5px 0;
-            cursor: pointer;
-            transition: var(--transition);
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
         }
-        
-        .search-box button:hover {
-            background: var(--secondary);
-        }
-        
-        .filters {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        
-        .filter-group {
-            flex: 1;
-            min-width: 200px;
-        }
-        
-        .filter-group select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e2e8f0;
-            border-radius: 5px;
-            font-size: 0.9rem;
-            color: var(--dark);
-        }
-        
-        /* Sellers Grid */
-        .sellers-section {
-            padding: 3rem 0;
-        }
-        
-        .section-title {
-            text-align: center;
-            margin-bottom: 2.5rem;
-            color: var(--dark);
-        }
-        
-        .sellers-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 25px;
-        }
-        
-        .seller-card {
+
+        /* Mobile filter drawer */
+        .filter-drawer {
+            position: fixed;
+            top: 0;
+            left: -100%;
+            width: 85%;
+            max-width: 400px; /* Limit width on larger mobile devices */
+            height: 100vh;
             background: white;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: var(--shadow);
-            transition: var(--transition);
+            z-index: 1000;
+            overflow-y: auto;
+            transition: left 0.3s ease;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            padding: 1.5rem;
         }
         
-        .seller-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        .filter-drawer.open {
+            left: 0;
         }
         
-        .seller-image {
-            height: 180px;
-            overflow: hidden;
-        }
-        
-        .seller-image img {
+        .filter-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            object-fit: cover;
-            transition: var(--transition);
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease;
         }
         
-        .seller-card:hover .seller-image img {
-            transform: scale(1.05);
+        .filter-overlay.open {
+            opacity: 1;
+            visibility: visible;
         }
         
-        .seller-info {
-            padding: 1.5rem;
+        /* Mobile filter button */
+        .mobile-filter-btn {
+            display: none; /* Hidden by default */
         }
         
-        .seller-name {
-            font-size: 1.4rem;
-            margin-bottom: 0.5rem;
-            color: var(--primary);
+        @media (max-width: 767px) { /* Changed from 768px to 767px to match Tailwind's 'md' breakpoint convention */
+            .mobile-filter-btn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                position: fixed;
+                bottom: 2rem;
+                right: 1.5rem;
+                width: 60px;
+                height: 60px;
+                background: var(--primary);
+                color: white;
+                border-radius: 50%;
+                font-weight: 500;
+                z-index: 90;
+                box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+                transition: all 0.3s ease;
+                border: none; /* Remove default button border */
+            }
+            
+            .mobile-filter-btn:hover {
+                transform: scale(1.05);
+                box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
+            }
+            
+            .mobile-filter-btn i {
+                font-size: 1.5rem;
+            }
+            
+            .mobile-filter-btn span {
+                /* display: none; */ /* Keep text on smaller screens if desired, or remove */
+                position: absolute;
+                bottom: -25px; /* Position text below icon */
+                font-size: 0.75rem;
+                white-space: nowrap;
+            }
+            
+            /* Hide the desktop filter sidebar on mobile */
+            .filter-sidebar {
+                display: none;
+            }
+            
+            .supplier-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+            
+            .supplier-card {
+                height: auto;
+            }
+            
+            .mobile-search-container {
+                display: block;
+                margin-bottom: 1.5rem;
+                background: white;
+                border-radius: 0.75rem;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            }
+            
+            .desktop-search {
+                display: none;
+            }
+            
+            /* Adjust grid for smaller mobile screens */
+            .md\:grid-cols-4 {
+                grid-template-columns: 1fr; /* Stack columns on small screens */
+            }
         }
         
-        .seller-specialty {
-            color: var(--accent);
-            font-weight: 500;
-            margin-bottom: 1rem;
+        @media (max-width: 480px) {
+            .supplier-grid {
+                grid-template-columns: 1fr !important;
+            }
+            
+            .mobile-filter-btn {
+                bottom: 1.5rem;
+                right: 1rem;
+                width: 56px;
+                height: 56px;
+            }
+
+            .mobile-filter-btn span {
+                display: none; /* Hide text on very small screens, keep icon only */
+            }
         }
         
-        .seller-details {
-            margin-bottom: 1.5rem;
-            color: var(--gray);
+        /* Pagination styles */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 2rem;
+            flex-wrap: wrap;
         }
         
-        .seller-details div {
-            margin-bottom: 0.5rem;
+        .page-item {
+            margin: 0 0.25rem;
+        }
+        
+        .page-link {
             display: flex;
             align-items: center;
-        }
-        
-        .seller-details i {
-            margin-right: 10px;
-            color: var(--primary);
-        }
-        
-        .seller-actions {
-            display: flex;
-            justify-content: space-between;
-        }
-        
-        .btn {
-            padding: 10px 15px;
-            border-radius: 5px;
+            justify-content: center;
+            min-width: 2.5rem;
+            height: 2.5rem;
+            border: 1px solid #e2e8f0; /* slate-200 */
+            border-radius: 0.375rem; /* 6px */
+            color: #4a5568; /* gray-700 */
             font-weight: 500;
-            cursor: pointer;
-            transition: var(--transition);
-            text-decoration: none;
-            display: inline-block;
+            transition: all 0.2s;
+            text-decoration: none; /* Remove underline */
         }
         
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-            border: none;
-        }
-        
-        .btn-primary:hover {
-            background: var(--secondary);
-        }
-        
-        .btn-outline {
-            background: transparent;
+        .page-link:hover:not(.disabled) {
+            background-color: #f1f5f9; /* slate-100 */
             color: var(--primary);
-            border: 2px solid var(--primary);
         }
         
-        .btn-outline:hover {
-            background: var(--primary);
+        .page-link.active {
+            background-color: var(--primary);
             color: white;
+            border-color: var(--primary);
         }
         
-        /* Newsletter */
-        .newsletter {
-            background: var(--primary);
-            color: white;
-            padding: 4rem 0;
-            text-align: center;
+        .page-link.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
         
-        .newsletter h2 {
-            margin-bottom: 1rem;
+        /* SEO optimizations */
+        .breadcrumb {
+            padding: 0.75rem 0;
+            font-size: 0.875rem;
+            color: var(--secondary);
         }
         
-        .newsletter p {
-            max-width: 600px;
-            margin: 0 auto 2rem;
-        }
-        
-        .newsletter-form {
-            display: flex;
-            max-width: 500px;
-            margin: 0 auto;
-        }
-        
-        .newsletter-form input {
-            flex: 1;
-            padding: 12px 15px;
-            border: none;
-            border-radius: 5px 0 0 5px;
-            font-size: 1rem;
-        }
-        
-        .newsletter-form button {
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 0 20px;
-            border-radius: 0 5px 5px 0;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-        
-        .newsletter-form button:hover {
-            background: #2c9c97;
-        }
-        
-        /* Footer */
-        footer {
-            background: var(--dark);
-            color: white;
-            padding: 3rem 0 1.5rem;
-        }
-        
-        .footer-content {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 30px;
-            margin-bottom: 2rem;
-        }
-        
-        .footer-column h3 {
-            font-size: 1.2rem;
-            margin-bottom: 1.2rem;
-            position: relative;
-            padding-bottom: 10px;
-        }
-        
-        .footer-column h3::after {
-            content: '';
-            position: absolute;
-            left: 0;
-            bottom: 0;
-            width: 40px;
-            height: 2px;
-            background: var(--accent);
-        }
-        
-        .footer-column ul {
-            list-style: none;
-        }
-        
-        .footer-column ul li {
-            margin-bottom: 0.8rem;
-        }
-        
-        .footer-column ul li a {
-            color: #cbd5e0;
+        .breadcrumb a {
+            color: var(--primary);
             text-decoration: none;
-            transition: var(--transition);
         }
         
-        .footer-column ul li a:hover {
-            color: white;
-            padding-left: 5px;
+        .breadcrumb a:hover {
+            text-decoration: underline;
         }
         
-        .footer-bottom {
-            text-align: center;
-            padding-top: 20px;
-            border-top: 1px solid #4a5568;
-        }
-        
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            
-            nav ul {
-                margin-top: 1rem;
-                justify-content: center;
-            }
-            
-            .hero h1 {
-                font-size: 2.2rem;
-            }
-            
-            .hero p {
-                font-size: 1rem;
-            }
-            
-            .search-filters {
-                margin-top: -20px;
-            }
-            
-            .newsletter-form {
-                flex-direction: column;
-            }
-            
-            .newsletter-form input {
-                border-radius: 5px;
-                margin-bottom: 10px;
-            }
-            
-            .newsletter-form button {
-                border-radius: 5px;
-                padding: 12px;
-            }
-        }
-        
-        @media (max-width: 576px) {
-            nav ul {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            nav ul li {
-                margin: 0.5rem 0;
-            }
-            
-            .filters {
-                flex-direction: column;
-            }
-            
-            .seller-actions {
-                flex-direction: column;
-                gap: 10px;
-            }
-            
-            .btn {
-                width: 100%;
-                text-align: center;
-            }
-        }
+        /* Schema markup for suppliers handled by individual card articles */
     </style>
-
 {%endblock style%}
+
 {% block content %}
+    <!-- Breadcrumb for SEO -->
+    <div class="container mx-auto px-4">
+        <div class="breadcrumb">
+            <a href="/">Home</a> > <a href="{% url 'medical_device:device-supplier-list' %}">Medical Suppliers</a> > <span>Directory</span>
+        </div>
+    </div>
+    
     <!-- Hero Section -->
-    <section class="hero">
-        <div class="container">
-            <div class="hero-content">
-                <h1>Find Trusted Medical Device Sellers</h1>
-                <p>Discover our curated directory of certified medical equipment suppliers and manufacturers worldwide</p>
-            </div>
-        </div>
-    </section>
+    <header class="hero text-white py-24 md:py-32 flex items-center justify-center text-center" style="background: linear-gradient(rgba(248, 248, 249, 0), rgba(231, 234, 242, 0)), url('{% static 'background.jpg' %}') center/cover no-repeat;">
+      <div class="container mx-auto px-4">
+          <h1 class="text-4xl md:text-6xl font-extrabold mb-5 leading-tight">Discover Leading Medical Suppliers In Ethiopia</h1>
+          <p class="text-lg md:text-xl font-light mb-10 max-w-3xl mx-auto">
+              Find certified medical device manufacturers and distributors in Ethiopia with ease and confidence, ensuring quality and compliance.
+          </p>
+          <a href="#supplier-list" class="bg-white text-blue-700 px-10 py-4 rounded-full font-bold text-lg hover:bg-blue-800 hover:text-white transition duration-300 transform hover:scale-105 shadow-xl">
+              Start Your Search <i class="fas fa-arrow-circle-right ml-2" aria-hidden="true"></i>
+          </a>
+      </div>
+  </header>
 
-    <!-- Search and Filters -->
-    <div class="container">
-        <div class="search-filters">
-            <div class="search-box">
-                <input type="text" placeholder="Search for medical devices, companies, or specialties...">
-                <button><i class="fas fa-search"></i></button>
-            </div>
-            <div class="filters">
-                <div class="filter-group">
-                    <select>
-                        <option value="">All Categories</option>
-                        <option value="">Diagnostic Equipment</option>
-                        <option value="">Surgical Instruments</option>
-                        <option value="">Patient Monitoring</option>
-                        <option value="">Therapeutic Equipment</option>
-                        <option value="">Laboratory Equipment</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <select>
-                        <option value="">All Locations</option>
-                        <option value="">North America</option>
-                        <option value="">Europe</option>
-                        <option value="">Asia Pacific</option>
-                        <option value="">Middle East</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <select>
-                        <option value="">Certification</option>
-                        <option value="">ISO 13485</option>
-                        <option value="">FDA Approved</option>
-                        <option value="">CE Certified</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Sellers Section -->
-    <!-- Sellers Section -->
-<section class="sellers-section">
-    <div class="container">
-        <h2 class="section-title">Featured Medical Device Suppliers</h2>
-        <div class="sellers-grid">
-
-            <!-- Example Supplier Card -->
-            <div class="seller-card">
-                <div class="seller-image">
-                    <img src="https://images.unsplash.com/photo-1585435557343-3b092031d5ad?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Supplier Name">
-                </div>
-                <div class="seller-info">
-                    <h3 class="seller-name">MedTech Solutions</h3>
-                    <div class="seller-specialty">Diagnostic & Imaging Equipment</div>
-                    <div class="seller-details">
-                        <div><i class="fas fa-map-marker-alt"></i> Addis Ababa, Ethiopia</div>
-                        <div><i class="fas fa-envelope"></i> contact@medtech.com</div>
-                        <div><i class="fas fa-phone"></i> +251 912 345 678</div>
-                        <div><i class="fas fa-star"></i> 4.8 (256 reviews)</div>
+    <!-- Main Content -->
+    <main id="main-content" class="container mx-auto px-4 py-16">
+        <!-- Mobile Search Container (visible only on mobile) -->
+        <div class="mobile-search-container">
+            <form id="mobile-search-form" method="get">
+                <label for="mobile-search-input" class="block text-sm font-medium text-gray-700 mb-2">Search medical suppliers</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+                        <i class="fas fa-search text-gray-400" aria-hidden="true"></i>
                     </div>
-                    <div class="seller-actions">
-                        <a href="#" class="btn btn-primary">View Profile</a>
-                        <a href="#" class="btn btn-outline">Contact</a>
-                    </div>
-                    <div class="seller-about">
-                        <p>MedTech Solutions is a certified supplier of high-quality diagnostic and imaging devices across Ethiopia, committed to providing excellent customer service.</p>
-                    </div>
+                    <input type="text" id="mobile-search-input" name="search" value="{{ request.GET.search }}" placeholder="Search suppliers..." class="w-full pl-12 pr-10 py-3 rounded-xl border border-gray-300 focus:ring-blue-600 focus:border-blue-600 transition duration-200 text-base" aria-describedby="mobile-search-help">
+                    <button id="mobile-search-clear" type="button" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 {% if not request.GET.search %}hidden{% endif %}">
+                        <i class="fas fa-times" aria-hidden="true"></i>
+                    </button>
                 </div>
-            </div>
-
-            <!-- Another Example Supplier Card -->
-            <div class="seller-card">
-                <div class="seller-image">
-                    <img src="https://images.unsplash.com/photo-1516549655169-df83a0774514?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Supplier Name">
-                </div>
-                <div class="seller-info">
-                    <h3 class="seller-name">Surgical Innovations</h3>
-                    <div class="seller-specialty">Surgical Instruments & Tools</div>
-                    <div class="seller-details">
-                        <div><i class="fas fa-map-marker-alt"></i> Bahir Dar, Ethiopia</div>
-                        <div><i class="fas fa-envelope"></i> info@surgicalinnovations.com</div>
-                        <div><i class="fas fa-phone"></i> +251 923 456 789</div>
-                        <div><i class="fas fa-star"></i> 4.9 (312 reviews)</div>
-                    </div>
-                    <div class="seller-actions">
-                        <a href="#" class="btn btn-primary">View Profile</a>
-                        <a href="#" class="btn btn-outline">Contact</a>
-                    </div>
-                    <div class="seller-about">
-                        <p>Surgical Innovations provides high-quality surgical instruments and tools, supporting hospitals and clinics with certified equipment.</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Add more supplier cards as needed -->
-
-        </div>
-    </div>
-</section>
-
-
-    <!-- Newsletter -->
-    <section class="newsletter">
-        <div class="container">
-            <h2>Stay Updated with Medical Equipment Trends</h2>
-            <p>Subscribe to our newsletter for the latest updates on medical devices, industry news, and exclusive offers from trusted suppliers.</p>
-            <form class="newsletter-form">
-                <input type="email" placeholder="Enter your email address">
-                <button type="submit">Subscribe</button>
+                <p id="mobile-search-help" class="text-sm text-gray-500 mt-2">Search by name, specialty, or description</p>
+                <!-- Hidden submit button for enter key functionality -->
+                <button type="submit" class="hidden">Search</button>
             </form>
         </div>
-    </section>
+        
+        <!-- Mobile Filter Button (floating action button) -->
+        <button id="mobile-filter-btn" class="mobile-filter-btn" aria-label="Open filters">
+            <i class="fas fa-filter" aria-hidden="true"></i>
+            <span>Filters</span>
+        </button>
+        
+        <div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-4 gap-10">
+            <!-- Filters Section -->
+            <aside class="md:col-span-1 filter-sidebar">
+                <div class="bg-white rounded-2xl shadow-xl p-7 sticky-top" style="top: 20px;">
+                    <div class="flex items-center justify-between mb-7">
+                        <div class="flex items-center">
+                            <i class="fas fa-sliders-h text-2xl text-gray-400 mr-4" aria-hidden="true"></i>
+                            <h2 class="text-xl font-bold text-blue-700">Smart Filters & Search</h2>
+                        </div>
+                        <button id="close-filter-drawer" class="md:hidden text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+
+                    <!-- Search Input (desktop only) -->
+                    <form method="get" id="filter-form">
+                        <div class="mb-7 desktop-search">
+                            <label for="search-input" class="block text-sm font-medium text-gray-700 mb-2">Search medical suppliers</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+                                    <i class="fas fa-search text-gray-400" aria-hidden="true"></i>
+                                </div>
+                                <input type="text" id="search-input" name="search" value="{{ request.GET.search }}" placeholder="Search suppliers..." class="w-full pl-12 pr-10 py-3.5 rounded-xl border border-gray-300 focus:ring-blue-600 focus:border-blue-600 transition duration-200 text-base" aria-describedby="search-help">
+                                <button id="search-clear" type="button" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 {% if not request.GET.search %}hidden{% endif %}">
+                                    <i class="fas fa-times" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                            <p id="search-help" class="text-sm text-gray-500 mt-2">Search by name, specialty, or description</p>
+                        </div>
+
+                        <!-- Applied Filters Tags -->
+                        <p class="text-sm text-gray-600 mb-3 font-semibold">Applied Filters:</p>
+                        <div id="applied-filters" class="flex flex-wrap gap-2 mb-7 min-h-[30px]" aria-live="polite">
+                            <!-- Tags will be dynamically added here -->
+                            <span id="no-filters-applied" class="text-gray-400 text-sm">None</span>
+                        </div>
+
+                        <!-- Industry Filters -->
+                        <div class="filter-group">
+                            <h3 class="text-lg font-bold text-gray-800 mb-4">Industry</h3>
+                            <div class="space-y-3" id="industry-filters" role="group" aria-labelledby="industry-filters-heading">
+                                {% for industry in industries %}
+                                <div class="flex items-center">
+                                    <input class="form-checkbox" type="checkbox" id="industry-{{ industry.id }}" name="industry" value="{{ industry.id }}" {% if industry.id|stringformat:"s" in request.GET.industry %}checked{% endif %}>
+                                    <label class="ml-3 text-base font-medium text-gray-700 cursor-pointer" for="industry-{{ industry.id }}">{{ industry.name }}</label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- City Filter -->
+                        <div class="filter-group">
+                            <h3 class="text-lg font-bold text-gray-800 mb-4">Location</h3>
+                            <select id="city-select" name="city" class="w-full px-4 py-3.5 rounded-xl border border-gray-300 focus:ring-blue-600 focus:border-blue-600 transition duration-200 text-base appearance-none bg-white pr-10" aria-label="Filter by city">
+                                <option value="">All Cities</option>
+                                {% for city in cities %}
+                                <option value="{{ city.id }}" {% if request.GET.city == city.id|stringformat:"s" %}selected{% endif %}>{{ city.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <button type="submit" class="w-full bg-blue-600 text-white font-semibold py-3.5 rounded-xl mt-5 hover:bg-blue-700 transition duration-200 text-base">
+                            Apply Filters
+                        </button>
+                    </form>
+
+                    <button id="clear-filters" class="w-full bg-gray-100 text-gray-700 font-semibold py-3.5 rounded-xl mt-3 hover:bg-gray-200 transition duration-200 text-base">
+                        Clear All Filters
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Mobile Filter Drawer -->
+            <div id="filter-drawer" class="filter-drawer">
+                <div class="bg-white p-7 h-full overflow-y-auto">
+                    <div class="flex items-center justify-between mb-7">
+                        <div class="flex items-center">
+                            <i class="fas fa-sliders-h text-2xl text-gray-400 mr-4" aria-hidden="true"></i>
+                            <h2 class="text-xl font-bold text-blue-700">Smart Filters & Search</h2>
+                        </div>
+                        <button id="close-filter-drawer-mobile" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+
+                    <!-- Applied Filters Tags -->
+                    <p class="text-sm text-gray-600 mb-3 font-semibold">Applied Filters:</p>
+                    <div id="mobile-applied-filters" class="flex flex-wrap gap-2 mb-7 min-h-[30px]" aria-live="polite">
+                        <!-- Tags will be dynamically added here -->
+                        <span id="mobile-no-filters-applied" class="text-gray-400 text-sm">None</span>
+                    </div>
+
+                    <!-- Industry Filters -->
+                    <div class="filter-group">
+                        <h3 class="text-lg font-bold text-gray-800 mb-4">Industry</h3>
+                        <div class="space-y-3" id="mobile-industry-filters" role="group" aria-labelledby="industry-filters-heading">
+                            {% for industry in industries %}
+                            <div class="flex items-center">
+                                <input class="form-checkbox" type="checkbox" id="mobile-industry-{{ industry.id }}" name="industry" value="{{ industry.id }}" {% if industry.id|stringformat:"s" in request.GET.industry %}checked{% endif %}>
+                                <label class="ml-3 text-base font-medium text-gray-700 cursor-pointer" for="mobile-industry-{{ industry.id }}">{{ industry.name }}</label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- City Filter -->
+                    <div class="filter-group">
+                        <h3 class="text-lg font-bold text-gray-800 mb-4">Location</h3>
+                        <select id="mobile-city-select" name="city" class="w-full px-4 py-3.5 rounded-xl border border-gray-300 focus:ring-blue-600 focus:border-blue-600 transition duration-200 text-base appearance-none bg-white pr-10" aria-label="Filter by city">
+                            <option value="">All Cities</option>
+                            {% for city in cities %}
+                            <option value="{{ city.id }}" {% if request.GET.city == city.id|stringformat:"s" %}selected{% endif %}>{{ city.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="flex gap-3 mt-5">
+                        <button id="mobile-apply-filters" class="flex-1 bg-blue-600 text-white font-semibold py-3.5 rounded-xl hover:bg-blue-700 transition duration-200 text-base">
+                            Apply Filters
+                        </button>
+                        <button id="mobile-clear-filters" class="flex-1 bg-gray-100 text-gray-700 font-semibold py-3.5 rounded-xl hover:bg-gray-200 transition duration-200 text-base">
+                            Clear All
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div id="filter-overlay" class="filter-overlay"></div>
+
+            <!-- Suppliers List Section -->
+            <div class="md:col-span-3" id="supplier-list">
+                <div class="flex flex-col md:flex-row justify-between items-center mb-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4 md:mb-0">
+                        Showing <span id="displayed-count" class="text-blue-600">{{ suppliers.count }}</span> Suppliers
+                    </h2>
+                    <div class="flex items-center">
+                        <label for="sort-select" class="text-gray-600 mr-3 hidden md:block">Sort by:</label>
+                        <select id="sort-select" class="rounded-xl border border-gray-300 px-5 py-2.5 text-base focus:ring-blue-600 focus:border-blue-600 appearance-none bg-white pr-10" aria-label="Sort suppliers">
+                            <option value="relevance" {% if not request.GET.sort or request.GET.sort == "relevance" %}selected{% endif %}>Relevance</option>
+                            <option value="newest" {% if request.GET.sort == "newest" %}selected{% endif %}>Newest</option>
+                            <option value="alphabetical" {% if request.GET.sort == "alphabetical" %}selected{% endif %}>Alphabetical (A-Z)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Supplier Cards Container -->
+                <div id="supplier-cards" class="supplier-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-8" aria-live="polite">
+                    {% for supplier in suppliers %}
+                    <article class="supplier-card supplier-item bg-white p-7 rounded-2xl shadow-lg flex flex-col h-full">
+                        <div class="flex items-start mb-5">
+                            <img src="{% if supplier.user.logo %}{{ supplier.user.logo.url }}{% else %}https://placehold.co/60x60/e0e7ff/1e40af?text={{ supplier.user.name|first }}{% endif %}" alt="{{ supplier.user.name }} Logo" class="w-14 h-14 rounded-full object-cover mr-4 border-2 border-blue-500 flex-shrink-0" loading="lazy">
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-900 leading-tight flex items-center">
+                                    {{ supplier.user.name }}
+                                    {% if supplier.verified %}
+                                    <i class="fas fa-check-circle text-blue-600 ml-2" title="Verified Supplier" aria-hidden="true"></i>
+                                    {% endif %}
+                                </h3>
+                                <p class="text-sm text-gray-500 mt-1">
+                                    <i class="fas fa-map-marker-alt text-blue-500 mr-2" aria-hidden="true"></i>
+                                    {% if supplier.cities.first %}{{ supplier.cities.first.name }}{% else %}Location not specified{% endif %}
+                                </p>
+                            </div>
+                        </div>
+                        <p class="text-gray-700 text-sm mb-5 flex-grow">
+                            {% if supplier.user.user_supplier.description %}
+                                {{ supplier.user.user_supplier.description|truncatewords:30 }}
+                            {% else %}
+                                No description available.
+                            {% endif %}
+                        </p>
+
+                        <div class="flex flex-wrap gap-2 mb-5">
+                        <p style="width: 100%; margin-bottom: 8px; font-weight: 600; color: #374151; font-size: 14px;">Specialized Equipments</p>
+                        {% if supplier.specialized_equipment.all %}
+                            {% for industry in supplier.specialized_equipment.all %}
+                            <span class="bg-blue-50 text-blue-700 text-xs font-medium px-3 py-1.5 rounded-full">{{ industry.name }}</span>
+                            {% endfor %}
+                        {% else %}
+                            <span class="bg-gray-100 text-gray-500 text-xs font-medium px-3 py-1.5 rounded-full">N/A</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="flex flex-wrap gap-2 mb-5">
+                        <p style="width: 100%; margin-bottom: 8px; font-weight: 600; color: #374151; font-size: 14px;">Working Industries</p>
+                        {% if supplier.industries.all %}
+                            {% for industry in supplier.industries.all %}
+                            <span class="bg-blue-50 text-blue-700 text-xs font-medium px-3 py-1.5 rounded-full">{{ industry.name }}</span>
+                            {% endfor %}
+                        {% else %}
+                            <span class="bg-gray-100 text-gray-500 text-xs font-medium px-3 py-1.5 rounded-full">N/A</span>
+                        {% endif %}
+                    </div>
+                        <div class="mt-auto">
+                            <a href="{% url 'medical_device:supplier-products' supplier.id%}" class="inline-block bg-blue-600 text-white font-semibold py-2.5 px-7 rounded-full hover:bg-blue-700 transition duration-300 text-sm">
+                                View Profile <i class="fas fa-arrow-right ml-2" aria-hidden="true"></i>
+                            </a>
+                        </div>
+                    </article>
+                    {% empty %}
+                    <div id="no-results" class="col-span-full text-center py-20 text-gray-500 text-xl font-medium">
+                        <i class="fas fa-exclamation-circle text-4xl mb-5 text-gray-400" aria-hidden="true"></i>
+                        <p>No suppliers found matching your criteria.</p>
+                        <p class="text-md text-gray-400 mt-2">Try adjusting your filters or search terms.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- Pagination -->
+                {% if is_paginated %}
+                <div class="pagination mt-12">
+                    <ul class="flex items-center space-x-1">
+                        {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ page_obj.previous_page_number }}" class="page-link">
+                                <i class="fas fa-chevron-left" aria-hidden="true"></i>
+                            </a>
+                        </li>
+                        {% else %}
+                        <li class="page-item">
+                            <span class="page-link disabled">
+                                <i class="fas fa-chevron-left" aria-hidden="true"></i>
+                            </span>
+                        </li>
+                        {% endif %}
+                        
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                            <li class="page-item">
+                                <span class="page-link active">{{ num }}</span>
+                            </li>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <li class="page-item">
+                                <a href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ num }}" class="page-link">{{ num }}</a>
+                            </li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ page_obj.next_page_number }}" class="page-link">
+                                <i class="fas fa-chevron-right" aria-hidden="true"></i>
+                            </a>
+                        </li>
+                        {% else %}
+                        <li class="page-item">
+                            <span class="page-link disabled">
+                                <i class="fas fa-chevron-right" aria-hidden="true"></i>
+                            </span>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </main>
 {% endblock content %}
 
 {% block script %}
     <script>
-        // Basic filtering functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            const searchInput = document.querySelector('.search-box input');
-            const categoryFilter = document.querySelectorAll('.filter-group select')[0];
-            const locationFilter = document.querySelectorAll('.filter-group select')[1];
-            const sellerCards = document.querySelectorAll('.seller-card');
+        // DOM elements
+        const searchInput = document.getElementById('search-input');
+        const mobileSearchInput = document.getElementById('mobile-search-input');
+        const mobileSearchForm = document.getElementById('mobile-search-form');
+        const searchClearBtn = document.getElementById('search-clear');
+        const mobileSearchClearBtn = document.getElementById('mobile-search-clear');
+        const industryFiltersContainer = document.getElementById('industry-filters');
+        const mobileIndustryFiltersContainer = document.getElementById('mobile-industry-filters');
+        const citySelect = document.getElementById('city-select');
+        const mobileCitySelect = document.getElementById('mobile-city-select');
+        const clearFiltersButton = document.getElementById('clear-filters');
+        const mobileClearFiltersButton = document.getElementById('mobile-clear-filters');
+        const sortSelect = document.getElementById('sort-select');
+        const displayedCountSpan = document.getElementById('displayed-count');
+        const appliedFiltersContainer = document.getElementById('applied-filters');
+        const mobileAppliedFiltersContainer = document.getElementById('mobile-applied-filters');
+        const noFiltersAppliedSpan = document.getElementById('no-filters-applied');
+        const mobileNoFiltersAppliedSpan = document.getElementById('mobile-no-filters-applied');
+        const mobileFilterBtn = document.getElementById('mobile-filter-btn');
+        const filterDrawer = document.getElementById('filter-drawer');
+        const filterOverlay = document.getElementById('filter-overlay');
+        const closeFilterDrawer = document.getElementById('close-filter-drawer');
+        const closeFilterDrawerMobile = document.getElementById('close-filter-drawer-mobile');
+        const mobileApplyFilters = document.getElementById('mobile-apply-filters');
+        const filterForm = document.getElementById('filter-form');
+
+        // Mobile menu toggle (if needed)
+        const navbarToggler = document.getElementById('navbar-toggler');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        if (navbarToggler && mobileMenu) {
+            navbarToggler.addEventListener('click', () => {
+                const isExpanded = navbarToggler.getAttribute('aria-expanded') === 'true';
+                navbarToggler.setAttribute('aria-expanded', !isExpanded);
+                mobileMenu.classList.toggle('hidden');
+                mobileMenu.classList.toggle('open');
+            });
+
+            // Close mobile menu when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!navbarToggler.contains(e.target) && !mobileMenu.contains(e.target)) {
+                    mobileMenu.classList.add('hidden');
+                    mobileMenu.classList.remove('open');
+                    navbarToggler.setAttribute('aria-expanded', 'false');
+                }
+            });
+        }
+
+        // Mobile search form submission
+        if (mobileSearchForm) {
+            mobileSearchForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                // Set the search value in the main form and submit it
+                searchInput.value = mobileSearchInput.value;
+                filterForm.submit();
+            });
+        }
+
+        // Search input clear functionality
+        function toggleClearButton(inputElement, clearButton) {
+            if (inputElement.value) {
+                clearButton.classList.remove('hidden');
+            } else {
+                clearButton.classList.add('hidden');
+            }
+        }
+
+        function clearSearch(inputElement, clearButton) {
+            inputElement.value = '';
+            clearButton.classList.add('hidden');
+            filterForm.submit();
+        }
+
+        if (searchInput && searchClearBtn) {
+            searchInput.addEventListener('input', () => {
+                toggleClearButton(searchInput, searchClearBtn);
+            });
             
-            function filterSellers() {
-                const searchText = searchInput.value.toLowerCase();
-                const categoryValue = categoryFilter.value;
-                const locationValue = locationFilter.value;
+            searchClearBtn.addEventListener('click', () => {
+                clearSearch(searchInput, searchClearBtn);
+            });
+        }
+
+        if (mobileSearchInput && mobileSearchClearBtn) {
+            mobileSearchInput.addEventListener('input', () => {
+                toggleClearButton(mobileSearchInput, mobileSearchClearBtn);
+                searchInput.value = mobileSearchInput.value;
+            });
+            
+            mobileSearchClearBtn.addEventListener('click', () => {
+                clearSearch(mobileSearchInput, mobileSearchClearBtn);
+                searchInput.value = '';
+                filterForm.submit();
+            });
+        }
+
+        // Mobile filter drawer toggle
+        mobileFilterBtn.addEventListener('click', () => {
+            filterDrawer.classList.add('open');
+            filterOverlay.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        });
+
+        // Close filter drawer
+        const closeFilterDrawerFunc = () => {
+            filterDrawer.classList.remove('open');
+            filterOverlay.classList.remove('open');
+            document.body.style.overflow = 'auto';
+        };
+
+        if (closeFilterDrawer) {
+            closeFilterDrawer.addEventListener('click', closeFilterDrawerFunc);
+        }
+        
+        if (closeFilterDrawerMobile) {
+            closeFilterDrawerMobile.addEventListener('click', closeFilterDrawerFunc);
+        }
+        
+        if (filterOverlay) {
+            filterOverlay.addEventListener('click', closeFilterDrawerFunc);
+        }
+
+        // Apply mobile filters
+        if (mobileApplyFilters) {
+            mobileApplyFilters.addEventListener('click', () => {
+                // Sync mobile filters with desktop filters
+                searchInput.value = mobileSearchInput.value;
                 
-                sellerCards.forEach(card => {
-                    const sellerName = card.querySelector('.seller-name').textContent.toLowerCase();
-                    const sellerSpecialty = card.querySelector('.seller-specialty').textContent.toLowerCase();
-                    const sellerLocation = card.querySelector('.seller-details div:first-child').textContent.toLowerCase();
-                    
-                    const matchesSearch = sellerName.includes(searchText) || sellerSpecialty.includes(searchText);
-                    const matchesCategory = categoryValue === '' || sellerSpecialty.includes(categoryValue.toLowerCase());
-                    const matchesLocation = locationValue === '' || sellerLocation.includes(locationValue.toLowerCase());
-                    
-                    if (matchesSearch && matchesCategory && matchesLocation) {
-                        card.style.display = 'block';
-                    } else {
-                        card.style.display = 'none';
-                    }
+                // Sync checkboxes
+                const mobileIndustryCheckboxes = mobileIndustryFiltersContainer.querySelectorAll('input[type="checkbox"]');
+                const desktopIndustryCheckboxes = industryFiltersContainer.querySelectorAll('input[type="checkbox"]');
+                
+                mobileIndustryCheckboxes.forEach((checkbox, index) => {
+                    desktopIndustryCheckboxes[index].checked = checkbox.checked;
                 });
+                
+                // Sync location
+                citySelect.value = mobileCitySelect.value;
+                
+                // Submit the form
+                filterForm.submit();
+            });
+        }
+
+        // Function to update the applied filters UI
+        function updateAppliedFilters() {
+            appliedFiltersContainer.innerHTML = '';
+            mobileAppliedFiltersContainer.innerHTML = '';
+            
+            const activeFilters = getActiveFilters();
+            const hasActiveFilters = Object.values(activeFilters).some(val => (Array.isArray(val) && val.length > 0) || (typeof val === 'string' && val !== ''));
+
+            if (!hasActiveFilters) {
+                if (noFiltersAppliedSpan) noFiltersAppliedSpan.classList.remove('hidden');
+                if (mobileNoFiltersAppliedSpan) mobileNoFiltersAppliedSpan.classList.remove('hidden');
+            } else {
+                if (noFiltersAppliedSpan) noFiltersAppliedSpan.classList.add('hidden');
+                if (mobileNoFiltersAppliedSpan) mobileNoFiltersAppliedSpan.classList.add('hidden');
+                
+                // Add search text as a badge
+                if (activeFilters.search) {
+                    const badge = createFilterBadge(activeFilters.search, 'search');
+                    appliedFiltersContainer.appendChild(badge.cloneNode(true));
+                    mobileAppliedFiltersContainer.appendChild(badge);
+                }
+
+                activeFilters.industries.forEach(value => {
+                    const industryName = document.querySelector(`input[value="${value}"]`)?.nextElementSibling?.textContent || value;
+                    const badge = createFilterBadge(industryName, 'industry', value);
+                    appliedFiltersContainer.appendChild(badge.cloneNode(true));
+                    mobileAppliedFiltersContainer.appendChild(badge);
+                });
+
+                if (activeFilters.city) {
+                    const cityName = citySelect.options[citySelect.selectedIndex]?.text || activeFilters.city;
+                    const badge = createFilterBadge(cityName, 'city', activeFilters.city);
+                    appliedFiltersContainer.appendChild(badge.cloneNode(true));
+                    mobileAppliedFiltersContainer.appendChild(badge);
+                }
+            }
+        }
+
+        function createFilterBadge(value, type, filterValue = null) {
+            const badge = document.createElement('span');
+            badge.classList.add('inline-flex', 'items-center', 'px-3', 'py-1', 'rounded-full', 'bg-blue-100', 'text-blue-800', 'text-sm', 'font-medium', 'cursor-pointer', 'hover:bg-blue-200', 'transition', 'duration-150');
+            badge.innerHTML = `${value} <i class="fas fa-times-circle ml-2 text-xs" aria-hidden="true"></i>`;
+            badge.setAttribute('aria-label', `Remove ${value} filter`);
+            badge.addEventListener('click', () => {
+                if (type === 'search') {
+                    searchInput.value = '';
+                    mobileSearchInput.value = '';
+                    if (searchClearBtn) searchClearBtn.classList.add('hidden');
+                    if (mobileSearchClearBtn) mobileSearchClearBtn.classList.add('hidden');
+                } else if (type === 'city') {
+                    citySelect.value = '';
+                    mobileCitySelect.value = '';
+                } else if (type === 'industry') {
+                    const checkbox = document.querySelector(`input[value="${filterValue}"]`);
+                    const mobileCheckbox = document.querySelector(`input[value="${filterValue}"][id^="mobile-"]`);
+                    if (checkbox) checkbox.checked = false;
+                    if (mobileCheckbox) mobileCheckbox.checked = false;
+                }
+                filterForm.submit();
+            });
+            return badge;
+        }
+        
+        // Function to get active filters from the UI
+        function getActiveFilters() {
+            const searchText = searchInput.value;
+            const selectedIndustries = Array.from(document.querySelectorAll('#industry-filters input:checked')).map(cb => cb.value);
+            const selectedCity = citySelect.value;
+
+            return {
+                search: searchText,
+                industries: selectedIndustries,
+                city: selectedCity
+            };
+        }
+
+        // Clear all filters
+        const clearAllFilters = () => {
+            searchInput.value = '';
+            if (mobileSearchInput) mobileSearchInput.value = '';
+            document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            citySelect.value = '';
+            if (mobileCitySelect) mobileCitySelect.value = '';
+            
+            // Hide clear buttons
+            if (searchClearBtn) searchClearBtn.classList.add('hidden');
+            if (mobileSearchClearBtn) mobileSearchClearBtn.classList.add('hidden');
+            
+            filterForm.submit();
+        };
+
+        if (clearFiltersButton) {
+            clearFiltersButton.addEventListener('click', clearAllFilters);
+        }
+        
+        if (mobileClearFiltersButton) {
+            mobileClearFiltersButton.addEventListener('click', clearAllFilters);
+        }
+
+        // Sort functionality
+        if (sortSelect) {
+            sortSelect.addEventListener('change', () => {
+                // Add sort parameter to form and submit
+                const sortValue = sortSelect.value;
+                let action = filterForm.getAttribute('action') || window.location.pathname;
+                const params = new URLSearchParams(window.location.search);
+                
+                if (sortValue !== 'relevance') {
+                    params.set('sort', sortValue);
+                } else {
+                    params.delete('sort');
+                }
+                
+                window.location.href = `${action}?${params.toString()}`;
+            });
+        }
+
+        // Mobile search functionality
+        if (mobileSearchInput) {
+            mobileSearchInput.addEventListener('input', debounce(() => {
+                searchInput.value = mobileSearchInput.value;
+                toggleClearButton(mobileSearchInput, mobileSearchClearBtn);
+            }, 300));
+            
+            // Submit on Enter key
+            mobileSearchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    mobileSearchForm.dispatchEvent(new Event('submit'));
+                }
+            });
+        }
+
+        // Update applied filters on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            updateAppliedFilters();
+            
+            // Sync mobile search with desktop search
+            if (mobileSearchInput && searchInput) {
+                mobileSearchInput.value = searchInput.value;
+                toggleClearButton(mobileSearchInput, mobileSearchClearBtn);
             }
             
-            searchInput.addEventListener('keyup', filterSellers);
-            categoryFilter.addEventListener('change', filterSellers);
-            locationFilter.addEventListener('change', filterSellers);
+            // Sync mobile filters with desktop filters
+            if (mobileCitySelect && citySelect) {
+                mobileCitySelect.value = citySelect.value;
+            }
+            
+            const industryCheckboxes = industryFiltersContainer.querySelectorAll('input[type="checkbox"]');
+            const mobileIndustryCheckboxes = mobileIndustryFiltersContainer.querySelectorAll('input[type="checkbox"]');
+            
+            industryCheckboxes.forEach((checkbox, index) => {
+                mobileIndustryCheckboxes[index].checked = checkbox.checked;
+            });
         });
+
+        // Debounce function for search input
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
     </script>
 {% endblock %}
