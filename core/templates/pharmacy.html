@@ -832,7 +832,7 @@
 {% block content %}
 <div class="pharmacy-top-bar">
     <form method="get" class="search-input-group">
-        <input type="text" name="search" value="{{ filters.search|default:'' }}" placeholder="Search medicines, supplements, healthcare products..." aria-label="Search products">
+        <input type="text" name="search" value="{{ filters.search|default:'' }}" placeholder="Search medicines, supplements, pharmaceutical products..." aria-label="Search products">
         {% for key, value in request.GET.items %}
             {% if key != 'search' and key != 'page' %}
                 <input type="hidden" name="{{ key }}" value="{{ value }}">
@@ -848,7 +848,7 @@
         {% elif filters.category or filters.dosage_form or filters.price__gte or filters.price__lte or filters.ordering %}
             Displaying <span>{{ page_obj.paginator.count|round_count }}+</span> filtered products
         {% else %}
-            Showing <span>{{ page_obj.paginator.count|round_count }}+</span> healthcare products
+            Showing <span>{{ page_obj.paginator.count|round_count }}+</span> pharmaceutical products
         {% endif %}
 
     </div>

@@ -26,8 +26,6 @@ POST_TEMPLATES = [
 {contact_info}
 Or come to: {location}
 🔗 <a href="{catalog_url}">See full Supplier Products and order</a>
-
-🔗 <a href="{catalog_url}">Browse full catalog</a>
 """
 ]
 
@@ -50,22 +48,17 @@ def generate_telegram_post(products, post_templates=POST_TEMPLATES):
         contacts.append(f"WhatsApp: {supplier.whatsapp_link}")
     if supplier.phone:
         contacts.append(f"Phone: {supplier.phone}")
-    contact_info = "\n".join(contacts)
+    contact_info = "\n".join(contacts) if contacts else "Not available"
 
-    # Pick template
-    template = post_templates[0]  # you can still random.choice(post_templates)
+    # Template
+    template = post_templates[0]
     city = getattr(supplier, "city", "") or ""
     address = getattr(supplier, "address", "") or ""
+    location = f"{city} {address}".strip() if city or address else "Not specified"
 
-    if city or address:
-        location = f"{city} {address}".strip()
-    else:
-        location = "Not specified"
-
-    # Link ID fallback
+    # Link to supplier products page
     obj = UserProducts.objects.filter(supplier=supplier).first()
     link_url = f"https://pharmagebeya.com/supplier-detail/{obj.id}/" if obj else "https://pharmagebeya.com/pharmaceutical-wholesalers/"
-
     catalog_url = "https://pharmagebeya.com/"
 
     text = template.format(
@@ -76,55 +69,38 @@ def generate_telegram_post(products, post_templates=POST_TEMPLATES):
         link_url=link_url,
         catalog_url=catalog_url
     )
-    return text
+
+    # Build inline keyboard buttons
+    keyboard_rows = [
+        [
+            {"text": "🌐 Visit Pharmagebeya", "url": "https://pharmagebeya.com"},
+            {"text": "🛒 Visit Products", "url": link_url},
+            {"text": "🔗 Copy Product Link", "url": link_url},
+        ]
+    ]
+
+    contact_buttons = []
+    if supplier.telegram_link:
+        contact_buttons.append({"text": "💬 Telegram", "url": supplier.telegram_link})
+    if supplier.whatsapp_link:
+        if "wa.me" in supplier.whatsapp_link or "api.whatsapp.com" in supplier.whatsapp_link:
+            whatsapp_url = supplier.whatsapp_link
+        else:
+            phone_clean = ''.join(filter(str.isdigit, supplier.whatsapp_link))
+            whatsapp_url = f"https://wa.me/{phone_clean}" if phone_clean else None
+        if whatsapp_url:
+            contact_buttons.append({"text": "📱 WhatsApp", "url": whatsapp_url})
+    if contact_buttons:
+        keyboard_rows.append(contact_buttons)
+
+    keyboard = {"inline_keyboard": keyboard_rows}
+
+    return text, keyboard
 
 
-def send_telegram_post_old(text):
+def send_telegram_post(text, keyboard=None, retries=3, delay=2):
     """
-    Sends a Telegram message to a supplier group and a channel.
-    Raises exception if a request fails, so Celery can retry.
-    """
-    load_dotenv()
-    channel_id = os.getenv("TELEGRAM_CHANNEL_BOT_ID")
-    BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-    chat_id = os.getenv("TELEGRAM_BOT_ID")  # Use the passed-in link for the supplier
-
-    base_url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
-
-    # 1. Send to the supplier's chat
-    payload_supplier = {
-        "chat_id": chat_id,
-        "text": text,
-        "parse_mode": "HTML"
-    }
-
-    try:
-        response_supplier = requests.post(base_url, json=payload_supplier, timeout=10)
-        response_supplier.raise_for_status()
-        logger.info(f"Telegram message sent to supplier {chat_id}")
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Failed to send Telegram message to supplier {chat_id}: {e}")
-        # Re-raise the exception so Celery's retry mechanism can take over
-        raise
-
-    # 2. Send to the channel's chat
-    payload_channel = {
-        'chat_id': channel_id,
-        "text": text,
-        'parse_mode': 'HTML',
-    }
-
-    try:
-        response_channel = requests.post(base_url, json=payload_channel, timeout=10)
-        response_channel.raise_for_status()
-        logger.info(f"Telegram message sent to channel {channel_id}")
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Failed to send Telegram message to channel {channel_id}: {e}")
-        raise
-
-def send_telegram_post(text, retries=3, delay=2):
-    """
-    Fallback: Sends a plain text Telegram message to the channel.
+    Sends a Telegram message with optional inline keyboard buttons.
     """
     load_dotenv()
     BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
@@ -136,6 +112,8 @@ def send_telegram_post(text, retries=3, delay=2):
 
     base_url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
     payload = {"chat_id": CHANNEL_ID, "text": text, "parse_mode": "HTML"}
+    if keyboard:
+        payload["reply_markup"] = keyboard
 
     last_exception = None
     for attempt in range(1, retries + 1):
@@ -144,17 +122,17 @@ def send_telegram_post(text, retries=3, delay=2):
             response.raise_for_status()
             response_data = response.json()
             if response_data.get("ok"):
-                logger.info(f"Telegram text message sent successfully to channel {CHANNEL_ID}")
+                msg = "Telegram message with buttons" if keyboard else "Telegram text message"
+                logger.info(f"{msg} sent successfully to channel {CHANNEL_ID}")
                 return response_data
         except requests.exceptions.RequestException as e:
             last_exception = e
-            logger.warning(f"Attempt {attempt}/{retries} failed to send Telegram text: {e}")
+            logger.warning(f"Attempt {attempt}/{retries} failed to send Telegram message: {e}")
             if attempt < retries:
                 time.sleep(delay)
 
-    logger.error(f"Failed to send Telegram text after {retries} attempts: {last_exception}")
+    logger.error(f"Failed to send Telegram message after {retries} attempts: {last_exception}")
     raise last_exception
-
 
 def send_telegram_photo(devices, caption_text, retries=3, delay=2):
     """

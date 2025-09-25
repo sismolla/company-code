@@ -47,15 +47,12 @@ def post_next_supplier_products():
         return "⚠️ No suppliers found."
 
     # Last supplier that posted products
-    # Using Q objects for robustness if devices/products could both be null
     last_post = SocialMediaPost.objects.filter(Q(products__isnull=False)).order_by("-post_date", "-id").first()
-    
     last_index = -1
     if last_post and last_post.supplier in suppliers:
         try:
             last_index = suppliers.index(last_post.supplier)
         except ValueError:
-            # Supplier from last_post no longer exists or is not in the current list
             logger.warning(f"Last posted supplier '{last_post.supplier.name}' not found in current supplier list.")
 
     total_suppliers = len(suppliers)
@@ -77,33 +74,33 @@ def post_next_supplier_products():
             logger.info(f"No new products to post for {supplier.name}. Skipping.")
             continue
 
-        # Generate post text
-        post_text = generate_telegram_post(products_to_post)
-        if not post_text:
-            logger.warning(f"Failed to generate post text for {supplier.name}'s products. Skipping.")
-            continue # skip this supplier
+        # Generate post text + keyboard
+        result = generate_telegram_post(products_to_post)
+        if not result:
+            logger.warning(f"Failed to generate post for {supplier.name}'s products. Skipping.")
+            continue
+
+        post_text, keyboard = result
 
         # Atomic block: Send post to Telegram AND save to database
         try:
             with transaction.atomic():
                 logger.info(f"Entering atomic transaction for {supplier.name}'s products.")
                 
-                # Step 1: Send the post to Telegram
-                # This call *must* accurately reflect success/failure.
-                if not send_telegram_post(post_text):
-                    # If send_telegram_post returns False, we raise an exception
-                    # to trigger a rollback and prevent DB update.
+                if not send_telegram_post(post_text, keyboard=keyboard):
                     raise Exception(f"send_telegram_post returned False for {supplier.name}'s products.")
 
-                # Step 2: If Telegram post was successful, save to database
-                tg_post = SocialMediaPost(supplier=supplier, template_used=1, posted=True, post_date=today)
+                tg_post = SocialMediaPost(
+                    supplier=supplier,
+                    template_used=1,
+                    posted=True,
+                    post_date=today
+                )
                 tg_post.save()
                 tg_post.products.set(products_to_post)
-                # The second tg_post.save() is not strictly necessary after .set()
-                # as .set() operates on the M2M manager, which typically saves directly.
-                # However, leaving it doesn't hurt and ensures any other fields are persisted.
-                tg_post.save() 
-                logger.info(f"Successfully posted {products_to_post.count()} products for {supplier.name} and saved to DB.")
+                tg_post.save()
+
+                logger.info(f"✅ Successfully posted {products_to_post.count()} products for {supplier.name} and saved to DB.")
                 
         except Exception as e:
             logger.error(f"Transaction failed for {supplier.name}'s products: {e}", exc_info=True)
@@ -112,7 +109,7 @@ def post_next_supplier_products():
         logger.info(f"Finished processing and posted for {supplier.name}.")
         return f"✅ Posted {products_to_post.count()} products for {supplier.name}"
 
-    # --- Cycle Reset Logic (if no products were posted for any supplier) ---
+    # --- Cycle Reset Logic ---
     logger.info("No suppliers had new products to post in this cycle. Checking for reset conditions.")
     all_product_ids = set(Product.objects.values_list("id", flat=True))
     posted_product_ids = set(
@@ -136,7 +133,6 @@ def post_next_supplier_products():
     remaining = all_product_ids - posted_product_ids
     logger.info(f"Still {len(remaining)} products waiting to be posted across all suppliers.")
     return f"⏳ {len(remaining)} products still waiting to be posted."
-
 
 def post_next_supplier_devices():
     """
@@ -244,3 +240,6 @@ def post_next_supplier_devices():
     remaining = all_device_ids - posted_device_ids
     logger.info(f"Still {len(remaining)} devices waiting to be posted across all suppliers.")
     return f"⏳ {len(remaining)} devices still waiting to be posted."
+
+
+#mrystockethiopia
