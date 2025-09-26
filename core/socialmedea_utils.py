@@ -3,7 +3,7 @@ import logging
 import os,time
 from .models import UserProducts
 from dotenv import load_dotenv
-import random
+import random, json
 from django.conf import settings
 from urllib.parse import urlparse
 
@@ -17,15 +17,14 @@ INSTAGRAM_USER_ID = os.getenv("INSTAGRAM_USER_ID")
 INSTAGRAM_ACCESS_TOKEN = os.getenv("INSTAGRAM_ACCESS_TOKEN")
 
 POST_TEMPLATES = [
-    """✨ {supplier_name} Pharmaceutical Import
+    """✨ Stock update From {supplier_name} 
 🆕 Check out our latest arrivals!
 {products_list}
 
 💵 Attractive price 💵
 🚚 Free & fast delivery
-{contact_info}
+
 Or come to: {location}
-🔗 <a href="{catalog_url}">See full Supplier Products and order</a>
 """
 ]
 
@@ -134,11 +133,7 @@ def send_telegram_post(text, keyboard=None, retries=3, delay=2):
     logger.error(f"Failed to send Telegram message after {retries} attempts: {last_exception}")
     raise last_exception
 
-def send_telegram_photo(devices, caption_text, retries=3, delay=2):
-    """
-    Sends a Telegram photo with caption for the first image of the first device.
-    If no image exists, logs info and quits (no text-only fallback).
-    """
+def send_telegram_photo(devices, caption_text, reply_markup=None, retries=3, delay=2):
     if not devices:
         logger.warning("No devices provided for Telegram post.")
         return False
@@ -156,7 +151,7 @@ def send_telegram_photo(devices, caption_text, retries=3, delay=2):
     first_image = first_device.images.first() if hasattr(first_device, "images") else None
 
     if not first_image or not getattr(first_image, "image", None):
-        logger.info(f"No image found for device '{first_device.name}'. Skipping Telegram post.")
+        logger.info(f"No image found for device '{first_device.name}'. Skipping Telegram photo post.")
         return False
 
     # Determine URL or local file
@@ -167,13 +162,11 @@ def send_telegram_photo(devices, caption_text, retries=3, delay=2):
     if hasattr(img_field, "path") and os.path.exists(img_field.path):
         image_url = img_field.path
         use_local_file = True
-        logger.info(f"Using local file for device '{first_device.name}': {image_url}")
     elif hasattr(img_field, "url"):
         image_url = img_field.url
         if image_url.startswith("/"):
             site_url = getattr(settings, "SITE_URL", "")
             image_url = f"{site_url}{image_url}"
-        logger.info(f"Using URL for device '{first_device.name}': {image_url}")
 
     if not image_url:
         logger.info(f"Image not accessible for device '{first_device.name}'. Skipping Telegram post.")
@@ -186,10 +179,23 @@ def send_telegram_photo(devices, caption_text, retries=3, delay=2):
             if use_local_file:
                 with open(image_url, "rb") as photo_file:
                     files = {"photo": photo_file}
-                    payload = {"chat_id": CHANNEL_ID, "caption": caption_text, "parse_mode": "HTML"}
+                    payload = {
+                        "chat_id": CHANNEL_ID,
+                        "caption": caption_text,
+                        "parse_mode": "HTML",
+                    }
+                    if reply_markup:
+                        payload["reply_markup"] = json.dumps(reply_markup)
                     response = requests.post(base_url_photo, data=payload, files=files, timeout=15)
             else:
-                payload = {"chat_id": CHANNEL_ID, "photo": image_url, "caption": caption_text, "parse_mode": "HTML"}
+                payload = {
+                    "chat_id": CHANNEL_ID,
+                    "photo": image_url,
+                    "caption": caption_text,
+                    "parse_mode": "HTML",
+                }
+                if reply_markup:
+                    payload["reply_markup"] = json.dumps(reply_markup)
                 response = requests.post(base_url_photo, data=payload, timeout=15)
 
             response.raise_for_status()
@@ -211,78 +217,68 @@ def send_telegram_photo(devices, caption_text, retries=3, delay=2):
 
 
 POST_TEMPLATES_PHOTO = [
-    """🩺 {supplier_name}
-✨ Explore our medical devices!
-{device_list}
+    """🩺 <b>{device_name}</b>{extra_str}{price_str}
 
-📍 {location}
-{contact_info}
+✨ From <b>{supplier_name}</b>
+📍 Location: {location}
 
-🔗 <a href="{catalog_url}">Browse full catalog</a>
 """
 ]
 
 def generate_device_post(devices, post_templates=POST_TEMPLATES_PHOTO, as_caption=True):
-    """
-    Generates a Telegram caption and selects a device image if available.
-    Only uses the first device's first image. If no image exists, returns None for image.
-    
-    Returns:
-        tuple: (caption_text, image_url_or_None)
-    """
     if not devices:
-        return None, None
+        return None, None, None
 
-    supplier = devices[0].supplier
+    # Take the first device only
+    device = devices[0]
+    supplier = device.supplier
 
-    count = min(len(devices), random.choice([3, 4, 5]))
-    device_list = ""
-    for idx, p in enumerate(devices[:count], start=1):
-        extra = []
-        if getattr(p, "brand", None):
-            extra.append(p.brand)
-        if getattr(p, "model_number", None):
-            extra.append(p.model_number)
-        extra_str = f" ({', '.join(extra)})" if extra else ""
-        price_str = f" - {p.price} ETB" if getattr(p, "price", None) else ""
-        device_list += f"{idx}. {p.name}{extra_str}{price_str}\n"
+    # Device basic info
+    name_line = f"🩺 <b>{device.name}</b>"
+    brand_line = f"🏷 Brand: {device.brand}" if device.brand else ""
+    model_line = f"📦 Model: {device.model_number}" if device.model_number else ""
+    intended_use_line = f"🎯 Intended Use: {device.intended_use}" if device.intended_use else ""
+    description_line = f"📄 Description: {device.description[:300]}{'...' if device.description and len(device.description) > 300 else ''}" if device.description else ""
 
-    # Contact info
-    contacts = []
-    for attr in ["telegram_link", "whatsapp_link", "phone"]:
-        value = getattr(supplier, attr, None)
-        if value:
-            contacts.append(f"{attr.replace('_link','').capitalize()}: {value}")
-    contact_info = "\n".join(contacts) if contacts else "📞 Contact supplier directly"
-
-    # Template
+    # Location
     city = getattr(supplier, "city", "") or ""
     address = getattr(supplier, "address", "") or ""
+    location = f"{city} {address}".strip() if (city or address) else "Not specified"
 
-    if city or address:
-        location = f"{city} {address}".strip()
-    else:
-        location = "Not specified"
-
-    template = post_templates[0]
-
+    # Links
     catalog_url = "https://pharmagebeya.com/list/device/"
-    caption_text = template.format(
-        supplier_name=supplier.name,
-        device_list=device_list,
-        contact_info=contact_info,
-        location=location,
-        catalog_url=catalog_url,
-    )
+    device_link = f"https://pharmagebeya.com/list/device/{device.id}/"
 
-    # Pick image: only first device image
+    # Build caption
+    caption_parts = [
+        name_line,
+        brand_line,
+        model_line,
+        intended_use_line,
+        description_line,
+        f"📍 Location: {location}",
+        f"🔗 <a href='{device_link}'>View Device</a>",
+        f"📂 <a href='{catalog_url}'>More Devices</a>",
+    ]
+    caption_text = "\n".join([p for p in caption_parts if p])  # skip empty lines
+
+    # Pick image
     image_url = None
-    first_device = devices[0]
-    if hasattr(first_device, "images") and first_device.images.exists():
-        first_image = first_device.images.first()
+    if hasattr(device, "images") and device.images.exists():
+        first_image = device.images.first()
         image_url = first_image.image.url if hasattr(first_image.image, "url") else first_image.image
 
-    if as_caption:
-        return caption_text, image_url
-    else:
-        return caption_text
+    # Inline keyboard
+    keyboard = {
+        "inline_keyboard": [
+            [
+                {"text": "🩺 View Device", "url": device_link},
+                {"text": "📂 Explore More", "url": catalog_url},
+            ],
+            [
+                {"text": "🔗 Visit Pharmagebeya", "url": "https://pharmagebeya.com"},
+            ],
+        ]
+    }
+
+    return caption_text, image_url, keyboard

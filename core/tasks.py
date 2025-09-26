@@ -137,7 +137,7 @@ def post_next_supplier_products():
 def post_next_supplier_devices():
     """
     Posts up to 5 unposted devices for ONE supplier per cycle (round-robin),
-    sending either a photo+caption or a plain text post,
+    sending either a photo+caption with buttons or a plain text post,
     and saving everything atomically.
     """
     logger.info("Starting post_next_supplier_devices cycle.")
@@ -176,8 +176,8 @@ def post_next_supplier_devices():
             logger.info(f"No new devices to post for {supplier.name}. Skipping.")
             continue
 
-        # Generate caption + image
-        caption, image_url = generate_device_post(devices_to_post)
+        # ✅ Generate caption + image + inline keyboard
+        caption, image_url, reply_markup = generate_device_post(devices_to_post)
 
         if not caption:
             logger.warning(f"Failed to generate caption for {supplier.name}'s devices. Skipping.")
@@ -191,10 +191,10 @@ def post_next_supplier_devices():
                 # Step 1: Send to Telegram (photo if image exists, else text)
                 if image_url:
                     logger.info(f"Sending Telegram photo post for {supplier.name}.")
-                    success = send_telegram_photo(devices_to_post, caption)  # <-- fixed here
+                    success = send_telegram_photo(devices_to_post, caption, reply_markup=reply_markup)
                 else:
                     logger.info(f"Sending Telegram text post for {supplier.name}.")
-                    success = send_telegram_post(caption)
+                    success = send_telegram_post(caption, keyboard=reply_markup)
 
                 if not success:
                     raise Exception(f"Telegram send failed for {supplier.name}'s devices.")
@@ -240,6 +240,5 @@ def post_next_supplier_devices():
     remaining = all_device_ids - posted_device_ids
     logger.info(f"Still {len(remaining)} devices waiting to be posted across all suppliers.")
     return f"⏳ {len(remaining)} devices still waiting to be posted."
-
 
 #mrystockethiopia
