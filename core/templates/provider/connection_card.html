@@ -1,0 +1,84 @@
+<div class="connection-card" 
+     data-city="{{ profile.city.id|default:0 }}"
+     data-user-id="{{ profile.user.id }}"
+     data-active="{% if profile.last_activity and profile.last_activity|timesince < '30 days' %}true{% else %}false{% endif %}">
+    
+    <div class="card-header">
+        <a href="/supplier-detail/{{ profile.user_supplier.id }}/">
+        <div class="card-avatar">
+            {% if profile.logo %}
+                <img src="{{ profile.logo.url }}" alt="{{ profile.name }}">
+            {% else %}
+                <div class="avatar-placeholder">
+                    {{ profile.name|first }}
+                </div>
+            {% endif %}
+        </div>
+        </a>
+        {% if profile.last_activity and profile.last_activity|timesince < '1 day' %}
+        <div class="connection-status status-online">
+            <div class="status-dot"></div>
+            <span>Recently Active</span>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="card-body">
+        <h3 class="connection-name">{{ profile.name }}</h3>
+        <p class="connection-title">Professional Supplier</p>
+        
+        <div class="connection-info">
+            {% if profile.city %}
+            <div class="info-item">
+                <i class="fas fa-map-marker-alt"></i>
+                <span>{{ profile.city.name }}</span>
+            </div>
+            {% endif %}
+            
+            {% if profile.phone %}
+            <div class="info-item">
+                <i class="fas fa-phone"></i>
+                <span>{{ profile.phone }}</span>
+            </div>
+            {% endif %}
+            
+            <div class="info-item">
+                <i class="fas fa-clock"></i>
+                <span>Response: {{ profile.get_response_time_display }}</span>
+            </div>
+        </div>
+        
+        {% if profile.average_rating > 0 %}
+        <div class="connection-rating">
+            <div class="stars">
+                {% for i in "12345" %}
+                    {% if forloop.counter <= profile.average_rating %}
+                        <i class="fas fa-star"></i>
+                    {% else %}
+                        <i class="far fa-star"></i>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <span class="rating-value">{{ profile.average_rating }}</span>
+        </div>
+        {% endif %}
+
+        <div class="connection-actions">
+            {% if profile.phone %}
+            <a href="tel:{{ profile.phone }}" class="btn btn-message">
+                <i class="fas fa-phone"></i> Call
+            </a>
+            {% endif %}
+            
+            {% if profile.user.id in following_ids %}
+                <button class="btn btn-outline connect-btn connected" data-user-id="{{ profile.user.id }}">
+                    <i class="fas fa-user-check"></i> Connected
+                </button>
+            {% else %}
+                <button class="btn btn-outline connect-btn" data-user-id="{{ profile.user.id }}">
+                    <i class="fas fa-user-plus"></i> Connect
+                </button>
+            {% endif %}
+        </div>
+    </div>
+</div>

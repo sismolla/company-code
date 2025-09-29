@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic.list import ListView
+from httpx import request
 from rest_framework.permissions import AllowAny
 from rest_framework import generics
 from rest_framework.filters import SearchFilter
@@ -20,7 +21,6 @@ from rest_framework import viewsets
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import logout
 import uuid
-from django.db import models
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 import openpyxl
@@ -32,6 +32,8 @@ from Medical_device.models import MedicalDevice, ImpressionAggregate
 from django.contrib.contenttypes.models import ContentType
 import logging
 from django.template.loader import render_to_string
+from setting.models import  Industry, City, SupplierProfile, UserConnection
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
 logger = logging.getLogger(__name__)
@@ -48,63 +50,43 @@ def logout_view(request):
 
 
 
+from django.db.models import Count, Case, When, Value, IntegerField, F, Avg, Q
+
 class Pharmacy_page(ListView):
     model = Product
     template_name = "pharmacy.html"
     context_object_name = "products"
     paginate_by = 50
 
-    # High-level categories mapping to all 42 dosage forms
     CATEGORY_MAP = {
-        "Oral": [
-            "Tablet", "Capsule", "Syrup", "Suspension", "Chewable Tablet",
-            "Effervescent Tablet", "Dispersible Tablet", "Extended/Controlled Release Tablet",
-            "Granules", "Lozenge", "Sachet", "Mouthwash"
-        ],
-        "Injectable": [
-            "Injection", "Powder for Injection", "Ampoule", "Vial", "Infusion Solution"
-        ],
-        "Topical": [
-            "Cream", "Ointment", "Gel", "Lotion", "Patch",
-            "Shampoo (Medicated)", "Dental Paste"
-        ],
-        "Respiratory": [
-            "Inhaler", "Nebulizer Solution", "Spray", "Nasal Spray"
-        ],
-        "Ophthalmic/Otic/Nasal": [
-            "Eye Drops", "Eye Ointment", "Ear Drops", "Nasal Drops"
-        ],
-        "Rectal/Vaginal": [
-            "Suppository", "Enema", "Vaginal Tablet", "Vaginal Cream"
-        ],
-        "Specialized": [
-            "Buccal Film/Tablet", "Sublingual Tablet", "Implant"
-        ]
+        "Oral": ["Tablet", "Capsule", "Syrup", "Suspension", "Chewable Tablet",
+                 "Effervescent Tablet", "Dispersible Tablet", "Extended/Controlled Release Tablet",
+                 "Granules", "Lozenge", "Sachet", "Mouthwash"],
+        "Injectable": ["Injection", "Powder for Injection", "Ampoule", "Vial", "Infusion Solution"],
+        "Topical": ["Cream", "Ointment", "Gel", "Lotion", "Patch",
+                    "Shampoo (Medicated)", "Dental Paste"],
+        "Respiratory": ["Inhaler", "Nebulizer Solution", "Spray", "Nasal Spray"],
+        "Ophthalmic/Otic/Nasal": ["Eye Drops", "Eye Ointment", "Ear Drops", "Nasal Drops"],
+        "Rectal/Vaginal": ["Suppository", "Enema", "Vaginal Tablet", "Vaginal Cream"],
+        "Specialized": ["Buccal Film/Tablet", "Sublingual Tablet", "Implant"]
     }
 
     def get_queryset(self):
-        queryset = Product.objects.all().select_related("dosage_form", "supplier")
+        queryset = Product.objects.all().select_related("dosage_form", "supplier", "supplier__user")
         queryset = queryset.annotate(impression_count=F("impressions__impression_count"))
 
-        # Category filter
+        # --- Category filter ---
         category = self.request.GET.get("category")
         dosage_form = self.request.GET.get("dosage_form")
-
         if category and category in self.CATEGORY_MAP:
             allowed_forms = DosageForm.objects.filter(name__in=self.CATEGORY_MAP[category])
             queryset = queryset.filter(dosage_form__in=allowed_forms)
-
-            # ✅ Reset dosage_form if it's not in the allowed set
             if dosage_form and not allowed_forms.filter(id=dosage_form).exists():
                 dosage_form = None
-
         if dosage_form:
             queryset = queryset.filter(dosage_form_id=dosage_form)
 
-        
-
-
-        # Price filter
+        # --- Price filter ---
         min_price = self.request.GET.get("price__gte")
         max_price = self.request.GET.get("price__lte")
         if min_price:
@@ -112,7 +94,7 @@ class Pharmacy_page(ListView):
         if max_price:
             queryset = queryset.filter(price__lte=max_price)
 
-        # Search
+        # --- Search ---
         search = self.request.GET.get("search")
         if search:
             queryset = queryset.filter(
@@ -121,20 +103,40 @@ class Pharmacy_page(ListView):
                 Q(dosage_form__name__icontains=search)
             )
 
-        # Ordering
+        # --- Annotate supplier followers and connection ---
+        if self.request.user.is_authenticated:
+            user_connections = set(
+                UserConnection.objects.filter(follower=self.request.user)
+                .values_list('following_id', flat=True)
+            )
+        else:
+            user_connections = set()
+
+        queryset = queryset.annotate(
+            supplier_follower_count=Count('supplier__user__followers', distinct=True),
+            is_connected=Case(
+                When(supplier__user_id__in=user_connections, then=Value(1)),
+                default=Value(0),
+                output_field=IntegerField()
+            ),
+            avg_rating=Avg('reviews__rating')
+        )
+
+        # --- Ordering ---
         ordering = self.request.GET.get("ordering")
         allowed_ordering = ["price", "stock_quantity", "name", "-price", "-stock_quantity", "-name"]
         if ordering in allowed_ordering:
             queryset = queryset.order_by(ordering)
         else:
-            queryset = queryset.order_by('-impression_count')
+            # First by connected suppliers, then by followers, then impressions
+            queryset = queryset.order_by('-is_connected', '-supplier_follower_count', '-impression_count')
 
-        return queryset.annotate(avg_rating=Avg("reviews__rating"))
+        return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # Pass categories with their dosage forms
+        # --- Categories for frontend ---
         categories = []
         for cat_name, forms in self.CATEGORY_MAP.items():
             categories.append({
@@ -146,7 +148,6 @@ class Pharmacy_page(ListView):
             })
         context["categories"] = categories
 
-        # Selected category for frontend
         selected_category_name = self.request.GET.get("category")
         context["selected_category"] = next((c for c in categories if c["id"] == selected_category_name), None)
         context["filters"] = self.request.GET
@@ -154,7 +155,6 @@ class Pharmacy_page(ListView):
         return context
 
     def render_to_response(self, context, **response_kwargs):
-        # AJAX response with products partial
         if self.request.headers.get("x-requested-with") == "XMLHttpRequest":
             html = render_to_string('products_list_partial.html', context, request=self.request)
             return JsonResponse({'html': html})
@@ -253,6 +253,48 @@ class MessageView(LoginRequiredMixin,TemplateView):
         }
         return render(request, self.template_name, context)
 
+class ConnectionListView(LoginRequiredMixin, TemplateView):
+    login_url = '/user/signup/'
+    template_name = 'provider/connection.html'
+
+    def get(self, request, *args, **kwargs):
+        from django.utils import timezone
+        from datetime import timedelta
+        
+        # Get active tab from URL parameter
+        active_tab = request.GET.get('tab', 'followers')
+        
+        # Get followers (people who follow me)
+        follower_connections = UserConnection.objects.filter(following=request.user)
+        follower_users = [conn.follower for conn in follower_connections]
+        followers_profiles = Supplier.objects.filter(user__in=follower_users).select_related('user', 'city')
+        
+        # Get following (people I follow)
+        following_connections = UserConnection.objects.filter(follower=request.user)
+        following_users = [conn.following for conn in following_connections]
+        following_profiles = Supplier.objects.filter(user__in=following_users).select_related('user', 'city')
+        
+        # IDs for connection status
+        following_ids = [user.id for user in following_users]
+        
+        # Additional context
+        thirty_days_ago = timezone.now() - timedelta(days=30)
+        active_followers = followers_profiles.filter(last_activity__gte=thirty_days_ago).count()
+        active_following = following_profiles.filter(last_activity__gte=thirty_days_ago).count()
+        
+        cities = City.objects.filter(supplier__in=followers_profiles).distinct()
+
+        context = {
+            "logo": request.user.supplier.logo if hasattr(request.user, 'supplier') and request.user.supplier.logo else None,
+            "followers_profiles": followers_profiles,
+            "following_profiles": following_profiles,
+            "following_ids": following_ids,
+            "active_followers": active_followers,
+            "active_following": active_following,
+            "cities": cities,
+            "active_tab": active_tab,
+        }
+        return render(request, self.template_name, context)
 class CustomerDashboardView(LoginRequiredMixin,TemplateView):
     login_url = '/user/signup/'
     template_name = 'dashboard.html'
@@ -497,16 +539,121 @@ class ProductProvider(viewsets.ModelViewSet):
         supplier = self.request.user.supplier_profile
         serializer.save(supplier=supplier)
 
+
+
+from django.db.models import Count, Case, When, Value, IntegerField, Q
+
 class ProductProviderListPage(TemplateView):
     template_name = 'provider/list.html'
 
-    def get(self, request):
-        supplier = Supplier.objects.filter(user=request.user.id).first()
+    def get(self, request, *args, **kwargs):
+        search_name = request.GET.get('name', '').strip()
+        search_location = request.GET.get('location', '').strip()
+        search_industries = request.GET.getlist('industry')
+
+        # --- Get user connections once ---
+        if request.user.is_authenticated:
+            user_connections = set(
+                UserConnection.objects.filter(follower=request.user)
+                .values_list('following_id', flat=True)
+            )
+        else:
+            user_connections = set()
+
+        # --- Base queryset ---
+        suppliers_qs = Supplier.objects.filter(
+            products__isnull=False,
+            user_supplier__isnull=False
+        ).distinct()
+
+        # --- Apply search filters ---
+        if search_name:
+            suppliers_qs = suppliers_qs.filter(name__icontains=search_name)
+
+        if search_location:
+            suppliers_qs = suppliers_qs.filter(
+                Q(city__name__icontains=search_location) |
+                Q(supplierprofile__cities__name__icontains=search_location)
+            ).distinct()
+
+        if search_industries:
+            suppliers_qs = suppliers_qs.filter(
+                supplierprofile__industries__id__in=search_industries
+            ).distinct()
+
+        # --- Optimize DB queries ---
+        suppliers_qs = suppliers_qs.select_related('user', 'city').prefetch_related(
+            'products__reviews',
+            'supplierprofile__industries',
+            'supplierprofile__specialized_equipment',
+        )
+
+        # --- Annotate follower count and connection ---
+        suppliers_qs = suppliers_qs.annotate(
+            follower_count=Count('user__followers', distinct=True),  # note user__followers
+            is_connected=Case(
+                When(user_id__in=user_connections, then=Value(1)),
+                default=Value(0),
+                output_field=IntegerField()
+            )
+        ).order_by('-is_connected', '-follower_count')  # connected first, then popular
+
+        supplier_list = []
+        for supplier in suppliers_qs:
+            user_products = getattr(supplier, 'user_supplier', None)
+
+            industries_list = [
+                i.name for i in supplier.supplierprofile.industries.all()
+            ] if hasattr(supplier, 'supplierprofile') else []
+
+            equipments_list = [
+                e.name for e in supplier.supplierprofile.specialized_equipment.all()
+            ] if hasattr(supplier, 'supplierprofile') else []
+
+            supplier_list.append({
+                "id": supplier.id,
+                "supplier": supplier.name,
+                "phone": supplier.phone,
+                "email": supplier.user.email if supplier.user else "",
+                "address": supplier.address or "",
+                "city": supplier.city.name if supplier.city else "",
+                "description": user_products.description if user_products else "",
+                "average_rating": supplier.average_rating,
+                "logo": supplier.logo.url if supplier.logo else None,
+                "bulk_discount_available": user_products.bulk_discount_available if user_products else False,
+                "offer_delivery": user_products.offer_delivery if user_products else False,
+                "industries": industries_list,
+                "specialized_equipments": equipments_list,
+                "user_profile": user_products,
+                "user_connections": user_connections,
+                "follower_count": supplier.follower_count,  # optional display
+            })
+
+        # --- Pagination ---
+        page = request.GET.get('page', 1)
+        paginator = Paginator(supplier_list, 28)
+        try:
+            suppliers_page = paginator.page(page)
+        except PageNotAnInteger:
+            suppliers_page = paginator.page(1)
+        except EmptyPage:
+            suppliers_page = paginator.page(paginator.num_pages)
+
+        industries = Industry.objects.all()
+        cities = City.objects.all()
+
         context = {
-            "logo": supplier.logo if supplier and supplier.logo else None,
+            "suppliers": suppliers_page,
+            "industries": industries,
+            "cities": cities,
+            "selected_industries": list(map(int, search_industries)),
+            "search_name": search_name,
+            "search_location": search_location,
+            "paginator": paginator,
         }
+
         return render(request, self.template_name, context)
- 
+
 class ProductProviderDetailPage(View):
     template_name = 'provider/detail.html'
 

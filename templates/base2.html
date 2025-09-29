@@ -551,6 +551,11 @@
                     <span>Medical devices</span>
                     <span class="underline"></span>
                 </a>
+
+                <a href="/quotes-list" class="nav-link">
+                    <span>Buyers Request</span>
+                    <span class="underline"></span>
+                </a>
                 <a href="/pharmaceutical-wholesalers" class="nav-link">
                     <span>pharmaceutical Wholesalers</span>
                     <span class="underline"></span>
@@ -576,8 +581,14 @@
                 {% if user.is_authenticated %}
                 <div class="user-dropdown-container">
                     <div class="user-avatar" id="avatarBtn">
-                        {% if logo %}
-                            <img src="{{ logo.url }}" alt="Wholesaler Logo">
+                        {% if request.user.is_authenticated %}
+                            {% if request.user.supplier_profile.logo %}
+                                <img src="{{ request.user.supplier_profile.logo.url }}" 
+                                    alt="Wholesaler Logo" 
+                                    style="height: 40px; width: 40px; border-radius: 50%;">
+                            {% else %}
+                                <i class="fas fa-user"></i>
+                            {% endif %}
                         {% else %}
                             <i class="fas fa-user"></i>
                         {% endif %}
@@ -590,6 +601,9 @@
                         <hr>
                         <li><a href="{% url 'landing:dashboard' %}" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
                         <li><a href="{% url 'landing:user-products' %}"><i class="fas fa-shopping-cart"></i> My Products</a></li>
+                        <li><a href="/connections"><i class="fas fa-network-wired"></i> My Network</a></li>
+                        <li><a href="/quotes-page/"><i class="fas fa-file-alt"></i> Request Product</a></li> 
+                        <li><a href="/manage-quotes/"><i class="fas fa-file-alt"></i> Manage Request</a></li>
                         <li><a href="{% url 'landing:order-view' %}"><i class="fas fa-clipboard-list"></i> Manage Orders</a></li>
                         <li><a href="{% url 'landing:message-view' %}"><i class="fas fa-comments"></i> Messages</a></li>
                         <li><a href="{% url 'landing:profile' %}" ><i class="fas fa-cog"></i> Account Settings</a></li>

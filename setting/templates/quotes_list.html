@@ -1,0 +1,1629 @@
+{% extends 'base2.html' %}
+{% load static %}
+
+{% block title %}Available Buying Requests - Find Quotes | YourSiteName{% endblock %}
+{% block meta_description %}Browse available buying requests and quotes. Find opportunities to submit competitive bids and grow your business.{% endblock %}
+{% block meta_keywords %}buying requests, quotes, business opportunities, supplier bids, procurement{% endblock %}
+{% block og_title %}Available Buying Requests - Find Quotes{% endblock %}
+{% block og_description %}Browse available buying requests and quotes. Find opportunities to submit competitive bids.{% endblock %}
+{% block og_image %}{% static 'images/quotes-og-image.jpg' %}{% endblock %}
+{% block canonical_url %}{{ request.build_absolute_uri }}{% endblock %}
+
+{% block style %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #f8f9fa;
+            --dark: #2c3e50;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --border-radius: 12px;
+            --box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            line-height: 1.6;
+            color: var(--dark);
+            background-color: #f5f7fa;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: var(--border-radius);
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--secondary), #2980b9);
+            color: white;
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 18px rgba(52, 152, 219, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #219653);
+            color: white;
+            box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 18px rgba(39, 174, 96, 0.4);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid var(--secondary);
+            color: var(--secondary);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 0.85rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 2rem 0;
+            min-height: 70vh;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            background: white;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        .page-title {
+            font-size: 1.8rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .page-title i {
+            color: var(--accent);
+        }
+
+        .filters-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            background: white;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        .filter-select {
+            padding: 12px 18px;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--light-gray);
+            background-color: white;
+            font-weight: 500;
+            min-width: 160px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        .search-box {
+            flex-grow: 1;
+            position: relative;
+            min-width: 250px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 18px 12px 45px;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--light-gray);
+            font-size: 1rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            transition: var(--transition);
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
+
+        /* Stats Overview */
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-item {
+            background: white;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            text-align: center;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+        }
+
+        .stat-item:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--secondary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        /* Quote Grid */
+        .quotes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* Quote Card */
+        .quote-card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            position: relative;
+        }
+
+        .quote-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .quote-header {
+            padding: 1.2rem;
+            background: linear-gradient(135deg, var(--secondary), #2980b9);
+            color: white;
+            position: relative;
+        }
+
+        .quote-id {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .quote-status {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background-color: var(--success);
+            color: white;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .quote-status.status-expired {
+            background-color: var(--danger);
+        }
+
+        .quote-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+        }
+
+        .meta-label {
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .meta-value {
+            font-weight: 500;
+        }
+
+        .countdown-timer {
+            font-weight: 600;
+            color: #f39c12;
+        }
+
+        .quote-body {
+            padding: 1.2rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .section-title {
+            font-size: 1rem;
+            color: var(--primary);
+            margin-bottom: 0.8rem;
+            padding-bottom: 6px;
+            border-bottom: 1px solid var(--light-gray);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title i {
+            color: var(--accent);
+            font-size: 0.9rem;
+        }
+
+        .requested-by {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 1rem;
+            padding: 0.8rem;
+            background: var(--light);
+            border-radius: var(--border-radius);
+        }
+
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+
+        .user-title {
+            color: var(--gray);
+            margin-bottom: 6px;
+            font-size: 0.8rem;
+        }
+
+        .user-rating {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8rem;
+        }
+
+        .user-rating .fas.fa-star {
+            color: #f39c12;
+        }
+
+        .response-time {
+            color: var(--gray);
+            font-size: 0.75rem;
+        }
+    
+        .message-box {
+            background-color: var(--light);
+            padding: 0.8rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--secondary);
+            flex-grow: 1;
+        }
+
+        .message-text {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: var(--dark);
+        }
+
+        .message-text.collapsed {
+            max-height: 100px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .message-text.collapsed::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 30px;
+            background: linear-gradient(transparent, var(--light));
+        }
+
+        .see-more-btn {
+            background: none;
+            border: none;
+            color: var(--secondary);
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 8px;
+            font-size: 0.85rem;
+            padding: 0;
+        }
+
+        .see-more-btn:hover {
+            color: var(--primary);
+        }
+
+        /* Attachment Styles */
+        .attachment-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 10px;
+            background-color: var(--light);
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+            margin-bottom: 0.5rem;
+        }
+
+        .attachment-item:hover {
+            background-color: #e0e7ef;
+        }
+
+        .attachment-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .attachment-details {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .attachment-name {
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 0.85rem;
+            word-break: break-word;
+        }
+
+        .attachment-size {
+            font-size: 0.75rem;
+            color: var(--gray);
+        }
+
+        .attachment-actions {
+            display: flex;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .images-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .image-item {
+            border-radius: 8px;
+            overflow: hidden;
+            height: 70px;
+            position: relative;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .image-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .image-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .image-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 4px;
+            font-size: 0.7rem;
+            text-align: center;
+        }
+
+        .quote-footer {
+            padding: 1rem 1.2rem;
+            background-color: var(--light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid var(--light-gray);
+        }
+
+        .quote-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+            padding: 20px;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: var(--border-radius);
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+            animation: modalAppear 0.4s ease;
+        }
+
+        @keyframes modalAppear {
+            from {
+                opacity: 0;
+                transform: translateY(-30px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .modal-header {
+            padding: 1.2rem;
+            background: linear-gradient(135deg, var(--primary), #34495e);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: var(--transition);
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .close-modal:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: 1.2rem;
+        }
+
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: var(--border-radius);
+            background-color: var(--light);
+            transition: var(--transition);
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .contact-item:hover {
+            background-color: #e0e7ef;
+            transform: translateX(5px);
+        }
+
+        .contact-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .contact-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .contact-type {
+            font-size: 0.85rem;
+            color: var(--gray);
+            margin-bottom: 4px;
+        }
+
+        .contact-value {
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--primary);
+        }
+
+        .contact-note {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: var(--border-radius);
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .contact-note i {
+            color: var(--secondary);
+            margin-right: 8px;
+        }
+
+        /* Image Zoom Modal */
+        .image-zoom-modal .modal-content {
+            max-width: 95vw;
+            max-height: 95vh;
+            background: transparent;
+            box-shadow: none;
+        }
+
+        .image-zoom-modal .modal-header {
+            background: rgba(0, 0, 0, 0.7);
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            left: auto;
+            border-radius: var(--border-radius);
+            padding: 0.8rem 1rem;
+        }
+
+        .image-zoom-modal .modal-body {
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+
+        .zoomed-image {
+            max-width: 100%;
+            max-height: 80vh;
+            object-fit: contain;
+            border-radius: var(--border-radius);
+        }
+
+        /* Message System */
+        .message-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1100;
+            max-width: 400px;
+            width: 90%;
+        }
+        
+        .message {
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            animation: slideIn 0.3s ease;
+            transform: translateX(0);
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        
+        .message.hiding {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        
+        .message-success {
+            background-color: #d1fae5;
+            color: var(--success);
+            border-left: 4px solid var(--success);
+        }
+        
+        .message-error {
+            background-color: #fee2e2;
+            color: var(--danger);
+            border-left: 4px solid var(--danger);
+        }
+        
+        .message-warning {
+            background-color: #fef3c7;
+            color: var(--warning);
+            border-left: 4px solid var(--warning);
+        }
+        
+        .message-info {
+            background-color: #dbeafe;
+            color: var(--secondary);
+            border-left: 4px solid var(--secondary);
+        }
+        
+        .message-content {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex: 1;
+        }
+        
+        .message-close {
+            background: none;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            font-size: 1rem;
+            opacity: 0.7;
+            transition: var(--transition);
+        }
+        
+        .message-close:hover {
+            opacity: 1;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--gray);
+            grid-column: 1 / -1;
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--light-gray);
+        }
+        
+        .empty-state h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        /* Loading State */
+        .loading-state {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+            grid-column: 1 / -1;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(52, 152, 219, 0.2);
+            border-radius: 50%;
+            border-top-color: var(--secondary);
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Accessibility */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        /* Focus styles for better accessibility */
+        button:focus-visible,
+        input:focus-visible,
+        select:focus-visible {
+            outline: 2px solid var(--secondary);
+            outline-offset: 2px;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 1024px) {
+            .quotes-grid {
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+                padding: 1.2rem;
+            }
+
+            .page-title {
+                font-size: 1.5rem;
+            }
+
+            .filters-container {
+                flex-direction: column;
+                padding: 1.2rem;
+            }
+
+            .filter-select, .search-box {
+                width: 100%;
+            }
+
+            .quotes-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .quote-header {
+                flex-direction: column;
+                text-align: left;
+                gap: 1rem;
+            }
+
+            .quote-meta {
+                text-align: left;
+                width: 100%;
+            }
+
+            .meta-item {
+                justify-content: space-between;
+            }
+
+            .quote-footer {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+
+            .quote-actions {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .stats-overview {
+                grid-template-columns: 1fr;
+            }
+
+            .images-grid {
+                grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+            }
+
+            .modal-content {
+                width: 95%;
+                margin: 10px;
+            }
+
+            .message-container {
+                right: 10px;
+                left: 10px;
+                max-width: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 15px;
+            }
+
+            .main-content {
+                padding: 1.5rem 0;
+            }
+
+            .page-title {
+                font-size: 1.3rem;
+            }
+
+            .quote-id {
+                font-size: 1.1rem;
+            }
+
+            .quote-header, .quote-body, .quote-footer {
+                padding: 1rem;
+            }
+
+            .requested-by {
+                flex-direction: column;
+                text-align: center;
+                gap: 12px;
+            }
+
+            .user-info {
+                text-align: center;
+            }
+
+            .btn {
+                padding: 10px 16px;
+                font-size: 0.9rem;
+            }
+
+            .images-grid {
+                grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+                gap: 6px;
+            }
+
+            .image-item {
+                height: 60px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .quote-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .images-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            .btn, .filters-container, .message-container, .modal {
+                display: none !important;
+            }
+            
+            .quote-card {
+                break-inside: avoid;
+                box-shadow: none;
+                border: 1px solid #ddd;
+            }
+            
+            body {
+                background: white;
+                color: black;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<main class="main-content">
+    <div class="container">
+        <!-- Message System -->
+        <div class="message-container" id="messageContainer"></div>
+        
+        <!-- Breadcrumb for SEO -->
+        <nav aria-label="breadcrumb" class="breadcrumb-nav">
+            <ol class="breadcrumb" style="display: flex; list-style: none; padding: 0; margin-bottom: 1.5rem; font-size: 0.9rem;">
+                <li style="margin-right: 0.5rem;"><a href="/" style="color: var(--secondary); text-decoration: none;">Home</a></li>
+                <li style="margin-right: 0.5rem;">/</li>
+                <li style="color: var(--gray);">Available Quotes</li>
+            </ol>
+        </nav>
+
+        <div class="page-header">
+            <h1 class="page-title">
+                <i class="fas fa-file-invoice-dollar" aria-hidden="true"></i>
+                Available Buying Requests
+            </h1>
+            <a href="/quotes-page/" class="btn btn-primary" id="createQuoteBtn">
+                <i class="fas fa-plus-circle" aria-hidden="true"></i> Submit New Quote
+            </a>
+        </div>
+
+        
+
+        <div class="filters-container">
+            <select class="filter-select" id="statusFilter" aria-label="Filter by quote status">
+                <option value="all">Any Status</option>
+                <option value="active">Active</option>
+                <option value="expired">Expired</option>
+            </select>
+            <select class="filter-select" id="deadlineFilter" aria-label="Filter by deadline">
+                <option value="all">Any Deadline</option>
+                <option value="24h">Within 24 hours</option>
+                <option value="3d">Within 3 days</option>
+                <option value="1w">Within 1 week</option>
+            </select>
+            <div class="search-box">
+                <i class="fas fa-search" aria-hidden="true"></i>
+                <input type="text" placeholder="Search quotes..." id="searchInput" aria-label="Search quotes">
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div class="loading-state" id="loadingState">
+            <div class="loading-spinner" aria-hidden="true"></div>
+            <p>Loading quotes...</p>
+        </div>
+
+        <div class="quotes-grid" id="quotesGrid">
+    {% for quote in quotes %}
+    <div class="quote-card" data-quote-id="{{ quote.id }}" data-status="{% if quote.is_active %}active{% else %}expired{% endif %}" data-expiry="{{ quote.expiry_date|date:'U' }}" itemscope itemtype="https://schema.org/Offer">
+        <div class="quote-header">
+            <div class="quote-id" itemprop="name">{{ quote.quote_id }}</div>
+            <span class="quote-status {% if quote.is_active %}status-active{% else %}status-expired{% endif %}">
+                <i class="fas fa-circle" aria-hidden="true"></i>
+                {% if quote.is_active %} Active {% else %} Expired {% endif %}
+            </span>
+            <div class="quote-meta">
+                <div class="meta-item">
+                    <span class="meta-label">Submitted:</span>
+                    <span class="meta-value">{{ quote.created_at|date:"M d, Y" }}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Deadline:</span>
+                    <span class="meta-value" itemprop="validThrough">{{ quote.expiry_date|date:"M d, Y" }}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Time Left:</span>
+                    <span class="meta-value countdown-timer" data-expiry="{{ quote.expiry_date|date:'c' }}">
+                        Calculating...
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="quote-body">
+            <h2 class="section-title">
+                <i class="fas fa-user" aria-hidden="true"></i>
+                Requested By
+            </h2>
+            <div class="requested-by" itemprop="seller" itemscope itemtype="https://schema.org/Organization">
+                {% if quote.supplier.logo %}
+                <img src="{{ quote.supplier.logo.url }}" alt="{{ quote.supplier.name }}" class="user-avatar" itemprop="logo">
+                {% else %}
+                <div class="user-avatar">{{ quote.supplier.name|slice:":2"|upper }}</div>
+                {% endif %}
+                <div class="user-info">
+                    <div class="user-name" itemprop="name">{{ quote.supplier.name }}</div>
+                    <div class="user-rating">
+                        <i class="fas fa-star" aria-hidden="true"></i>
+                        <span>{{ quote.supplier.average_rating|default:"0.0" }}</span>
+                        <span class="response-time">• {{ quote.supplier.get_response_time_display }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <h2 class="section-title">
+                <i class="fas fa-comment-dots" aria-hidden="true"></i>
+                Request Details
+            </h2>
+            <div class="message-box">
+                <p class="message-text {% if quote.message|length > 500 %}collapsed{% endif %}" id="message-{{ quote.id }}" itemprop="description">
+                    {{ quote.message }}
+                </p>
+                {% if quote.message|length > 500 %}
+                <button class="see-more-btn" data-message-id="{{ quote.id }}" aria-expanded="false" aria-controls="message-{{ quote.id }}">
+                    <i class="fas fa-chevron-down" aria-hidden="true"></i>
+                    <span>See More</span>
+                </button>
+                {% endif %}
+            </div>
+
+            {% if quote.attachment %}
+            <h2 class="section-title">
+                <i class="fas fa-paperclip" aria-hidden="true"></i>
+                Attachments
+            </h2>
+            <div class="attachments">
+                <div class="attachment-item">
+                    <div class="attachment-icon">
+                        <i class="fas fa-file-pdf" aria-hidden="true"></i>
+                    </div>
+                    <div class="attachment-details">
+                        <div class="attachment-name">{{ quote.attachment.name }}</div>
+                        <div class="attachment-size">{{ quote.attachment.size|filesizeformat }}</div>
+                    </div>
+                    <a href="{{ quote.attachment.url }}" class="btn btn-primary btn-small" target="_blank" rel="noopener">
+                        <i class="fas fa-download" aria-hidden="true"></i> Download
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if quote.images.all %}
+            <h2 class="section-title">
+                <i class="fas fa-images" aria-hidden="true"></i>
+                Images
+            </h2>
+            <div class="images-grid">
+                {% for img in quote.images.all %}
+                <div class="image-item" data-image-src="{{ img.image.url }}">
+                    <img src="{{ img.image.url }}" alt="Quote Image {{ forloop.counter }}" loading="lazy">
+                    <div class="image-overlay">
+                        <i class="fas fa-search-plus" aria-hidden="true"></i> View
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="quote-footer">
+            <div class="quote-actions">
+                <button class="btn btn-success bid-btn" data-quote-id="{{ quote.id }}" data-supplier-id="{{ quote.supplier.id }}" {% if not quote.is_active %}disabled{% endif %}>
+                    <i class="fas fa-gavel" aria-hidden="true"></i> Contact Buyer
+                </button>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+<div class="empty-state">
+    <i class="fas fa-file-invoice" aria-hidden="true"></i>
+    <h3>No Quotes Available</h3>
+    <p>
+        A <strong>quote</strong> is a request you send to suppliers to get prices for the 
+        products or services you need. Once submitted, suppliers can respond with their offers.  
+    </p>
+    <p>
+        You don’t have any quotes yet. Start by creating one and let suppliers reach out to you!
+    </p>
+    <a href="/quotes-page/" class="btn btn-success">
+        <i class="fas fa-plus-circle" aria-hidden="true"></i> Create a Quote
+    </a>
+    <button class="btn btn-primary" id="refreshQuotesBtn">
+        <i class="fas fa-sync-alt" aria-hidden="true"></i> Refresh
+    </button>
+</div>
+{% endfor %}
+
+</div>
+    </div>
+</main>
+
+<!-- Contact Supplier Modal -->
+<div class="modal" id="contactModal" aria-hidden="true" role="dialog" aria-labelledby="contactModalTitle">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title" id="contactModalTitle">
+                <i class="fas fa-address-book" aria-hidden="true"></i>
+                Contact Buyer
+            </h2>
+            <button class="close-modal" aria-label="Close contact modal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="supplier-info" id="supplierInfo">
+                <div class="supplier-name" id="supplierName"></div>
+                <div class="quote-reference" id="quoteReference"></div>
+            </div>
+            
+            <div class="contact-info" id="contactInfo">
+                <!-- Contact items will be dynamically added here -->
+            </div>
+
+            <div class="contact-note">
+                <p><i class="fas fa-info-circle" aria-hidden="true"></i> Contact the supplier directly to discuss this quote and place your bid.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Image Zoom Modal -->
+<div class="modal image-zoom-modal" id="imageZoomModal" aria-hidden="true" role="dialog" aria-labelledby="imageZoomModalTitle">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title" id="imageZoomModalTitle">
+                <i class="fas fa-search-plus" aria-hidden="true"></i>
+                Image Preview
+            </h2>
+            <button class="close-modal" aria-label="Close image modal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <img src="" alt="Zoomed Image" class="zoomed-image" id="zoomedImage">
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block script %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Elements
+        const contactModal = document.getElementById('contactModal');
+        const imageZoomModal = document.getElementById('imageZoomModal');
+        const bidButtons = document.querySelectorAll('.bid-btn');
+        const closeModalButtons = document.querySelectorAll('.close-modal');
+        const searchInput = document.getElementById('searchInput');
+        const statusFilter = document.getElementById('statusFilter');
+        const deadlineFilter = document.getElementById('deadlineFilter');
+        const refreshBtn = document.getElementById('refreshQuotesBtn');
+        const createQuoteBtn = document.getElementById('createQuoteBtn');
+        const seeMoreButtons = document.querySelectorAll('.see-more-btn');
+        const imageItems = document.querySelectorAll('.image-item');
+        const quotesGrid = document.getElementById('quotesGrid');
+        const loadingState = document.getElementById('loadingState');
+
+        // Supplier data
+        const suppliersData = {
+            {% for quote in quotes %}
+            "{{ quote.supplier.id }}": {
+                name: "{{ quote.supplier.name }}",
+                phone: "{{ quote.supplier.phone|default:'Not provided' }}",
+                email: "{{ quote.supplier.user.email|default:'Not provided' }}",
+                whatsapp: "{{ quote.supplier.whatsapp_link|default:'' }}",
+                telegram: "{{ quote.supplier.telegram_link|default:'' }}",
+                address: "{{ quote.supplier.address|default:'Not provided' }}"
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        };
+
+        // Initialize features
+        initializeCountdownTimers();
+        initializeSeeMoreButtons();
+
+        // Contact Supplier functionality
+        bidButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const quoteId = this.getAttribute('data-quote-id');
+                const supplierId = this.getAttribute('data-supplier-id');
+                openContactModal(quoteId, supplierId);
+            });
+        });
+
+        function openContactModal(quoteId, supplierId) {
+            const quoteCard = document.querySelector(`[data-quote-id="${quoteId}"]`);
+            const quoteIdText = quoteCard.querySelector('.quote-id').textContent;
+            const supplier = suppliersData[supplierId];
+
+            if (!supplier) {
+                showMessage('Supplier information not available', 'error');
+                return;
+            }
+
+            // Update modal content
+            document.getElementById('supplierName').textContent = supplier.name;
+            document.getElementById('quoteReference').textContent = `Quote: ${quoteIdText}`;
+
+            // Build contact info
+            const contactInfo = document.getElementById('contactInfo');
+            contactInfo.innerHTML = '';
+
+            // Phone
+            if (supplier.phone && supplier.phone !== 'Not provided') {
+                const phoneItem = createContactItem('phone', 'Phone', supplier.phone, `tel:${supplier.phone}`);
+                contactInfo.appendChild(phoneItem);
+            }
+
+            // Email
+            if (supplier.email && supplier.email !== 'Not provided') {
+                const emailItem = createContactItem('envelope', 'Email', supplier.email, `mailto:${supplier.email}`);
+                contactInfo.appendChild(emailItem);
+            }
+
+            // WhatsApp
+            if (supplier.whatsapp) {
+                const whatsappItem = createContactItem('whatsapp', 'WhatsApp', 'Click to chat', supplier.whatsapp, true);
+                contactInfo.appendChild(whatsappItem);
+            }
+
+            // Telegram
+            if (supplier.telegram) {
+                const telegramItem = createContactItem('paper-plane', 'Telegram', 'Click to message', supplier.telegram, true);
+                contactInfo.appendChild(telegramItem);
+            }
+
+            // Address
+            if (supplier.address && supplier.address !== 'Not provided') {
+                const addressItem = createContactItem('map-marker-alt', 'Address', supplier.address);
+                contactInfo.appendChild(addressItem);
+            }
+
+            // Show modal
+            contactModal.style.display = 'flex';
+            contactModal.setAttribute('aria-hidden', 'false');
+        }
+
+        function createContactItem(icon, type, value, link = null, isExternal = false) {
+            const item = document.createElement(isExternal ? 'a' : 'div');
+            item.className = 'contact-item';
+            
+            if (isExternal) {
+                item.href = link;
+                item.target = '_blank';
+                item.rel = 'noopener noreferrer';
+            } else if (link) {
+                item.href = link;
+            }
+
+            item.innerHTML = `
+                <div class="contact-icon">
+                    <i class="fas fa-${icon}" aria-hidden="true"></i>
+                </div>
+                <div class="contact-details">
+                    <div class="contact-type">${type}</div>
+                    <div class="contact-value">${value}</div>
+                </div>
+            `;
+
+            return item;
+        }
+
+        // Image zoom functionality
+        imageItems.forEach(item => {
+            item.addEventListener('click', function() {
+                const imageSrc = this.getAttribute('data-image-src');
+                document.getElementById('zoomedImage').src = imageSrc;
+                document.getElementById('zoomedImage').alt = 'Zoomed quote image';
+                imageZoomModal.style.display = 'flex';
+                imageZoomModal.setAttribute('aria-hidden', 'false');
+            });
+        });
+
+        // See More/Less functionality
+        function initializeSeeMoreButtons() {
+            seeMoreButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const messageId = this.getAttribute('data-message-id');
+                    const messageText = document.getElementById(`message-${messageId}`);
+                    const icon = this.querySelector('i');
+                    const textSpan = this.querySelector('span');
+                    const isExpanded = this.getAttribute('aria-expanded') === 'true';
+                    
+                    if (!isExpanded) {
+                        // Expand
+                        messageText.classList.remove('collapsed');
+                        icon.className = 'fas fa-chevron-up';
+                        textSpan.textContent = 'See Less';
+                        this.setAttribute('aria-expanded', 'true');
+                    } else {
+                        // Collapse
+                        messageText.classList.add('collapsed');
+                        icon.className = 'fas fa-chevron-down';
+                        textSpan.textContent = 'See More';
+                        this.setAttribute('aria-expanded', 'false');
+                    }
+                });
+            });
+        }
+
+        // Filter functionality
+        searchInput.addEventListener('input', filterQuotes);
+        statusFilter.addEventListener('change', filterQuotes);
+        deadlineFilter.addEventListener('change', filterQuotes);
+
+        function filterQuotes() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const status = statusFilter.value;
+            const deadline = deadlineFilter.value;
+            let visibleCount = 0;
+
+            document.querySelectorAll('.quote-card').forEach(card => {
+                const quoteId = card.querySelector('.quote-id').textContent.toLowerCase();
+                const message = card.querySelector('.message-text').textContent.toLowerCase();
+                const supplierName = card.querySelector('.user-name').textContent.toLowerCase();
+                const cardStatus = card.getAttribute('data-status');
+                const cardExpiry = parseInt(card.getAttribute('data-expiry'));
+
+                const matchesSearch = quoteId.includes(searchTerm) || message.includes(searchTerm) || supplierName.includes(searchTerm);
+                const matchesStatus = status === 'all' || 
+                    (status === 'active' && cardStatus === 'active') ||
+                    (status === 'expired' && cardStatus === 'expired');
+                const matchesDeadline = matchesDeadlineFilter(cardExpiry, deadline);
+
+                if (matchesSearch && matchesStatus && matchesDeadline) {
+                    card.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            // Show empty state if no quotes visible
+            const emptyState = document.querySelector('.empty-state');
+            if (visibleCount === 0 && emptyState) {
+                emptyState.style.display = 'block';
+            } else if (emptyState) {
+                emptyState.style.display = 'none';
+            }
+        }
+
+        function matchesDeadlineFilter(expiryTimestamp, deadline) {
+            if (deadline === 'all') return true;
+            
+            const now = Math.floor(Date.now() / 1000);
+            const timeLeft = expiryTimestamp - now;
+
+            switch(deadline) {
+                case '24h': return timeLeft <= 24 * 60 * 60;
+                case '3d': return timeLeft <= 3 * 24 * 60 * 60;
+                case '1w': return timeLeft <= 7 * 24 * 60 * 60;
+                default: return true;
+            }
+        }
+
+        // Countdown timers
+        function initializeCountdownTimers() {
+            document.querySelectorAll('.countdown-timer').forEach(timer => {
+                updateCountdown(timer);
+            });
+
+            // Update every minute
+            setInterval(() => {
+                document.querySelectorAll('.countdown-timer').forEach(timer => {
+                    updateCountdown(timer);
+                });
+            }, 60000);
+        }
+
+        function updateCountdown(timer) {
+            const expiry = new Date(timer.getAttribute('data-expiry'));
+            const now = new Date();
+            const diff = expiry - now;
+
+            if (diff <= 0) {
+                timer.textContent = 'Expired';
+                timer.style.color = '#e74c3c';
+                return;
+            }
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+            if (days > 0) {
+                timer.textContent = `${days}d ${hours}h left`;
+                timer.style.color = days <= 1 ? '#f39c12' : '#27ae60';
+            } else if (hours > 0) {
+                timer.textContent = `${hours}h ${minutes}m left`;
+                timer.style.color = hours <= 6 ? '#f39c12' : '#27ae60';
+            } else {
+                timer.textContent = `${minutes}m left`;
+                timer.style.color = '#e74c3c';
+            }
+        }
+
+        // Message system
+        function showMessage(message, type = 'info') {
+            const messageContainer = document.getElementById('messageContainer');
+            const messageId = 'msg-' + Date.now();
+            
+            const messageEl = document.createElement('div');
+            messageEl.id = messageId;
+            messageEl.className = `message message-${type}`;
+            messageEl.setAttribute('role', 'alert');
+            messageEl.setAttribute('aria-live', 'polite');
+            
+            let icon = 'info-circle';
+            if (type === 'success') icon = 'check-circle';
+            if (type === 'error') icon = 'exclamation-circle';
+            if (type === 'warning') icon = 'exclamation-triangle';
+            
+            messageEl.innerHTML = `
+                <div class="message-content">
+                    <i class="fas fa-${icon}" aria-hidden="true"></i>
+                    <span>${message}</span>
+                </div>
+                <button class="message-close" onclick="closeMessage('${messageId}')" aria-label="Close message">
+                    <i class="fas fa-times" aria-hidden="true"></i>
+                </button>
+            `;
+            
+            messageContainer.appendChild(messageEl);
+            
+            // Auto remove after duration
+            setTimeout(() => {
+                closeMessage(messageId);
+            }, 5000);
+        }
+        
+        function closeMessage(messageId) {
+            const messageEl = document.getElementById(messageId);
+            if (messageEl) {
+                messageEl.classList.add('hiding');
+                setTimeout(() => {
+                    if (messageEl.parentNode) {
+                        messageEl.parentNode.removeChild(messageEl);
+                    }
+                }, 300);
+            }
+        }
+
+        // Modal close functionality
+        closeModalButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const modal = this.closest('.modal');
+                modal.style.display = 'none';
+                modal.setAttribute('aria-hidden', 'true');
+            });
+        });
+
+        window.addEventListener('click', function(event) {
+            if (event.target === contactModal) {
+                contactModal.style.display = 'none';
+                contactModal.setAttribute('aria-hidden', 'true');
+            }
+            if (event.target === imageZoomModal) {
+                imageZoomModal.style.display = 'none';
+                imageZoomModal.setAttribute('aria-hidden', 'true');
+            }
+        });
+
+        // Close modals with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                if (contactModal.style.display === 'flex') {
+                    contactModal.style.display = 'none';
+                    contactModal.setAttribute('aria-hidden', 'true');
+                }
+                if (imageZoomModal.style.display === 'flex') {
+                    imageZoomModal.style.display = 'none';
+                    imageZoomModal.setAttribute('aria-hidden', 'true');
+                }
+            }
+        });
+
+        // Refresh quotes
+        refreshBtn?.addEventListener('click', function() {
+            showMessage('Refreshing quotes...', 'info');
+            // Simulate loading
+            if (loadingState) {
+                loadingState.style.display = 'block';
+                quotesGrid.style.display = 'none';
+            }
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        });
+
+        // Create quote
+        createQuoteBtn?.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.href = '/quotes-page/';
+        });
+
+        // Initialize
+        filterQuotes();
+        
+        // Lazy load images
+        if ('IntersectionObserver' in window) {
+            const imageObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        img.src = img.dataset.src;
+                        img.classList.remove('lazy');
+                        imageObserver.unobserve(img);
+                    }
+                });
+            });
+
+            document.querySelectorAll('img[data-src]').forEach(img => {
+                imageObserver.observe(img);
+            });
+        }
+    });
+</script>
+{% endblock script %}

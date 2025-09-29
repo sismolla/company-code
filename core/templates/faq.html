@@ -2,9 +2,11 @@
 {% load static %}
 {% block meta %}
 <meta name="description" content="Find answers to common questions about Pharma ገበያ. Learn how Medical Device retailers and wholesalers connect, order, and trade securely in Ethiopia’s Medical Device marketplace." />
+<meta name="keywords" content="medical device marketplace, supplier chain, stock notifications, Ethiopia medical suppliers, customer quotes, pharmaceutical distribution">
 {% endblock meta %}
-{% block title %}Medical Device Marketplace FAQs for Buyers & Wholesalers{% endblock title %}
+{% block title %}Medical Device Marketplace FAQs & Supplier Connection Platform{% endblock title %}
 {% block style %}
+
 <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -95,6 +97,88 @@
             background: #1e6ea0;
         }
 
+        /* Quote System Styles */
+        .quote-system-section {
+            background: linear-gradient(135deg, #0066cc 0%, #004499 100%);
+            color: white;
+            padding: 3rem 2rem;
+            border-radius: 12px;
+            margin: 3rem 0;
+            text-align: center;
+        }
+
+        .quote-system-section h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .quote-system-section p {
+            font-size: 1.1rem;
+            max-width: 800px;
+            margin: 0 auto 2rem;
+            opacity: 0.9;
+        }
+
+        .quote-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .quote-feature {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+        }
+
+        .quote-feature i {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: #80c0ff;
+        }
+
+        .quote-feature h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .quote-cta-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-quote {
+            display: inline-block;
+            padding: 0.8rem 2rem;
+            background: white;
+            color: #0066cc;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-quote:hover {
+            background: #f0f7ff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-quote-outline {
+            background: transparent;
+            border: 2px solid white;
+            color: white;
+        }
+
+        .btn-quote-outline:hover {
+            background: white;
+            color: #0066cc;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .help-header h1 {
@@ -105,17 +189,78 @@
                 flex-direction: column;
                 gap: 1rem;
             }
+
+            .quote-system-section {
+                padding: 2rem 1rem;
+            }
+
+            .quote-system-section h2 {
+                font-size: 1.5rem;
+            }
+
+            .quote-cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn-quote {
+                width: 100%;
+                max-width: 300px;
+                text-align: center;
+            }
         }
     </style>
+
 {% endblock style %}
 
-
 {% block content %}
+
+<nav aria-label="breadcrumb" class="breadcrumb-nav">
+    <ol class="breadcrumb" style="margin-left: 10px; margin-top: 10px; display: flex; list-style: none; padding: 0; margin-bottom: 1.5rem; font-size: 0.9rem;">
+        <li style="margin-right: 0.5rem;"><a href="/" style="color: var(--secondary); text-decoration: none;">Home</a></li>
+        <li style="margin-right: 0.5rem;">/</li>
+        <li style="color: var(--gray);"> FAQ</li>
+    </ol>
+</nav>
+
 <main class="container mx-auto px-4 py-8 md:py-12">
     <div class="text-center mb-12">
         <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h1>
         <p class="text-lg text-gray-600 max-w-3xl mx-auto">Find answers to common questions about ordering medical devices through our platform.</p>
     </div>
+
+    <!-- Quote System Section -->
+    <section class="quote-system-section">
+        <h2>Connect Suppliers & Customers Seamlessly</h2>
+        <p>Our integrated quote system creates a direct supply chain between medical device suppliers and customers. Submit your requirements and get matched with verified suppliers instantly.</p>
+        
+        <div class="quote-features">
+            <div class="quote-feature">
+                <i class="fas fa-bell"></i>
+                <h3>Real-time Stock Updates</h3>
+                <p>Get notified immediately when suppliers update their inventory with products you need.</p>
+            </div>
+            <div class="quote-feature">
+                <i class="fas fa-quote-right"></i>
+                <h3>Submit Your Requirements</h3>
+                <p>Post what you're looking for and make it visible to all verified suppliers in our network.</p>
+            </div>
+            <div class="quote-feature">
+                <i class="fas fa-link"></i>
+                <h3>Direct Supplier Connection</h3>
+                <p>Connect directly with suppliers who can fulfill your specific medical device needs.</p>
+            </div>
+        </div>
+        
+        <div class="quote-cta-buttons">
+            <a href="/quotes-page/" class="btn-quote">
+                <i class="fas fa-paper-plane mr-2"></i>Submit Your Requirements
+            </a>
+            <a href="/user/signup/" class="btn-quote btn-quote-outline">
+                <i class="fas fa-store mr-2"></i>Become a Supplier
+            </a>
+        </div>
+    </section>
 
     <div class="max-w-2xl mx-auto mb-12">
         <div class="relative">
@@ -130,15 +275,77 @@
         <button class="faq-category-button px-4 py-2 bg-white border border-gray-300 rounded-full hover:bg-gray-50 transition-colors duration-200" data-category="payments">Payments</button>
         <button class="faq-category-button px-4 py-2 bg-white border border-gray-300 rounded-full hover:bg-gray-50 transition-colors duration-200" data-category="delivery">Delivery</button>
         <button class="faq-category-button px-4 py-2 bg-white border border-gray-300 rounded-full hover:bg-gray-50 transition-colors duration-200" data-category="account">Account</button>
+        <button class="faq-category-button px-4 py-2 bg-white border border-gray-300 rounded-full hover:bg-gray-50 transition-colors duration-200" data-category="quotes">Quote System</button>
     </div>
 
     <div class="max-w-4xl mx-auto">
+        <!-- Quote System FAQ Section -->
+        <div id="quotes-section" class="faq-section mb-12">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                <i class="fas fa-quote-left text-blue-600 mr-3"></i>
+                Quote System & Supplier Connection
+            </h2>
+            <div class="space-y-4">
+                <div class="faq-item-container bg-white rounded-xl shadow-sm p-6 active" data-category="quotes">
+                    <div class="flex justify-between items-center cursor-pointer">
+                        <h3 class="faq-question text-lg font-semibold text-gray-900">How does the quote system connect suppliers and customers?</h3>
+                        <i class="faq-toggle fas fa-chevron-up text-gray-400 transition-transform duration-300"></i>
+                    </div>
+                    <div class="faq-answer" style="display: block;">
+                        <p class="text-gray-600">Our quote system creates a direct supply chain connection:</p>
+                        <ul class="list-disc pl-5 space-y-2 mt-2 text-gray-600">
+                            <li><span class="font-medium">Customer Requirements:</span> Submit what you're looking for through our quote form</li>
+                            <li><span class="font-medium">Supplier Matching:</span> Your requirements are instantly visible to relevant suppliers</li>
+                            <li><span class="font-medium">Direct Contact:</span> Suppliers who can fulfill your needs will contact you directly</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="faq-item-container bg-white rounded-xl shadow-sm p-6 active" data-category="quotes">
+                    <div class="flex justify-between items-center cursor-pointer">
+                        <h3 class="faq-question text-lg font-semibold text-gray-900">How do I submit my requirements to suppliers?</h3>
+                        <i class="faq-toggle fas fa-chevron-up text-gray-400 transition-transform duration-300"></i>
+                    </div>
+                    <div class="faq-answer" style="display: block;">
+                        <p class="text-gray-600">To submit your requirements:</p>
+                        <ol class="list-decimal pl-5 space-y-2 mt-2 text-gray-600">
+                            <li>Click "Submit Your Requirements" button above</li>
+                            <li>Fill out the form with product details, quantities, and specifications</li>
+                            <li>Set your preferred contact method</li>
+                            <li>Submit - your request becomes visible to verified suppliers</li>
+                            <li>Suppliers with matching inventory will contact you directly</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="faq-item-container bg-white rounded-xl shadow-sm p-6 active" data-category="quotes">
+                    <div class="flex justify-between items-center cursor-pointer">
+                        <h3 class="faq-question text-lg font-semibold text-gray-900">How do stock update notifications work on Pharmaገበያ?</h3>
+                        <i class="faq-toggle fas fa-chevron-up text-gray-400 transition-transform duration-300"></i>
+                    </div>
+                    <div class="faq-answer" style="display: block;">
+                        <p class="text-gray-600">Stock notifications help you stay updated when suppliers refresh their inventory:</p>
+                        <ul class="list-disc pl-5 space-y-2 mt-2 text-gray-600">
+                            <li>If you <strong>follow a supplier</strong>, you’ll get notified when they add new products or update stock.</li>
+                            <li>Notifications appear in your Pharmaገበያ account and can also be sent via email.</li>
+                            <li>All new stock follows a <strong>first-come, first-served</strong> priority system.</li>
+                        </ul>
+                        <div class="highlight-box p-4 mt-4 rounded-r-lg">
+                            <p class="text-sm font-medium">
+                                <i class="fas fa-info-circle text-blue-600 mr-2"></i>
+                                Follow your preferred suppliers and enable notifications to never miss out on new stock opportunities.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div id="ordering-section" class="faq-section mb-12">
             <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
                 <i class="fas fa-shopping-cart text-blue-600 mr-3"></i>
                 Ordering Process
             </h2>
-
 
             <div class="faq-item-container bg-white rounded-xl shadow-sm p-6 active" data-category="ordering">
                 <div class="flex justify-between items-center cursor-pointer">
@@ -148,13 +355,11 @@
                 <div class="faq-answer" style="display: block;">
                     <p class="text-gray-600">Each product listing displays its current stock status:</p>
                     <ul class="list-disc pl-5 space-y-2 mt-2 text-gray-600">
-                        <li><span class="font-medium">First Come, First Served:</span> Once you place an order in the system, the wholesaler’s product is immediately marked as reserved under your name. This ensures that your order takes priority and must be fulfilled before any other requests made through direct contact or alternative channels.</li>
-
+                        <li><span class="font-medium">First Come, First Served:</span> Once you place an order in the system, the wholesaler's product is immediately marked as reserved under your name. This ensures that your order takes priority and must be fulfilled before any other requests made through direct contact or alternative channels.</li>
                         <li><span class="font-medium">Direct Contact:</span> Orders placed through direct contact are not guaranteed. They remain subject to product availability and must receive explicit confirmation from the wholesaler before being considered valid.</li>
                     </ul>
                 </div>
             </div>
-
 
             <div class="space-y-4">
                 <div class="faq-item-container bg-white rounded-xl shadow-sm p-6 active" data-category="ordering">
@@ -172,7 +377,6 @@
                             <li>Upload any required prescription documents.</li>
                             <li>Submit your order request.</li>
                             <li>then an email including your ordered product will be sent to you.</li>
-
                         </ol>
                         <p class="text-gray-600 mt-3">The wholesaler will review your order and contact you to confirm the details and arrange for payment.</p>
                     </div>
@@ -187,7 +391,6 @@
                         <p class="text-gray-600">Order modifications or cancellations must be requested directly with the wholesaler. Please contact them immediately if you need to make changes,. Once an order has been sent, it will be available for 7 consecutive days in the system. After this period, orders are no longer active.</p>
                         <div class="highlight-box p-4 mt-4 rounded-r-lg">
                             <p class="text-sm font-medium"><i class="fas fa-info-circle text-blue-600 mr-2"></i>The wholesaler has the authority to either confirm or cancel the order, and once this occurs, an immediate email will be sent to you at your provided email address.</p>
-
                             <p class="text-sm font-medium"><i class="fas fa-info-circle text-blue-600 mr-2"></i> Most Wholesalers can accommodate changes if requested before order processing begins.</p>
                         </div>
                     </div>
@@ -324,11 +527,9 @@
         <div class="contact-section">
             <h2>Still need help?</h2>
             <p>Our dedicated support team is available to assist you with any questions or issues you may encounter.</p>
-
             <a href="/contactus" class="btn-contact">
                 <i class=""></i> Contact us
             </a>
-            </div>
         </div>
     </div>
 </main>
@@ -435,7 +636,6 @@
             document.querySelector('.faq-category-button[data-category="all"]').classList.add('bg-blue-600', 'text-white');
             document.querySelector('.faq-category-button[data-category="all"]').classList.remove('bg-white', 'border', 'border-gray-300', 'hover:bg-gray-50');
 
-
             // Show all sections for searching
             faqSections.forEach(section => {
                 section.style.display = 'block';
@@ -460,4 +660,4 @@
         });
     });
 </script>
-{%endblock script%}
+{% endblock script %}

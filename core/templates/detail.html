@@ -181,9 +181,14 @@
 
 {% block content %}
     <div class="container mx-auto p-4 md:p-8">
-        <div class="text-sm text-gray-500 mb-4">
-            <a href="{%url 'landing:landing-page'%}" class="hover:underline">Home</a> > <span id="breadcrumbProduct">Product</span>
-        </div>
+        <nav aria-label="breadcrumb" class="breadcrumb-nav">
+            <ol class="breadcrumb" style="margin-top: 10px; margin-left: 10px; display: flex; list-style: none; padding: 0; margin-bottom: 1.5rem; font-size: 0.9rem;">
+                <li style="margin-right: 0.5rem;"><a href="/" style="color: var(--secondary); text-decoration: none;">Home</a></li>
+                <li style="margin-right: 0.5rem;">/</li>
+                <li style="color: var(--gray);">About {{product.name}}</li>
+            </ol>
+        </nav>
+
         <main class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 my-4 md:my-8">
             <div class="bg-white p-4 md:p-6 rounded-lg shadow-md">
                 <div class="main-image flex items-center justify-center bg-gray-200 rounded-lg mb-4 relative h-64 md:h-96">
@@ -629,30 +634,32 @@ document.addEventListener('DOMContentLoaded', function() {
         // Function to fetch product details from the API
         const fetchProductDetails = async () => {
             try {
-                const response = await fetch(`/product/api/${productId}/`);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                // 1. Fetch Product Details
+                const productResponse = await fetch(`/product/api/${productId}/`);
+                if (!productResponse.ok) {
+                    throw new Error(`HTTP error! status: ${productResponse.status}`);
                 }
-
-
-                const data = await response.json();
+                const data = await productResponse.json();
                 productData = data;
 
-                const DOSAGE_FORMS_MAP = {
-                    "Tablet": 1, "Capsule": 2, "Injection": 3, "Syrup": 4, "Suspension": 5,
-                    "Cream": 6, "Ointment": 7, "Gel": 8, "Lotion": 9, "Suppository": 10,
-                    "Powder": 11, "Drops (Eye/Ear/Nasal)": 12, "Inhaler": 13, "Patch": 14,
-                    "Granules": 15, "Mouthwash": 16, "Lozenge": 17, "Solution": 18,
-                    "Emulsion": 19, "Spray": 20
-                };
+                // 2. Fetch and AWAIT Dosage Forms MAP
+                let DOSAGE_FORMS_MAP = {};
+                try {
+                    const dosageResponse = await fetch('/dosage-forms-map/');
+                    DOSAGE_FORMS_MAP = await dosageResponse.json();
+                } catch (error) {
+                    console.error('Error loading dosage forms:', error);
+                    // Will continue with an empty map, so dosage will be "Unknown"
+                }
 
-                // Reverse mapping (id -> name)
+                // 3. Create Reverse Mapping (this now runs *after* the map is loaded)
                 const REVERSE_DOSAGE_MAP = Object.fromEntries(
                     Object.entries(DOSAGE_FORMS_MAP).map(([name, id]) => [id, name])
                 );
 
-                // Populate product details
+                // 4. Populate product details
                 if (productDosage) {
+                    // Correctly uses the loaded map to find the dosage name
                     const dosageName = REVERSE_DOSAGE_MAP[data.dosage_form] || "Unknown";
                     productDosage.textContent = dosageName;
                 }
@@ -692,14 +699,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
 
                 const userProductId = data.userproduct_id;
-                if (userProductId) {
-                    // Construct the URL and update the link on the page
-                    const link = document.getElementById('supplier-link');
-                    link.href = `/supplier-detail/${userProductId}/`;
-                    link.style.display = 'block'; // Make the link visible
-                } else {
-                    // Hide the link if userproduct_id is null
-                    document.getElementById('supplier-link').style.display = 'none';
+                const supplierLink = document.getElementById('supplier-link');
+                if (supplierLink) {
+                    if (userProductId) {
+                        // Construct the URL and update the link on the page
+                        supplierLink.href = `/supplier-detail/${userProductId}/`;
+                        supplierLink.style.display = 'block'; // Make the link visible
+                    } else {
+                        // Hide the link if userproduct_id is null
+                        supplierLink.style.display = 'none';
+                    }
                 }
 
                 if (productDescriptionEl) productDescriptionEl.textContent = `This product is ${data.name} with a strength of ${data.strength} and a pack size of ${data.pack_size}. It's a high-quality product from a trusted supplier.`;

@@ -2,433 +2,1732 @@
 {% load static %}
 {% block meta %}
 <meta name="description" content="Browse a list of verified Ethiopian Pharmaceutical wholesalers on Pharma ገበያ. Connect directly with trusted suppliers for bulk Pharmaceuticals orders." />
-
 {% endblock meta %}
 
 {% block title %}Medical devices Wholesalers Across Ethiopia{% endblock title %}
 
 {% block style %}
-    <style>
-        :root {
-            --primary: #4361ee;
-            --primary-light: #f0f4ff;
-            --secondary: #6c757d;
-            --text: #2b2d42;
-            --border: #e9ecef;
-            --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
+<style>
+    :root {
+        --primary: #2563eb;
+        --primary-light: #dbeafe;
+        --primary-dark: #1e40af;
+        --secondary: #64748b;
+        --text: #1e293b;
+        --text-light: #475569;
+        --border: #e2e8f0;
+        --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        --hover-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        --success: #10b981;
+        --warning: #f59e0b;
+        --radius: 12px;
+        --radius-sm: 8px;
+        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        --sidebar-width: 320px;
+    }
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8fafc;
-            color: var(--text);
-            line-height: 1.6;
-            margin: 0;
-            padding: 0;
-        }
+    * {
+        box-sizing: border-box;
+    }
 
-/* Additional styles for contact information */
-.search-container {
-    display: flex;
-    gap: 15px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-}
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        line-height: 1.6;
+        color: var(--text);
+        background-color: #f8fafc;
+    }
 
-.search-input {
-    flex: 1;
-    min-width: 250px;
-    padding: 10px 15px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 16px;
-}
+    .container-new {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 1rem;
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        gap: 1.5rem;
+        align-items: start;
+    }
 
-.supplier-contact {
-    margin: 15px 0;
-    padding: 15px;
-    background-color: #f9f9f9;
-    border-radius: 4px;
-}
+    /* Page Header */
+    .page-header {
+        grid-column: 1 / -1;
+        margin-bottom: 1.5rem;
+        text-align: center;
+        padding: 3rem 1rem;
+        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+        border-radius: var(--radius);
+        position: relative;
+        overflow: hidden;
+    }
 
-.supplier-contact-item {
-    display: flex;
-    align-items: center;
-    margin-bottom: 8px;
-}
+    .page-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+    }
 
-.supplier-contact-item:last-child {
-    margin-bottom: 0;
-}
+    .page-title {
+        font-size: clamp(1.75rem, 4vw, 2.5rem);
+        font-weight: 800;
+        margin: 0 0 1rem 0;
+        color: var(--text);
+        letter-spacing: -0.025em;
+    }
 
-.supplier-contact-item i {
-    margin-right: 10px;
-    color: #2c5aa0;
-    width: 20px;
-}
+    .page-description {
+        color: var(--text-light);
+        margin: 0 auto;
+        max-width: 700px;
+        font-size: clamp(0.95rem, 2vw, 1.1rem);
+        line-height: 1.7;
+        padding: 0 1rem;
+    }
 
-.supplier-contact-item a {
-    color: #2c5aa0;
-    text-decoration: none;
-}
-
-.supplier-contact-item a:hover {
-    text-decoration: underline;
-}
-
-@media (max-width: 768px) {
-    .search-container {
-        flex-direction: column;
+    /* Breadcrumb */
+    .breadcrumb {
+        grid-column: 1 / -1;
+        padding: 0.75rem 0;
+        font-size: 0.875rem;
+        color: var(--secondary);
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
     }
     
-    .search-input {
-        min-width: 100%;
+    .breadcrumb a {
+        color: var(--primary);
+        text-decoration: none;
+        transition: var(--transition);
+        font-weight: 500;
     }
+    
+    .breadcrumb a:hover {
+        text-decoration: underline;
+        color: var(--primary-dark);
+    }
+    
+    .breadcrumb span {
+        color: var(--secondary);
+    }
+
+    /* Mobile Top Search & Filter Bar */
+    .mobile-top-filters {
+        display: none;
+        background: white;
+        border-radius: var(--radius);
+        padding: 1rem;
+        box-shadow: var(--card-shadow);
+        margin-bottom: 1rem;
+        grid-column: 1 / -1;
+        gap: 1rem;
+    }
+
+    .mobile-search-container-new {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .mobile-search-input {
+        flex: 1;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        font-size: 0.95rem;
+        transition: var(--transition);
+    }
+
+    .mobile-search-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .mobile-search-btn {
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: var(--radius-sm);
+        padding: 0.75rem 1rem;
+        cursor: pointer;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .mobile-search-btn:hover {
+        background: var(--primary-dark);
+    }
+
+    .mobile-filter-container-new {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+    }
+
+    .mobile-filter-select {
+        flex: 1;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        font-size: 0.95rem;
+        transition: var(--transition);
+        background: white;
+    }
+
+    .mobile-filter-select:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .mobile-filter-trigger {
+        background: var(--primary-light);
+        color: var(--primary);
+        border: none;
+        border-radius: var(--radius-sm);
+        padding: 0.75rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+        transition: var(--transition);
+    }
+
+    .mobile-filter-trigger:hover {
+        background: var(--primary);
+        color: white;
+    }
+
+    /* Sidebar Filter */
+    .filter-sidebar {
+        background: white;
+        border-radius: var(--radius);
+        padding: 1.5rem;
+        box-shadow: var(--card-shadow);
+        position: sticky;
+        top: 1.5rem;
+        height: fit-content;
+        max-height: calc(100vh - 3rem);
+        overflow-y: auto;
+    }
+
+    .filter-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .filter-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin: 0;
+        color: var(--text);
+    }
+
+    .filter-reset {
+        background: none;
+        border: none;
+        color: var(--primary);
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+        padding: 0.5rem;
+        border-radius: var(--radius-sm);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .filter-reset:hover {
+        background: var(--primary-light);
+    }
+
+    .filter-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-group label {
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        color: var(--text);
+        font-size: 0.95rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .form-group label i {
+        color: var(--primary);
+        width: 16px;
+    }
+
+    .filter-input, .filter-select {
+        padding: 0.875rem 1rem;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        font-size: 1rem;
+        transition: var(--transition);
+        width: 100%;
+        box-sizing: border-box;
+        background: white;
+    }
+
+    .filter-input:focus, .filter-select:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .industry-checkboxes {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        margin-top: 0.5rem;
+    }
+
+    .industry-checkbox {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        cursor: pointer;
+        padding: 0.75rem;
+        background: #f8fafc;
+        border-radius: var(--radius-sm);
+        transition: var(--transition);
+        border: 1px solid transparent;
+    }
+
+    .industry-checkbox:hover {
+        background: var(--primary-light);
+        border-color: var(--primary);
+    }
+
+    .industry-checkbox input {
+        margin: 0;
+        width: 18px;
+        height: 18px;
+        accent-color: var(--primary);
+    }
+
+    .industry-checkbox span {
+        font-weight: 500;
+        flex: 1;
+    }
+
+    .filter-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .apply-btn {
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 0.875rem 1.5rem;
+        border-radius: var(--radius-sm);
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .apply-btn:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+
+    .reset-btn {
+        background: white;
+        color: var(--secondary);
+        border: 1px solid var(--border);
+        padding: 0.875rem 1.5rem;
+        border-radius: var(--radius-sm);
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        text-decoration: none;
+    }
+
+    .reset-btn:hover {
+        background: #f8f9fa;
+        border-color: var(--secondary);
+        color: var(--text);
+    }
+
+    /* Main Content */
+    .main-content {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    /* Desktop Top Search Bar */
+    .top-search-container-new {
+        background: white;
+        border-radius: var(--radius);
+        padding: 1.5rem;
+        box-shadow: var(--card-shadow);
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .top-search-input {
+        flex-grow: 1;
+        min-width: 250px;
+        padding: 0.875rem 1rem;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        font-size: 1rem;
+        transition: var(--transition);
+        background: white;
+    }
+
+    .top-search-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .top-search-select {
+        padding: 0.875rem 1rem;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        font-size: 1rem;
+        transition: var(--transition);
+        min-width: 200px;
+        background: white;
+    }
+
+    .top-search-select:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .top-search-btn {
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 0.875rem 1.5rem;
+        border-radius: var(--radius-sm);
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        white-space: nowrap;
+    }
+
+    .top-search-btn:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+
+    /* Results Info */
+    .results-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 0;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .results-count {
+        font-weight: 600;
+        color: var(--text);
+        font-size: 1.1rem;
+    }
+
+    .sort-options {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .sort-select {
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        background: white;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+
+    .sort-select:focus {
+        outline: none;
+        border-color: var(--primary);
+    }
+
+    /* Enhanced Supplier List - Modern Card Layout */
+    .supplier-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .supplier-card {
+        background: white;
+        border-radius: var(--radius);
+        padding: 1.5rem;
+        box-shadow: var(--card-shadow);
+        transition: var(--transition);
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid transparent;
+    }
+
+    .supplier-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--hover-shadow);
+        border-color: rgba(37, 99, 235, 0.2);
+    }
+
+    .supplier-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+    }
+
+    .supplier-header {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .supplier-avatar {
+        width: 70px;
+        height: 70px;
+        background-color: var(--primary-light);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        flex-shrink: 0;
+        border: 3px solid white;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transition: var(--transition);
+    }
+
+    .supplier-card:hover .supplier-avatar {
+        transform: scale(1.05);
+    }
+
+    .supplier-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .supplier-info {
+        flex-grow: 1;
+        min-width: 0;
+    }
+
+    .supplier-name {
+        font-weight: 700;
+        margin: 0 0 0.5rem 0;
+        color: var(--text);
+        font-size: 1.2rem;
+        line-height: 1.3;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .supplier-location {
+    max-width: 500px;   /* adjust as needed */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+    vertical-align: middle;
 }
 
+    
+    .supplier-rating {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+    }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
+    .rating-stars {
+        display: flex;
+        gap: 0.1rem;
+    }
+
+    .rating-stars i {
+        font-size: 0.9rem;
+        color: var(--warning);
+    }
+
+    .rating-value {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--text);
+    }
+
+    .rating-count {
+        font-size: 0.8rem;
+        color: var(--secondary);
+    }
+
+    .supplier-industries {
+        margin: 0.75rem 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .industry-badge {
+        display: inline-block;
+        background: var(--primary-light);
+        color: var(--primary);
+        padding: 0.3rem 0.6rem;
+        border-radius: 15px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        transition: var(--transition);
+        white-space: nowrap;
+    }
+
+    .industry-badge:hover {
+        background: var(--primary);
+        color: white;
+    }
+
+    .supplier-description {
+        color: var(--text-light);
+        font-size: 0.9rem;
+        margin: 0.75rem 0;
+        line-height: 1.5;
+        flex-grow: 1;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .supplier-contact {
+        margin: 1rem 0;
+        padding: 1rem;
+        background-color: #f9fafb;
+        border-radius: var(--radius-sm);
+        border-left: 4px solid var(--primary);
+    }
+
+    .supplier-contact-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.5rem;
+        font-size: 0.85rem;
+    }
+
+    .supplier-contact-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .supplier-contact-item i {
+        margin-right: 8px;
+        color: var(--primary);
+        width: 14px;
+        text-align: center;
+    }
+
+    .supplier-contact-item a {
+        color: var(--primary);
+        text-decoration: none;
+        transition: var(--transition);
+        font-weight: 500;
+    }
+
+    .supplier-contact-item a:hover {
+        text-decoration: underline;
+        color: var(--primary-dark);
+    }
+
+    .supplier-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        margin-top: auto;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+    }
+
+    .connect-btn {
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: var(--radius-sm);
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex: 1;
+        justify-content: center;
+    }
+
+    .connect-btn:hover {
+        background: var(--primary-dark);
+        transform: translateY(-1px);
+    }
+
+    .connect-btn.connected {
+        background: #e5e7eb;
+        color: #374151;
+    }
+
+    .connect-btn.connected:hover {
+        background: #d1d5db;
+    }
+
+    .message-btn {
+        background: white;
+        color: #374151;
+        border: 1px solid #d1d5db;
+        padding: 0.5rem 1rem;
+        border-radius: var(--radius-sm);
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex: 1;
+        justify-content: center;
+    }
+
+    .message-btn:hover {
+        background: #f9fafb;
+        border-color: #9ca3af;
+    }
+
+    .view-profile-link {
+        color: var(--primary);
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        transition: var(--transition);
+        justify-content: center;
+        padding: 0.5rem;
+        border-radius: var(--radius-sm);
+    }
+
+    .view-profile-link:hover {
+        background: var(--primary-light);
+        color: var(--primary-dark);
+    }
+
+    /* Supplier Status Badge */
+    .supplier-status {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        padding: 0.3rem 0.6rem;
+        border-radius: 15px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .status-verified {
+        background: var(--success);
+        color: white;
+    }
+
+    .status-premium {
+        background: var(--warning);
+        color: var(--text);
+    }
+
+    /* Pagination */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 2rem 0;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .pagination a, .pagination span {
+        padding: 0.75rem 1.25rem;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        text-decoration: none;
+        color: var(--text);
+        transition: var(--transition);
+        font-weight: 600;
+        min-width: 44px;
+        text-align: center;
+    }
+
+    .pagination a:hover {
+        background: var(--primary-light);
+        border-color: var(--primary);
+        color: var(--primary);
+    }
+
+    .pagination .current-page {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+    }
+
+    .pagination .disabled {
+        color: var(--secondary);
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+
+    /* No Results */
+    .no-results {
+        text-align: center;
+        padding: 3rem 1rem;
+        grid-column: 1 / -1;
+        background: white;
+        border-radius: var(--radius);
+        box-shadow: var(--card-shadow);
+    }
+
+    .no-results-icon {
+        font-size: 4rem;
+        color: var(--secondary);
+        margin-bottom: 1.5rem;
+        opacity: 0.5;
+    }
+
+    .no-results h3 {
+        color: var(--text);
+        margin-bottom: 0.75rem;
+        font-size: 1.5rem;
+    }
+
+    .no-results p {
+        color: var(--text-light);
+        max-width: 500px;
+        margin: 0 auto;
+        line-height: 1.6;
+    }
+
+    /* Floating Filter Button (Mobile) */
+    .floating-filter-btn {
+        position: fixed;
+        bottom: 2rem;
+        right: 1rem;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+        z-index: 1000;
+        transition: var(--transition);
+    }
+
+    .floating-filter-btn:hover {
+        background: var(--primary-dark);
+        transform: scale(1.1);
+    }
+
+    /* Filter Overlay (Mobile) */
+    .filter-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1100;
+        display: none;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .filter-overlay.active {
+        display: block;
+        opacity: 1;
+    }
+
+    .mobile-filter-sidebar {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 85%;
+        max-width: 350px;
+        height: 100%;
+        background: white;
+        box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+        z-index: 1200;
+        overflow-y: auto;
+        transition: right 0.3s ease;
+        padding: 1.5rem;
+    }
+
+    .mobile-filter-sidebar.active {
+        right: 0;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1200px) {
+        .container-new {
+            grid-template-columns: 280px 1fr;
+            gap: 1.5rem;
+        }
+        
+        .supplier-list {
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        }
+    }
+
+    @media (max-width: 992px) {
+        .container-new {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        
+        .filter-sidebar {
+            display: none;
+        }
+        
+        .mobile-top-filters {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .floating-filter-btn {
+            display: flex;
+        }
+        
+        .supplier-list {
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        }
+        
+        .top-search-container-new {
+            display: none;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .container-new {
             padding: 1rem;
         }
-
-        .page-header {
-            margin-bottom: 2rem;
-        }
-
+        
         .page-title {
-            font-size: 1.75rem;
-            font-weight: 700;
-            margin: 0 0 1rem 0;
+            font-size: 2rem;
         }
-
-        .page-description {
-            color: var(--secondary);
-            margin: 0;
+        
+        .mobile-search-container-new {
+            flex-direction: column;
         }
-
-        .search-container {
-            margin-bottom: 2rem;
-            display: flex;
-            gap: 1rem;
-            align-items: center;
+        
+        .mobile-filter-container-new {
+            flex-direction: column;
         }
-
-        .search-input {
-            flex-grow: 1;
-            padding: 0.75rem 1rem;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: border-color 0.2s;
-        }
-
-        .search-input:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
+        
         .supplier-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
-        }
-
-        .supplier-card {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: var(--card-shadow);
-            transition: transform 0.2s;
-        }
-
-        .supplier-card:hover {
-            transform: translateY(-3px);
-        }
-
-        .supplier-header {
-            display: flex;
-            align-items: center;
+            grid-template-columns: 1fr;
             gap: 1rem;
-            margin-bottom: 1rem;
         }
-
+        
+        .supplier-card {
+            padding: 1.25rem;
+        }
+        
+        .supplier-header {
+            gap: 1rem;
+        }
+        
         .supplier-avatar {
             width: 60px;
             height: 60px;
-            background-color: var(--primary-light);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
         }
-
-        .supplier-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .supplier-info {
-            flex-grow: 1;
-        }
-
+        
         .supplier-name {
-            font-weight: 600;
-            margin: 0;
-            color: var(--text);
-        }
-
-        .supplier-location {
-            font-size: 0.85rem;
-            color: var(--secondary);
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-            margin-top: 0.25rem;
+            font-size: 1.1rem;
         }
         
-        .supplier-rating {
-            font-size: 0.9rem;
-            color: #ffc107; /* Star color */
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-            margin-top: 0.25rem;
-        }
-
-        .supplier-description {
-            color: var(--secondary);
-            font-size: 0.9rem;
-            margin: 1rem 0;
-            line-height: 1.5;
-        }
-
-        .top-products {
-            margin: 1rem 0;
-        }
-
-        .product-tag {
-            display: inline-block;
-            background-color: var(--primary-light);
-            color: var(--primary);
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            margin-right: 0.5rem;
-            margin-bottom: 0.5rem;
+        .results-info {
+            flex-direction: column;
+            align-items: flex-start;
         }
         
-        /* SEO optimizations */
-        .breadcrumb {
-            padding: 0.75rem 0;
-            font-size: 0.875rem;
-            color: var(--secondary);
+        .pagination {
+            flex-direction: column;
+            align-items: stretch;
         }
         
-        .breadcrumb a {
-            color: var(--primary);
-            text-decoration: none;
-        }
-        
-        .breadcrumb a:hover {
-            text-decoration: underline;
-        }
-
-        .view-btn {
-            display: block;
-            width: 100%;
-            padding: 0.75rem;
-            background-color: #3498db;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-weight: 500;
+        .pagination a, .pagination span {
             text-align: center;
-            text-decoration: none;
-            cursor: pointer;
-            transition: background-color 0.2s;
         }
+        
+    }
 
-        .view-btn:hover {
-            background-color: #3a56e8;
+    @media (max-width: 480px) {
+        .container-new {
+            padding: 0.75rem;
         }
-
-        @media (max-width: 768px) {
-            .supplier-list {
-                grid-template-columns: 1fr;
-            }
+        
+        .page-header {
+            padding: 1.5rem 1rem;
         }
-    </style>
+        
+        .page-title {
+            font-size: 1.75rem;
+        }
+        
+        .supplier-card {
+            padding: 1rem;
+        }
+        
+        .supplier-avatar {
+            width: 50px;
+            height: 50px;
+        }
+        
+        .supplier-contact {
+            padding: 0.75rem;
+        }
+        
+        .supplier-status {
+            top: 0.75rem;
+            right: 0.75rem;
+        }
+        
+        .floating-filter-btn {
+            bottom: 1rem;
+            right: 1rem;
+            width: 50px;
+            height: 50px;
+            font-size: 1.25rem;
+        }
+    }
+</style>
 {% endblock style %}
+
 {% block content %}
-<div class="container mx-auto px-4">
-    <div class="breadcrumb">
-        <a href="/">Home</a> > <a href="/pharmaceutical-wholesalers">Pharmaceutical Suppliers</a> > <span>Directory</span>
+<div class="container-new">
+    <!-- Breadcrumb for SEO -->
+        <nav aria-label="breadcrumb" class="breadcrumb-nav">
+            <ol class="breadcrumb" style="display: flex; list-style: none; padding: 0; margin-bottom: 1.5rem; font-size: 0.9rem;">
+                <li style="margin-right: 0.5rem;"><a href="/" style="color: var(--secondary); text-decoration: none;">Home</a></li>
+                <li style="margin-right: 0.5rem;">/</li>
+                <li style="color: var(--gray);">Pharmaceutical Suppliers</li>
+            </ol>
+        </nav>
+
+    <div class="page-header">
+        <h1 class="page-title">Trusted Pharmaceutical Wholesalers in Ethiopia</h1>
+        <p class="page-description">Explore verified Pharmaceutical wholesalers in Ethiopia offering bulk supplies, reliable shipping, and quality assurance for your business needs.</p>
     </div>
+
+    <!-- Mobile Top Search & Filter Bar -->
+    <div class="mobile-top-filters">
+        <div class="mobile-search-container-new">
+            <input type="text" class="mobile-search-input" placeholder="Search suppliers..." value="{{ search_name }}" id="mobileSearchInput">
+            <button class="mobile-search-btn" id="mobileSearchBtn">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+        <div class="mobile-filter-container-new">
+            <select class="mobile-filter-select" id="mobileLocationSelect">
+                <option value="">All Locations</option>
+                {% for city in cities %}
+                    <option value="{{ city.name }}" {% if city.name == search_location %}selected{% endif %}>
+                        {{ city.name }}
+                    </option>
+                {% endfor %}
+            </select>
+            <button class="mobile-filter-trigger" id="mobileFilterTrigger">
+                <i class="fas fa-filter"></i> Filters
+            </button>
+        </div>
+    </div>
+
+    <!-- Sidebar Filter -->
+    <aside class="filter-sidebar">
+        <div class="filter-header">
+            <h3 class="filter-title">Filter Suppliers</h3>
+            <button class="filter-reset" onclick="window.location.href='?'">
+                <i class="fas fa-redo"></i> Reset
+            </button>
+        </div>
+        
+        <form method="get" class="filter-form" id="filterForm">
+            <!-- Search Input -->
+            <div class="form-group">
+                <label for="name"><i class="fas fa-search"></i> Search by name</label>
+                <input type="text" id="name" name="name" class="filter-input" placeholder="Supplier name" value="{{ search_name }}">
+            </div>
+
+            <!-- Location Select -->
+            <div class="form-group">
+                <label for="location"><i class="fas fa-map-marker-alt"></i> Location</label>
+                <select id="location" name="location" class="filter-select">
+                    <option value="">All Locations</option>
+                    {% for city in cities %}
+                        <option value="{{ city.name }}" {% if city.name == search_location %}selected{% endif %}>
+                            {{ city.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Industries Checkboxes -->
+            <div class="form-group">
+                <label><i class="fas fa-industry"></i> Industry</label>
+                <div class="industry-checkboxes">
+                    {% for industry in industries %}
+                        <label class="industry-checkbox">
+                            <input type="checkbox" name="industry" value="{{ industry.id }}"
+                                {% if industry.id in selected_industries %} checked {% endif %}>
+                            <span>{{ industry.name }}</span>
+                        </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Form Buttons -->
+            <div class="filter-buttons">
+                <button type="submit" class="apply-btn">
+                    <i class="fas fa-filter"></i> Apply Filters
+                </button>
+                <a href="?" class="reset-btn">
+                    <i class="fas fa-times"></i> Clear
+                </a>
+            </div>
+        </form>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Desktop Top Search Bar -->
+        <div class="top-search-container-new">
+            <input type="text" class="top-search-input" placeholder="Search suppliers..." value="{{ search_name }}" id="desktopSearchInput">
+            <select class="top-search-select" id="desktopLocationSelect">
+                <option value="">All Locations</option>
+                {% for city in cities %}
+                    <option value="{{ city.name }}" {% if city.name == search_location %}selected{% endif %}>
+                        {{ city.name }}
+                    </option>
+                {% endfor %}
+            </select>
+            <button class="top-search-btn" id="desktopSearchBtn">
+                <i class="fas fa-search"></i> Search
+            </button>
+        </div>
+
+        <!-- Results Info -->
+        <div class="results-info">
+            <div class="results-count">
+                {% if suppliers %}
+                    Showing {{ suppliers.start_index }} - {{ suppliers.end_index }} of {{ suppliers.paginator.count }} suppliers
+                {% else %}
+                    No suppliers found
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Enhanced Supplier List -->
+        <div class="supplier-list">
+            {% if suppliers %}
+                {% for supplier in suppliers %}
+                    <div class="supplier-card">
+                        <!-- Status Badge -->
+                        {% if supplier.is_verified %}
+                        <div class="supplier-status status-verified">
+                            <i class="fas fa-check-circle"></i> Verified
+                        </div>
+                        {% elif supplier.is_premium %}
+                        <div class="supplier-status status-premium">
+                            <i class="fas fa-crown"></i> Premium
+                        </div>
+                        {% endif %}
+
+                        <div class="supplier-header">
+                            <div class="supplier-avatar">
+                                {% if supplier.logo %}
+                                    <img src="{{ supplier.logo }}" alt="{{ supplier.supplier }}" loading="lazy">
+                                {% else %}
+                                    <img src="https://via.placeholder.com/100?text={{ supplier.supplier|slice:":1" }}" alt="{{ supplier.supplier }}" loading="lazy">
+                                {% endif %}
+                            </div>
+                            <div class="supplier-info">
+                                <h3 class="supplier-name">{{ supplier.supplier }}</h3>
+                                <div class="supplier-location" style="max-width: 100%;">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    {{ supplier.city }}{% if supplier.address %}, {{ supplier.address }}{% endif %}
+                                </div>
+                                <div class="supplier-rating">
+                                    <div class="rating-stars">
+                                        {% with rating=supplier.average_rating|default:0 %}
+                                            {% for i in "12345"|make_list %}
+                                                {% if forloop.counter <= rating %}
+                                                    <i class="fas fa-star"></i>
+                                                {% else %}
+                                                    <i class="far fa-star"></i>
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endwith %}
+                                    </div>
+                                    <span class="rating-value">{{ supplier.average_rating|default:"0.0" }}</span>
+                                    <span class="rating-count">({{ supplier.review_count|default:0 }})</span>
+                                </div>
+                                <p style="margin-bottom: 8px; font-weight: 600; color: #374151; font-size: 14px;">
+                                        Industry
+                                    </p>
+                                {% if supplier.industries %}
+                                    <div class="supplier-industries">
+                                        {% for industry in supplier.industries %}
+                                            <span class="industry-badge">{{ industry }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                <span class="industry-badge">N/A</span>
+                            </div>
+                        </div>
+
+                        {% if supplier.description %}
+                        <p class="supplier-description">{{ supplier.description|truncatewords:50 }}</p>
+                        {% endif %}
+
+                        <div class="supplier-contact">
+                            {% if supplier.phone %}
+                            <div class="supplier-contact-item">
+                                <i class="fas fa-phone"></i>
+                                <a href="tel:{{ supplier.phone }}">{{ supplier.phone }}</a>
+                            </div>
+                            {% endif %}
+                            {% if supplier.email %}
+                            <div class="supplier-contact-item">
+                                <i class="fas fa-envelope"></i>
+                                <a href="mailto:{{ supplier.email }}">{{ supplier.email }}</a>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="supplier-actions">
+                            {% if supplier.specialized_equipments %}
+                                <div class="specialized-equipments">
+                                    <p style="margin-bottom: 8px; font-weight: 600; color: #374151; font-size: 14px;">
+                                        Specialized Equipments
+                                    </p>
+                                    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                                        {% for equipment in supplier.specialized_equipments %}
+                                            <span class="industry-badge">{{ equipment }}</span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endif %}
+
+                            <div class="action-buttons">
+                                {%if request.user.id != supplier.id%}
+                                    {% if supplier.id in supplier.user_connections %}
+                                        <button class="connect-btn connected" data-following="{{ supplier.id }}">
+                                            <i class="fas fa-user-check"></i> Connected
+                                        </button>
+                                    {% else %}
+                                        <button class="connect-btn" data-following="{{ supplier.id }}">
+                                            <i class="fas fa-user-plus"></i> Connect
+                                        </button>
+                                    {% endif %}
+
+                                    <button class="message-btn contactSupplierBtn"
+                                        data-supplier-id="{{ supplier.id }}"
+                                        data-logged-in-user-id="{{ request.user.id|default:'None' }}">
+                                        <i class="fas fa-comment"></i> Message
+                                    </button>
+                                {%endif%}
+                            </div>
+                            
+                            <a href="/supplier-detail/{{ supplier.user_profile.id }}/" class="view-profile-link">
+                                <i class="fas fa-eye"></i> View Full Profile
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+                
+            {% else %}
+                <div class="no-results">
+                    <div class="no-results-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3>No suppliers found</h3>
+                    <p>Try adjusting your search filters or browse all suppliers by resetting the filters.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Pagination -->
+        {% if suppliers.has_other_pages %}
+        <div class="pagination">
+            {% if suppliers.has_previous %}
+                <a href="?page={{ suppliers.previous_page_number }}{% if search_name %}&name={{ search_name }}{% endif %}{% if search_location %}&location={{ search_location }}{% endif %}{% for i in selected_industries %}&industry={{ i }}{% endfor %}">&laquo; Previous</a>
+            {% else %}
+                <span class="disabled">&laquo; Previous</span>
+            {% endif %}
+
+            {% for i in suppliers.paginator.page_range %}
+                {% if suppliers.number == i %}
+                    <span class="current-page">{{ i }}</span>
+                {% elif i > suppliers.number|add:'-3' and i < suppliers.number|add:'3' %}
+                    <a href="?page={{ i }}{% if search_name %}&name={{ search_name }}{% endif %}{% if search_location %}&location={{ search_location }}{% endif %}{% for i in selected_industries %}&industry={{ i }}{% endfor %}">{{ i }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if suppliers.has_next %}
+                <a href="?page={{ suppliers.next_page_number }}{% if search_name %}&name={{ search_name }}{% endif %}{% if search_location %}&location={{ search_location }}{% endif %}{% for i in selected_industries %}&industry={{ i }}{% endfor %}">Next &raquo;</a>
+            {% else %}
+                <span class="disabled">Next &raquo;</span>
+            {% endif %}
+        </div>
+        {% endif %}
+    </main>
 </div>
-<div class="container">
-  <div class="page-header">
-    <h1 class="page-title">Trusted Pharmaceutical Wholesalers in Ethiopia</h1>
-    <p class="page-description">Explore verified Pharmaceutical wholesalers in Ethiopia offering bulk supplies, reliable shipping, and quality assurance for your business needs.</p>
-  </div>
 
-  <!-- Search and Listing -->
-  <div class="search-container">
-    <input type="text" id="searchLocation" class="search-input" placeholder="Search by location (e.g., Kotebe, Addis Ababa)">
-    <input type="text" id="searchContact" class="search-input" placeholder="Search by phone or email">
-  </div>
+<!-- Floating Filter Button (Mobile) -->
+<button class="floating-filter-btn" id="floatingFilterBtn">
+    <i class="fas fa-filter"></i>
+</button>
 
-  <div class="supplier-list">
-    <p>Loading Wholesalers...</p>
-    <!-- Listings dynamically populated here -->
-  </div>
+<!-- Filter Overlay (Mobile) -->
+<div class="filter-overlay" id="filterOverlay"></div>
+
+<!-- Mobile Filter Sidebar -->
+<div class="mobile-filter-sidebar" id="mobileFilterSidebar">
+    <div class="filter-header">
+        <h3 class="filter-title">Filter Suppliers</h3>
+        <button class="filter-reset" id="closeMobileFilter">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    
+    <form method="get" class="filter-form" id="mobileFilterForm">
+        <!-- Search Input -->
+        <div class="form-group">
+            <label for="mobile-name"><i class="fas fa-search"></i> Search by name</label>
+            <input type="text" id="mobile-name" name="name" class="filter-input" placeholder="Supplier name" value="{{ search_name }}">
+        </div>
+
+        <!-- Location Select -->
+        <div class="form-group">
+            <label for="mobile-location"><i class="fas fa-map-marker-alt"></i> Location</label>
+            <select id="mobile-location" name="location" class="filter-select">
+                <option value="">All Locations</option>
+                {% for city in cities %}
+                    <option value="{{ city.name }}" {% if city.name == search_location %}selected{% endif %}>
+                        {{ city.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Industries Checkboxes -->
+        <div class="form-group">
+            <label><i class="fas fa-industry"></i> Industry</label>
+            <div class="industry-checkboxes">
+                {% for industry in industries %}
+                    <label class="industry-checkbox">
+                        <input type="checkbox" name="industry" value="{{ industry.id }}"
+                            {% if industry.id in selected_industries %} checked {% endif %}>
+                        <span>{{ industry.name }}</span>
+                    </label>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Form Buttons -->
+        <div class="filter-buttons">
+            <button type="submit" class="apply-btn">
+                <i class="fas fa-filter"></i> Apply Filters
+            </button>
+            <a href="?" class="reset-btn">
+                <i class="fas fa-times"></i> Clear
+            </a>
+        </div>
+    </form>
 </div>
 {% endblock %}
 
 {% block script %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const supplierList = document.querySelector('.supplier-list');
-    const searchLocationInput = document.getElementById('searchLocation');
-    const searchContactInput = document.getElementById('searchContact');
-    const apiUrl = '/user-models/';
-    let allSuppliers = []; // Store the full list of suppliers
+    // Mobile filter functionality
+    const floatingFilterBtn = document.getElementById('floatingFilterBtn');
+    const filterOverlay = document.getElementById('filterOverlay');
+    const mobileFilterSidebar = document.getElementById('mobileFilterSidebar');
+    const closeMobileFilter = document.getElementById('closeMobileFilter');
+    const mobileFilterTrigger = document.getElementById('mobileFilterTrigger');
 
-    // --- Fetch suppliers from API ---
-    async function fetchAndRenderSuppliers() {
-        if (!supplierList) return;
-        try {
-            const response = await fetch(apiUrl);
-            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-            allSuppliers = await response.json();
-            renderSuppliers(allSuppliers);
-        } catch (error) {
-            console.error('Could not fetch Wholesalers:', error);
-            supplierList.innerHTML = '<p class="error-message">Failed to load Wholesalers. Please check your network connection and try again.</p>';
-        }
+    // Open filter sidebar from floating button or mobile trigger
+    function openFilterSidebar() {
+        filterOverlay.classList.add('active');
+        mobileFilterSidebar.classList.add('active');
+        document.body.style.overflow = 'hidden';
     }
 
-    // --- Render supplier cards ---
-    function renderSuppliers(suppliersToRender) {
-        if (!supplierList) return;
-        supplierList.innerHTML = ''; // Clear previous content
+    // Close filter sidebar
+    function closeFilterSidebar() {
+        filterOverlay.classList.remove('active');
+        mobileFilterSidebar.classList.remove('active');
+        document.body.style.overflow = '';
+    }
 
-        if (!suppliersToRender || suppliersToRender.length === 0) {
-            supplierList.innerHTML = '<p>No Wholesalers match your search. Try a different location.</p>';
-            return;
+    if (floatingFilterBtn) {
+        floatingFilterBtn.addEventListener('click', openFilterSidebar);
+    }
+
+    if (mobileFilterTrigger) {
+        mobileFilterTrigger.addEventListener('click', openFilterSidebar);
+    }
+
+    if (closeMobileFilter) {
+        closeMobileFilter.addEventListener('click', closeFilterSidebar);
+    }
+
+    if (filterOverlay) {
+        filterOverlay.addEventListener('click', closeFilterSidebar);
+    }
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeFilterSidebar();
+    });
+
+    // Search functionality
+    const mobileSearchBtn = document.getElementById('mobileSearchBtn');
+    const mobileSearchInput = document.getElementById('mobileSearchInput');
+    const mobileLocationSelect = document.getElementById('mobileLocationSelect');
+    const desktopSearchBtn = document.getElementById('desktopSearchBtn');
+    const desktopSearchInput = document.getElementById('desktopSearchInput');
+    const desktopLocationSelect = document.getElementById('desktopLocationSelect');
+
+    function performSearch(searchValue, locationValue) {
+        const url = new URL(window.location.href);
+        if (searchValue) url.searchParams.set('name', searchValue);
+        else url.searchParams.delete('name');
+        if (locationValue) url.searchParams.set('location', locationValue);
+        else url.searchParams.delete('location');
+        window.location.href = url.toString();
+    }
+
+    if (mobileSearchBtn && mobileSearchInput && mobileLocationSelect) {
+        mobileSearchBtn.addEventListener('click', () => performSearch(mobileSearchInput.value, mobileLocationSelect.value));
+        mobileSearchInput.addEventListener('keypress', e => { if (e.key === 'Enter') performSearch(mobileSearchInput.value, mobileLocationSelect.value); });
+    }
+    if (desktopSearchBtn && desktopSearchInput && desktopLocationSelect) {
+        desktopSearchBtn.addEventListener('click', () => performSearch(desktopSearchInput.value, desktopLocationSelect.value));
+        desktopSearchInput.addEventListener('keypress', e => { if (e.key === 'Enter') performSearch(desktopSearchInput.value, desktopLocationSelect.value); });
+    }
+
+    // Industry checkbox styling
+    document.querySelectorAll('.industry-checkbox input').forEach(checkbox => {
+        function updateLabelStyle(checkbox) {
+            const label = checkbox.closest('.industry-checkbox');
+            if (!label) return;
+            if (checkbox.checked) {
+                label.style.background = 'var(--primary)';
+                label.style.color = 'white';
+                label.style.borderColor = 'var(--primary)';
+            } else {
+                label.style.background = '#f8fafc';
+                label.style.color = 'var(--text)';
+                label.style.borderColor = 'transparent';
+            }
         }
+        checkbox.addEventListener('change', () => updateLabelStyle(checkbox));
+        updateLabelStyle(checkbox);
+    });
 
-        suppliersToRender.forEach(supplier => {
-            const supplierCard = document.createElement('div');
-            supplierCard.className = 'supplier-card';
+    // Sync mobile and desktop filter forms
+    if (floatingFilterBtn || mobileFilterTrigger) {
+        const openFilterButtons = [floatingFilterBtn, mobileFilterTrigger].filter(Boolean);
+        
+        openFilterButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const nameInput = document.querySelector('.filter-sidebar input[name="name"]');
+                const mobileNameInput = document.getElementById('mobile-name');
+                if (nameInput && mobileNameInput) mobileNameInput.value = nameInput.value;
 
-            const avatarText = supplier.supplier.split(' ').map(name => name.charAt(0)).join('');
-            const avatarUrl = `https://via.placeholder.com/100?text=${avatarText}`;
+                const locationSelect = document.querySelector('.filter-sidebar select[name="location"]');
+                const mobileLocationSelect = document.getElementById('mobile-location');
+                if (locationSelect && mobileLocationSelect) mobileLocationSelect.value = locationSelect.value;
 
-            const ratingValue = calculateAverageRating(supplier.average_rating);
-            const ratingHtml = createStarRating(ratingValue);
-
-            // Format contact information
-            const phoneHtml = supplier.phone ? `
-                <div class="supplier-contact-item">
-                    <i class="fas fa-phone"></i>
-                    <a href="tel:${supplier.phone}">${supplier.phone}</a>
-                </div>
-            ` : '';
-
-            const emailHtml = supplier.email ? `
-                <div class="supplier-contact-item">
-                    <i class="fas fa-envelope"></i>
-                    <a href="mailto:${supplier.email}">${supplier.email}</a>
-                </div>
-            ` : '';
-
-            supplierCard.innerHTML = `
-                <div class="supplier-header">
-                    <div class="supplier-avatar">
-                        <img src="${supplier.logo || avatarUrl}" alt="${supplier.supplier} logo" onerror="this.onerror=null;this.src='${avatarUrl}'">
-                    </div>
-                    <div class="supplier-info">
-                        <h3 class="supplier-name">${supplier.supplier}</h3>
-                        <div class="supplier-location">
-                            <i class="fas fa-map-marker-alt"></i> 
-                            ${ (supplier.city && supplier.address) 
-                                ? supplier.city + ', ' + supplier.address 
-                                : (supplier.city || supplier.address || 'N/A') }
-                        </div>
-
-                        ${ratingHtml}
-                    </div>
-                </div>
-                <p class="supplier-description">
-                    ${supplier.description || 'No description available.'}
-                </p>
-                <div class="supplier-contact">
-                    ${phoneHtml}
-                    ${emailHtml}
-                </div>
-                <a href="/supplier-detail/${supplier.id}/" class="view-btn">
-                    Wholesaler Products
-                </a>
-            `;
-
-            supplierList.appendChild(supplierCard);
+                const checkboxes = document.querySelectorAll('.filter-sidebar input[name="industry"]');
+                const mobileCheckboxes = document.querySelectorAll('#mobileFilterForm input[name="industry"]');
+                checkboxes.forEach((checkbox, index) => {
+                    if (index < mobileCheckboxes.length) {
+                        mobileCheckboxes[index].checked = checkbox.checked;
+                        const label = mobileCheckboxes[index].closest('.industry-checkbox');
+                        if (checkbox.checked) {
+                            label.style.background = 'var(--primary)';
+                            label.style.color = 'white';
+                            label.style.borderColor = 'var(--primary)';
+                        } else {
+                            label.style.background = '#f8fafc';
+                            label.style.color = 'var(--text)';
+                            label.style.borderColor = 'transparent';
+                        }
+                    }
+                });
+            });
         });
     }
 
-    // --- Calculate average rating ---
-    function calculateAverageRating(ratingsArray) {
-        if (!ratingsArray || ratingsArray.length === 0) return 0;
-        const validRatings = ratingsArray.filter(r => r != null);
-        if (validRatings.length === 0) return 0;
-        const sum = validRatings.reduce((acc, curr) => acc + curr, 0);
-        return sum / validRatings.length;
-    }
+    const mobileForm = document.getElementById('mobileFilterForm');
+    if (mobileForm) {
+        mobileForm.addEventListener('submit', function() {
+            const mobileNameInput = document.getElementById('mobile-name');
+            const nameInput = document.querySelector('.filter-sidebar input[name="name"]');
+            if (mobileNameInput && nameInput) nameInput.value = mobileNameInput.value;
 
-    // --- Create star rating HTML ---
-    function createStarRating(rating) {
-        const fullStars = Math.floor(rating);
-        const halfStar = rating % 1 >= 0.5;
-        const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
+            const mobileLocationSelect = document.getElementById('mobile-location');
+            const locationSelect = document.querySelector('.filter-sidebar select[name="location"]');
+            if (mobileLocationSelect && locationSelect) locationSelect.value = mobileLocationSelect.value;
 
-        let starsHtml = '';
-        for (let i = 0; i < fullStars; i++) starsHtml += '<i class="fas fa-star"></i>';
-        if (halfStar) starsHtml += '<i class="fas fa-star-half-alt"></i>';
-        for (let i = 0; i < emptyStars; i++) starsHtml += '<i class="far fa-star"></i>';
-
-        return `<div class="supplier-rating">${starsHtml} (${rating.toFixed(1)})</div>`;
-    }
-
-    // --- Search functionality ---
-    function filterSuppliers() {
-        const locationTerm = searchLocationInput.value.toLowerCase();
-        const contactTerm = searchContactInput.value.toLowerCase();
-        
-        const filteredSuppliers = allSuppliers.filter(supplier => {
-            const locationMatch = !locationTerm || 
-                (supplier.address && supplier.address.toLowerCase().includes(locationTerm));
-            
-            const contactMatch = !contactTerm || 
-                (supplier.phone && supplier.phone.toLowerCase().includes(contactTerm)) ||
-                (supplier.email && supplier.email.toLowerCase().includes(contactTerm));
-            
-            return locationMatch && contactMatch;
+            const mobileCheckboxes = document.querySelectorAll('#mobileFilterForm input[name="industry"]');
+            const checkboxes = document.querySelectorAll('.filter-sidebar input[name="industry"]');
+            mobileCheckboxes.forEach((checkbox, index) => {
+                if (index < checkboxes.length) {
+                    checkboxes[index].checked = checkbox.checked;
+                    const label = checkboxes[index].closest('.industry-checkbox');
+                    if (checkbox.checked) {
+                        label.style.background = 'var(--primary)';
+                        label.style.color = 'white';
+                        label.style.borderColor = 'var(--primary)';
+                    } else {
+                        label.style.background = '#f8fafc';
+                        label.style.color = 'var(--text)';
+                        label.style.borderColor = 'transparent';
+                    }
+                }
+            });
         });
-        
-        renderSuppliers(filteredSuppliers);
     }
 
-    searchLocationInput?.addEventListener('input', filterSuppliers);
-    searchContactInput?.addEventListener('input', filterSuppliers);
+    // Contact Supplier functionality
+    document.querySelectorAll('.contactSupplierBtn').forEach(button => {
+        button.addEventListener('click', async (e) => {
+            e.preventDefault();
 
-    // --- Initial fetch ---
-    fetchAndRenderSuppliers();
+            const supplierId = button.getAttribute('data-supplier-id');
+            const loggedInUserId = button.getAttribute('data-logged-in-user-id');
+
+            // Not logged in → redirect to login with next param
+            if (!loggedInUserId || loggedInUserId === 'None') {
+                const nextUrl = window.location.href;
+                window.location.href = `{% url "landing:user-signup" %}?next=${encodeURIComponent(nextUrl)}`;
+                return;
+            }
+
+            // Validate supplierId
+            if (!supplierId || isNaN(parseInt(supplierId, 10))) {
+                console.error("Invalid or missing Supplier ID.");
+                alert("Unable to start chat: invalid supplier information.");
+                return;
+            }
+
+            // Prevent messaging yourself
+            if (supplierId === loggedInUserId) {
+                alert("❌ You cannot message yourself.");
+                return;
+            }
+
+            // Add a loading state
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Starting chat...';
+            button.disabled = true;
+
+            try {
+                const csrftoken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+                const response = await fetch('/threads/create/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken
+                    },
+                    body: JSON.stringify({ user_2: parseInt(supplierId, 10) })
+                });
+
+                if (!response.ok) {
+                    let errorMsg = `HTTP error! status: ${response.status}`;
+                    try {
+                        const errData = await response.json();
+                        if (errData && errData.detail) errorMsg = errData.detail;
+                    } catch (_) {}
+                    throw new Error(errorMsg);
+                }
+
+                const threadData = await response.json();
+                // Redirect to messages page
+                window.location.href = `{% url 'landing:message-view' %}`;
+
+            } catch (error) {
+                console.error('Error creating or retrieving chat thread:', error);
+                alert(error.message || 'Failed to start a chat. Please try again.');
+            } finally {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }
+        });
+    });
+
+    // Connect button functionality
+    const csrftoken = "{{ csrf_token }}";
+
+    document.querySelectorAll(".connect-btn").forEach(button => {
+        const originalText = button.innerHTML;
+
+        // Add hover effect for connected state
+        button.addEventListener("mouseenter", function () {
+            if (this.classList.contains("connected")) {
+                this.innerHTML = '<i class="fas fa-user-times"></i> Remove Connection';
+                this.style.backgroundColor = "#fff";
+                this.style.color = "#d93025"; // red-ish hover
+                this.style.borderColor = "#d93025";
+            }
+        });
+        button.addEventListener("mouseleave", function () {
+            if (this.classList.contains("connected")) {
+                this.innerHTML = '<i class="fas fa-user-check"></i> Connected';
+                this.style.backgroundColor = "#e5e7eb";
+                this.style.color = "#374151";
+                this.style.borderColor = "transparent";
+            }
+        });
+
+        button.addEventListener("click", async function () {
+            if (this.disabled) return; // prevent double click
+            const supplierId = this.dataset.following;
+            const isConnected = this.classList.contains("connected");
+
+            this.disabled = true;
+            const loadingText = isConnected 
+                ? '<i class="fas fa-spinner fa-spin"></i> Removing...' 
+                : '<i class="fas fa-spinner fa-spin"></i> Connecting...';
+            this.innerHTML = loadingText;
+
+            try {
+                let response, data;
+
+                if (!isConnected) {
+                    response = await fetch("/follow/", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRFToken": csrftoken
+                        },
+                        body: JSON.stringify({ following: supplierId })
+                    });
+                } else {
+                    response = await fetch(`/unfollow/${supplierId}/`, {
+                        method: "DELETE",
+                        headers: { "X-CSRFToken": csrftoken }
+                    });
+                }
+
+                if (response.status === 401 || response.status === 403) {
+                    // Redirect to signup/login
+                    window.location.href = `/user/signup/?next=pharmaceutical-wholesalers/`;
+                    return;
+                }
+
+                if (!isConnected) {
+                    data = await response.json();
+                    if (data && !data.detail) {
+                        button.classList.add("connected");
+                        button.innerHTML = '<i class="fas fa-user-check"></i> Connected';
+                        button.style.backgroundColor = "#e5e7eb";
+                        button.style.color = "#374151";
+                        button.style.borderColor = "transparent";
+                    } else {
+                        throw new Error(data.detail || "Failed to connect");
+                    }
+                } else if (response.status === 204) {
+                    button.classList.remove("connected");
+                    button.innerHTML = '<i class="fas fa-user-plus"></i> Connect';
+                    button.style.backgroundColor = "var(--primary)";
+                    button.style.color = "white";
+                    button.style.borderColor = "transparent";
+                } else {
+                    throw new Error("Failed to update connection");
+                }
+            } catch (err) {
+                console.error(err);
+                alert(err.message || "Network error, please try again.");
+                this.innerHTML = originalText; // revert text
+            } finally {
+                this.disabled = false;
+            }
+        });
+    });
 });
 </script>
-
-
 {% endblock script %}

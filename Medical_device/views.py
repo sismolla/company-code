@@ -21,7 +21,8 @@ from core.models import UserProducts
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.functions import Coalesce
-
+from django.db.models import Count, Case, When, Value, IntegerField, Q
+from setting.models import UserConnection
 class DeviceAddPage(LoginRequiredMixin,TemplateView):
     login_url = '/user/signup/'
     template_name = 'device_form.html'
@@ -271,6 +272,7 @@ def supplier_products(request, pk):
     return render(request, "provider/device_detail.html", {"supplier": supplier, "products": products,'contact_info': contact_info,"member_since": member_since,
 })
 
+
 class SupplierListPage(ListView):
     model = Supplier
     template_name = 'suppliers/list.html'
@@ -283,24 +285,39 @@ class SupplierListPage(ListView):
             'supplierprofile__industries',
             'supplierprofile__cities',
             'devices'
-        ).filter(devices__isnull=False).distinct()  # only suppliers with at least one device
+        ).filter(devices__isnull=False).distinct()  # only suppliers with devices
 
-        # Get filter parameters
+        # --- Filter parameters ---
         search = self.request.GET.get("search", "").strip()
         city_id = self.request.GET.get("city")
         industry_id = self.request.GET.get("industry")
 
-        # Filter by supplier name
         if search:
             queryset = queryset.filter(name__icontains=search)
 
-        # Filter by city from Supplier model
         if city_id:
             queryset = queryset.filter(city__id=city_id)
 
-        # Filter by industry via SupplierProfile
         if industry_id:
             queryset = queryset.filter(supplierprofile__industries__id=industry_id)
+
+        # --- Annotate follower count and connection ---
+        if self.request.user.is_authenticated:
+            user_connections = set(
+                UserConnection.objects.filter(follower=self.request.user)
+                .values_list('following_id', flat=True)
+            )
+        else:
+            user_connections = set()
+
+        queryset = queryset.annotate(
+            follower_count=Count('user__followers', distinct=True),
+            is_connected=Case(
+                When(user_id__in=user_connections, then=Value(1)),
+                default=Value(0),
+                output_field=IntegerField()
+            )
+        ).order_by('-is_connected', '-follower_count')  # connected first, then popular
 
         return queryset.distinct()
 

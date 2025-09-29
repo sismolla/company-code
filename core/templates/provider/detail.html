@@ -7,758 +7,861 @@
 
 {% block style %}
 <style>
-    :root {
-        --primary: #3498db;
-        --secondary: #329de5ff;
-        --light: #f8f9fa;
-        --dark: #212529;
-        --success: #28a745;
-        --warning: #ffc107;
-        --danger: #dc3545;
-        --info: #17a2b8;
-        --text: #2b2d42;
-        --border: #e9ecef;
-        --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    }
+    /* LinkedIn-Inspired Styles with High Responsiveness */
+:root {
+    --linkedin-blue: #0077b5;
+    --linkedin-dark-blue: #004471;
+    --linkedin-light-blue: #e6f2f9;
+    --linkedin-gray: #f3f2ef;
+    --linkedin-dark-gray: #666666;
+    --linkedin-text: #191919;
+    --linkedin-border: #e0e0e0;
+    --success-color: #0a6640;
+    --warning-color: #a75900;
+    --error-color: #d13212;
+    --shadow-light: 0 1px 3px rgba(0, 0, 0, 0.08);
+    --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --shadow-heavy: 0 8px 24px rgba(0, 0, 0, 0.12);
+    --border-radius: 8px;
+    --border-radius-sm: 4px;
+    --transition: all 0.2s ease;
+}
 
-    body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background-color: #f5f7fa;
-        color: var(--dark);
-        line-height: 1.6;
-        margin: 0;
-        padding: 0;
-    }
+.container {
+    max-width: 1128px;
+    margin: 0 auto;
+    padding: 0 16px;
+}
 
-    .container {
-        max-width: 1400px;
-        margin: 0 auto;
+/* Status Messages */
+.status-message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 20px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-heavy);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 1000;
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: var(--transition);
+    max-width: 400px;
+}
+
+.status-message.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.status-message.hide {
+    opacity: 0;
+    transform: translateY(-20px);
+}
+
+.status-message.success {
+    background-color: white;
+    border-left: 4px solid var(--success-color);
+    color: var(--success-color);
+}
+
+.status-message.error {
+    background-color: white;
+    border-left: 4px solid var(--error-color);
+    color: var(--error-color);
+}
+
+.status-message.warning {
+    background-color: white;
+    border-left: 4px solid var(--warning-color);
+    color: var(--warning-color);
+}
+
+.status-message.info {
+    background-color: white;
+    border-left: 4px solid var(--linkedin-blue);
+    color: var(--linkedin-blue);
+}
+
+/* Loading State */
+.loader-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.loader {
+    width: 48px;
+    height: 48px;
+    border: 4px solid var(--linkedin-light-blue);
+    border-top: 4px solid var(--linkedin-blue);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 16px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Error State */
+.error-state {
+    text-align: center;
+    padding: 60px 20px;
+    background-color: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-light);
+    margin: 20px 0;
+}
+
+.error-state i {
+    font-size: 48px;
+    color: var(--error-color);
+    margin-bottom: 16px;
+}
+
+.error-state h2 {
+    margin-bottom: 12px;
+    color: var(--linkedin-text);
+}
+
+.error-state p {
+    margin-bottom: 24px;
+    color: var(--linkedin-dark-gray);
+}
+
+.retry-btn {
+    background-color: var(--linkedin-blue);
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 24px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.retry-btn:hover {
+    background-color: var(--linkedin-dark-blue);
+}
+
+/* Page Header */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-top: 16px;
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--linkedin-blue);
+    text-decoration: none;
+    font-weight: 600;
+    transition: var(--transition);
+}
+
+.back-link:hover {
+    text-decoration: underline;
+}
+
+/* Supplier Header */
+.supplier-header {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+    background-color: white;
+    border-radius: var(--border-radius);
+    padding: 24px;
+    box-shadow: var(--shadow-light);
+}
+
+.supplier-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background-color: var(--linkedin-light-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--linkedin-blue);
+    font-size: 48px;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.supplier-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.supplier-title {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.supplier-name {
+    font-size: 32px;
+    font-weight: 400;
+    margin-bottom: 8px;
+    color: var(--linkedin-text);
+}
+
+.supplier-meta {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.supplier-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--linkedin-dark-gray);
+}
+
+.supplier-meta-item i {
+    color: var(--linkedin-blue);
+}
+
+/* Connections and Tags */
+.connections-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f3f8ff;
+    padding: 8px 12px;
+    border-radius: 16px;
+    border: 1px solid #e1e8f0;
+    font-size: 14px;
+    color: #2d3748;
+    font-weight: 500;
+    margin-bottom: 16px;
+    width: fit-content;
+}
+
+.connections-container i {
+    color: var(--linkedin-blue);
+    font-size: 12px;
+}
+
+.industries-container, .equipment-container {
+    margin: 16px 0;
+}
+
+.industries-container h4, .equipment-container h4 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.industries-container h4 i, .equipment-container h4 i {
+    color: var(--linkedin-blue);
+    font-size: 12px;
+}
+
+.tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.tag {
+    background: #f1f5f9;
+    color: #475569;
+    padding: 4px 10px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid #e2e8f0;
+}
+
+.tag.equipment {
+    background: #f0f9ff;
+    color: #0369a1;
+    border: 1px solid #bae6fd;
+}
+
+.tag.empty {
+    background: #f8fafc;
+    color: #94a3b8;
+    border: 1px solid #f1f5f9;
+}
+
+/* Main Grid Layout */
+.main-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+    margin-bottom: 40px;
+}
+
+/* Cards */
+.info-card, .contact-card, .cart-section {
+    background-color: white;
+    border-radius: var(--border-radius);
+    padding: 24px;
+    box-shadow: var(--shadow-light);
+    margin-bottom: 16px;
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: var(--linkedin-text);
+}
+
+.section-title i {
+    color: var(--linkedin-blue);
+}
+
+.supplier-description {
+    margin-bottom: 20px;
+    line-height: 1.6;
+    color: var(--linkedin-dark-gray);
+}
+
+/* Details Grid */
+.details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.detail-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.detail-label {
+    font-size: 12px;
+    color: var(--linkedin-dark-gray);
+    margin-bottom: 4px;
+}
+
+.detail-value {
+    font-weight: 600;
+    color: var(--linkedin-text);
+}
+
+/* Search Bar */
+.search-bar {
+    margin-bottom: 16px;
+}
+
+.search-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-icon {
+    position: absolute;
+    left: 12px;
+    color: var(--linkedin-dark-gray);
+    z-index: 1;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px 12px 10px 36px;
+    border: 1px solid var(--linkedin-border);
+    border-radius: var(--border-radius);
+    font-size: 14px;
+    transition: var(--transition);
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--linkedin-blue);
+    box-shadow: 0 0 0 2px rgba(0, 119, 181, 0.2);
+}
+
+.form-control:disabled {
+    background-color: #f9f9f9;
+    color: #999;
+    cursor: not-allowed;
+}
+
+/* Product Table - Responsive */
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+    margin-top: 16px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-light);
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+}
+
+.product-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px; /* Reduced minimum width for better mobile experience */
+}
+
+.product-table th {
+    text-align: left;
+    padding: 12px 16px;
+    font-weight: 600;
+    color: var(--linkedin-text);
+    border-bottom: 1px solid var(--linkedin-border);
+    background-color: #f9f9f9;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.product-table td {
+    padding: 16px;
+    border-bottom: 1px solid var(--linkedin-border);
+    vertical-align: top;
+}
+
+.product-table tr:last-child td {
+    border-bottom: none;
+}
+
+.product-name {
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.product-strength, .product-manufacturer {
+    color: var(--linkedin-dark-gray);
+    font-size: 13px;
+}
+
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status-badge.in-stock {
+    background-color: #e6f4ea;
+    color: var(--success-color);
+}
+
+.status-badge.low-stock {
+    background-color: #fef7e0;
+    color: var(--warning-color);
+}
+
+.status-badge.out-of-stock {
+    background-color: #fce8e6;
+    color: var(--error-color);
+}
+
+/* Quantity Controls */
+.quantity-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.quantity-control button {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--linkedin-border);
+    background-color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.quantity-control button:hover:not(:disabled) {
+    background-color: var(--linkedin-light-blue);
+    border-color: var(--linkedin-blue);
+}
+
+.quantity-control button:disabled {
+    background-color: #f5f5f5;
+    color: #ccc;
+    cursor: not-allowed;
+}
+
+.quantity-input {
+    width: 60px;
+    text-align: center;
+    padding: 6px;
+    border: 1px solid var(--linkedin-border);
+    border-radius: var(--border-radius-sm);
+}
+
+/* Contact Card */
+.contact-method {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.contact-method:last-child {
+    margin-bottom: 0;
+}
+
+.contact-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: var(--linkedin-light-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--linkedin-blue);
+    flex-shrink: 0;
+}
+
+.contact-label {
+    font-size: 12px;
+    color: var(--linkedin-dark-gray);
+    margin-bottom: 2px;
+}
+
+.contact-value {
+    font-weight: 500;
+    color: var(--linkedin-text);
+}
+
+.contact-value a {
+    color: var(--linkedin-blue);
+    text-decoration: none;
+}
+
+.contact-value a:hover {
+    text-decoration: underline;
+}
+
+/* Cart Section */
+.cart-section {
+    position: sticky;
+    top: 20px;
+}
+
+.cart-items {
+    margin-bottom: 16px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.cart-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--linkedin-border);
+}
+
+.cart-item:last-child {
+    border-bottom: none;
+}
+
+.cart-item-details {
+    flex: 1;
+}
+
+.cart-item-price {
+    font-weight: 600;
+    color: var(--linkedin-text);
+}
+
+.empty-cart-message {
+    text-align: center;
+    color: var(--linkedin-dark-gray);
+    padding: 20px 0;
+}
+
+.cart-total {
+    display: flex;
+    justify-content: space-between;
+    padding: 16px 0;
+    border-top: 1px solid var(--linkedin-border);
+    font-weight: 600;
+    font-size: 18px;
+    color: var(--linkedin-text);
+}
+
+.checkout-btn {
+    width: 100%;
+    padding: 12px;
+    background-color: var(--linkedin-blue);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    transition: var(--transition);
+    margin-top: 16px;
+}
+
+.checkout-btn:hover:not(:disabled) {
+    background-color: var(--linkedin-dark-blue);
+}
+
+.checkout-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+/* Form Styles */
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: var(--linkedin-text);
+}
+
+.required {
+    color: var(--error-color);
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--linkedin-border);
+    border-radius: var(--border-radius);
+    font-size: 14px;
+    transition: var(--transition);
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--linkedin-blue);
+    box-shadow: 0 0 0 2px rgba(0, 119, 181, 0.2);
+}
+
+textarea.form-control {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.invalid-feedback {
+    color: var(--error-color);
+    font-size: 12px;
+    margin-top: 4px;
+    display: none;
+}
+
+.is-invalid {
+    border-color: var(--error-color) !important;
+}
+
+.is-invalid + .invalid-feedback {
+    display: block;
+}
+
+/* Mobile Sidebar Panel */
+.mobile-sidebar {
+    display: none;
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+    .main-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    .supplier-header {
+        flex-direction: column;
+        text-align: center;
         padding: 20px;
     }
+    
+    .supplier-avatar {
+        align-self: center;
+    }
+    
+    .supplier-meta {
+        justify-content: center;
+    }
+    
+    .cart-section {
+        position: static;
+    }
+    
+    /* Show mobile sidebar and hide desktop sidebar */
+    .mobile-sidebar {
+        display: block;
+        order: -1; /* Move to top in flex container */
+    }
+    
+    .desktop-sidebar {
+        display: none;
+    }
+}
 
-    .logo {
-        color: var(--primary);
-        font-weight: 700;
+@media (max-width: 768px) {
+    .container {
+        padding: 0 12px;
+    }
+    
+    .supplier-name {
         font-size: 24px;
     }
-
-    .pharmacy-name {
-        font-size: 14px;
-        color: #666;
-        margin-top: 5px;
-    }
-
-
-    .back-link {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        color: var(--primary);
-        text-decoration: none;
-        font-weight: 500;
-        margin-bottom: 1rem;
-        transition: color 0.2s;
-    }
-
-    .back-link:hover {
-        color: var(--secondary);
-    }
-
+    
     .supplier-avatar {
         width: 100px;
         height: 100px;
-        background-color: #f0f4ff;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-        overflow: hidden;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        font-size: 36px;
     }
-
-    .supplier-avatar img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    .supplier-avatar i {
-        font-size: 2.5rem;
-        color: var(--primary);
-    }
-
-    .supplier-title {
-        flex-grow: 1;
-    }
-
-    .supplier-name {
-        font-size: 1.75rem;
-        font-weight: 700;
-        margin: 0 0 0.5rem 0;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-
-    .verified-badge {
-        background-color: #e8f5e9;
-        color: var(--success);
-        padding: 0.25rem 0.75rem;
-        border-radius: 50px;
-        font-size: 0.8rem;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.25rem;
-    }
-
-    .supplier-meta {
-        display: flex;
-        gap: 1.5rem;
-        color: var(--secondary);
-        margin-bottom: 1rem;
-        flex-wrap: wrap;
-    }
-
-    .supplier-meta-item {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.9rem;
-    }
-
-    .product-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-bottom: 20px;
-        background: white;
-        border-radius: 8px;
-        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
-        overflow: hidden;
-    }
-
-    .product-table th {
-        background-color: var(--primary);
-        color: white;
-        padding: 12px 15px;
-        text-align: left;
-        font-weight: 600;
-    }
-
-    .product-table td {
-        padding: 12px 15px;
-        border-bottom: 1px solid #eee;
-        vertical-align: middle;
-    }
-
-    .product-table tr:hover {
-        background-color: #f8f9fa;
-    }
-
-    .product-name {
-        font-weight: 600;
-    }
-
-    .product-strength {
-        color: #666;
-        font-size: 14px;
-    }
-
-    .product-manufacturer {
-        color: #666;
-        font-size: 14px;
-    }
-
-    .quantity-control {
-        display: flex;
-        align-items: center;
-    }
-
-    .quantity-control button {
-        background-color: #e9ecef;
-        border: none;
-        width: 30px;
-        height: 30px;
-        font-size: 16px;
-        cursor: pointer;
-        transition: background-color 0.2s;
-        border-radius: 4px;
-    }
-
-    .quantity-control button:hover:not(:disabled) {
-        background-color: #d8dbe0;
-    }
-
-    .quantity-control button:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
-
-    .quantity-control input {
-        width: 50px;
-        text-align: center;
-        height: 30px;
-        border: 1px solid #ddd;
-        margin: 0 5px;
-        border-radius: 4px;
-    }
-
-    .add-to-cart {
-        background-color: var(--success);
-        color: white;
-        border: none;
-        padding: 8px 15px;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: background 0.3s;
-    }
-
-    .add-to-cart:hover {
-        background-color: #218838;
-    }
-
-    .status-badge {
-        display: inline-block;
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 12px;
-        font-weight: 600;
-    }
-
-    .in-stock {
-        background-color: #d4edda;
-        color: #155724;
-    }
-
-    .low-stock {
-        background-color: #fff3cd;
-        color: #856404;
-    }
-
-    .out-of-stock {
-        background-color: #f8d7da;
-        color: #721c24;
-    }
-
-    .info-card {
-        background: white;
-        border-radius: 12px;
-        padding: 1.5rem;
-        box-shadow: var(--card-shadow);
-        margin-bottom: 1.5rem;
-        margin-top: 20px;
-    }
-
-    .form-group {
-        margin-bottom: 1rem;
-    }
-
-    .form-label {
-        display: block;
-        margin-bottom: 0.5rem;
-        font-weight: 500;
-        color: var(--secondary);
-    }
-
-    .form-control {
-        width: 100%;
-        padding: 0.75rem;
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        font-size: 1rem;
-        box-sizing: border-box;
-        transition: border-color 0.3s, box-shadow 0.3s;
-    }
-
-    .form-control:focus {
-        outline: none;
-        border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.2);
-    }
-
-    .section-title {
-        font-size: 1.25rem;
-        font-weight: 600;
-        margin: 0 0 1.5rem 0;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-
-    .section-title i {
-        color: var(--primary);
-    }
-
-    .supplier-description {
-        line-height: 1.7;
-        color: var(--text);
-    }
-
+    
     .details-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1.5rem;
-        margin-top: 1.5rem;
+        grid-template-columns: 1fr;
     }
-
-    .detail-item {
-        margin-bottom: 0.5rem;
-    }
-
-    .detail-label {
-        font-weight: 500;
-        color: var(--secondary);
-        margin-bottom: 0.25rem;
-        font-size: 0.9rem;
-    }
-
-    .detail-value {
-        font-weight: 500;
-    }
-
-    .contact-card {
-        background: white;
-        border-radius: 12px;
-        padding: 1.5rem;
-        box-shadow: var(--card-shadow);
-        margin-bottom: 1.5rem;
-    }
-
-    .contact-method {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        margin-bottom: 1rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid var(--border);
-    }
-
-    .contact-method:last-child {
-        margin-bottom: 0;
-        padding-bottom: 0;
-        border-bottom: none;
-    }
-
-    .contact-icon {
-        width: 40px;
-        height: 40px;
-        background-color: #f0f4ff;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-    }
-
-    .contact-icon i {
-        color: var(--primary);
-    }
-
-    .contact-info {
-        flex-grow: 1;
-    }
-
-    .contact-label {
-        font-size: 0.85rem;
-        color: var(--secondary);
-        margin-bottom: 0.25rem;
-    }
-
-    .contact-value {
-        font-weight: 500;
-    }
-
-    .contact-value a {
-        text-decoration: none;
-        color: var(--text);
-        transition: color 0.2s;
-    }
-
-    .contact-value a:hover {
-        color: var(--primary);
-        text-decoration: underline;
-    }
-
-    .status-message {
-        position: fixed;
-        top: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        padding: 1rem 2rem;
-        border-radius: 8px;
-        color: white;
-        font-weight: 600;
-        z-index: 1000;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        max-width: 90%;
-        opacity: 0;
-        transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
-        pointer-events: none;
-    }
-
-    .status-message.show {
-        opacity: 1;
-        transform: translateX(-50%) translateY(0);
-        pointer-events: auto;
-    }
-
-    .status-message.hide {
-        opacity: 0;
-        transform: translateX(-50%) translateY(-20px);
-    }
-
-    .status-message.error {
-        background-color: var(--danger);
-    }
-
-    .status-message.success {
-        background-color: var(--success);
-    }
-
-    .status-message.warning {
-        background-color: var(--warning);
-        color: var(--dark);
-    }
-
-    .status-message.info {
-        background-color: var(--info);
-    }
-
-    .status-message i {
-        font-size: 1.2rem;
-    }
-
-    .loader-container {
-        text-align: center;
-        margin-top: 5rem;
-        padding: 2rem;
-        border-radius: 8px;
-        background: white;
-        box-shadow: var(--card-shadow);
-        max-width: 500px;
-        margin-left: auto;
-        margin-right: auto;
-    }
-
-    .loader {
-        border: 4px solid #f0f4ff;
-        border-top: 4px solid var(--primary);
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        animation: spin 1s linear infinite;
-        margin: 0 auto 1rem;
-    }
-
-    .loader p {
-        font-size: 1.1rem;
-        color: var(--secondary);
-        margin-bottom: 0;
-    }
-
-    @keyframes spin {
-        0% {
-            transform: rotate(0deg);
-        }
-        100% {
-            transform: rotate(360deg);
-        }
-    }
-
-    /* Error state */
-    .error-state {
-        text-align: center;
-        padding: 3rem;
-        background: white;
-        border-radius: 8px;
-        box-shadow: var(--card-shadow);
-        max-width: 600px;
-        margin: 2rem auto;
-    }
-
-    .error-state i {
-        font-size: 3rem;
-        color: var(--danger);
-        margin-bottom: 1rem;
-    }
-
-    .error-state h2 {
-        color: var(--danger);
-        margin-bottom: 1rem;
-    }
-
-    .error-state p {
-        margin-bottom: 1.5rem;
-        color: var(--text);
-    }
-
-    .retry-btn {
-        background-color: var(--primary);
-        color: white;
-        border: none;
-        padding: 0.75rem 1.5rem;
-        border-radius: 4px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: background-color 0.2s;
-    }
-
-    .retry-btn:hover {
-        background-color: var(--secondary);
-    }
-
-    /* Two-Panel Layout */
-    .main-grid {
-        display: grid;
-        grid-template-columns: 2fr 1fr;
-        gap: 2rem;
-        align-items: start;
-    }
-
-    .main-content {
-        display: flex;
+    
+    .page-header {
         flex-direction: column;
-        gap: 1.5rem;
+        align-items: flex-start;
+        gap: 12px;
     }
-
-    .sidebar {
-        position: sticky;
-        top: 20px;
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
+    
+    /* Enhanced table responsiveness for mobile */
+    .table-container {
+        border: 1px solid var(--linkedin-border);
+        border-radius: var(--border-radius);
+        margin-left: -12px;
+        margin-right: -12px;
+        width: calc(100% + 24px);
     }
-
-    .search-bar {
-        margin-bottom: 1.5rem;
-        position: sticky;
-        top: 20px;
-        z-index: 10;
+    
+    .product-table {
+        min-width: 550px; /* Further reduced for better mobile experience */
     }
-
-    .search-bar .form-control {
-        background-color: white;
-        border-radius: 50px;
-        padding-left: 2rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        border: none;
-    }
-
-    .search-container {
-        position: relative;
-    }
-
-    .search-icon {
-        position: absolute;
-        top: 50%;
-        left: 15px;
-        transform: translateY(-50%);
-        color: var(--secondary);
-    }
-
-    .product-search-bar {
-        margin-bottom: 1.5rem;
-    }
-
-    .product-search-bar .form-control {
-        width: 100%;
-    }
-
-    /* Cart Section */
-    .cart-section {
-        background: white;
-        border-radius: 8px;
-        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
-        padding: 25px;
-        margin-top: 30px;
-    }
-
-    .cart-items {
-        margin-bottom: 20px;
-        max-height: 300px;
-        overflow-y: auto;
-        padding-right: 10px;
-    }
-
-    .cart-item {
-        display: flex;
-        justify-content: space-between;
-        padding: 10px 0;
-        border-bottom: 1px solid #eee;
-    }
-
-    .cart-item-details {
-        flex: 1;
-    }
-
-    .cart-item-price {
-        font-weight: 600;
-    }
-
-    .cart-total {
-        display: flex;
-        justify-content: space-between;
-        font-size: 18px;
-        font-weight: 600;
-        padding: 15px 0;
-        border-top: 2px solid #eee;
-        margin-top: 10px;
-    }
-
-    .checkout-btn {
-        background-color: var(--primary);
-        color: white;
-        border: none;
-        padding: 12px 25px;
-        border-radius: 4px;
-        font-size: 16px;
-        cursor: pointer;
-        width: 100%;
-        transition: background 0.3s;
-        font-weight: 500;
-        margin-top: 1rem;
-    }
-
-    .checkout-btn:hover {
-        background-color: var(--secondary);
-    }
-
-    .checkout-btn:disabled {
-        background-color: #cccccc;
-        cursor: not-allowed;
-    }
-
-    .empty-cart-message {
-        text-align: center;
-        color: #666;
-        padding: 1rem;
-    }
-
-    /* Responsive adjustments */
-    @media (max-width: 992px) {
-        .main-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .sidebar {
-            position: static;
-        }
-
-
-        .supplier-avatar {
-            margin-bottom: 1rem;
-        }
-
-        .details-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    @media (max-width: 768px) {
-    /* Force table to not be like a table anymore */
-    .product-table,
-    .product-table thead,
-    .product-table tbody,
+    
     .product-table th,
-    .product-table td,
-    .product-table tr {
-        display: block;
-    }
-
-    /* Hide table headers (but not display: none;, so accessibility is kept) */
-    .product-table thead tr {
-        position: absolute;
-        top: -9999px;
-        left: -9999px;
-    }
-
-    .product-table tr {
-        border: 1px solid var(--border);
-        margin-bottom: 1rem;
-        border-radius: 8px;
-        padding: 1rem;
-        background: white;
-        box-shadow: var(--card-shadow);
-    }
-
     .product-table td {
-        /* Behave like a "row" */
-        border: none;
-        position: relative;
-        padding-left: 50%; /* Adjust this value */
-        text-align: right;
+        padding: 12px;
     }
-
-    .product-table td:before {
-        /* Now like a table header */
-        position: absolute;
-        /* Top/left values mimic padding */
-        top: 0;
-        left: 6px;
-        width: 45%;
-        padding-right: 10px;
-        white-space: nowrap;
-        text-align: left;
-        font-weight: bold;
-        color: var(--secondary);
+    
+    /* Adjust main grid for mobile */
+    .main-grid {
+        display: flex;
+        flex-direction: column;
     }
-
-    /* Label the data based on `data-label` attribute */
-    .product-table td:nth-of-type(1):before { content: "Product"; }
-    .product-table td:nth-of-type(2):before { content: "Details"; }
-    .product-table td:nth-of-type(3):before { content: "Price"; }
-    .product-table td:nth-of-type(4):before { content: "Status"; }
-    .product-table td:nth-of-type(5):before { content: "Quantity"; }
 }
-    @media print {
-        body {
-            background-color: white;
-            color: black;
-            font-size: 12pt;
-        }
 
-        .container {
-            max-width: 100%;
-            padding: 0;
-        }
-
-        .back-link, .search-bar, .checkout-btn, .sidebar {
-            display: none;
-        }
-
-        .main-grid {
-            display: block;
-        }
-
-        .info-card, .product-table {
-            box-shadow: none;
-            border: 1px solid #ddd;
-            page-break-inside: avoid;
-        }
-
-        .product-table th {
-            background-color: white;
-            color: black;
-            border-bottom: 2px solid #000;
-        }
-
-        .product-table td {
-            border-bottom: 1px solid #ddd;
-        }
-
-        a {
-            text-decoration: none;
-            color: black;
-        }
+@media (max-width: 576px) {
+    .supplier-header {
+        padding: 16px;
     }
+    
+    .info-card, .contact-card, .cart-section {
+        padding: 16px;
+    }
+    
+    .section-title {
+        font-size: 16px;
+    }
+    
+    .supplier-meta {
+        flex-direction: column;
+        gap: 8px;
+        align-items: flex-start;
+    }
+    
+    .status-message {
+        left: 16px;
+        right: 16px;
+        top: 16px;
+    }
+    
+    /* Further table optimization for very small screens */
+    .product-table {
+        min-width: 500px; /* Even smaller minimum width for very small screens */
+    }
+    
+    .product-table th,
+    .product-table td {
+        padding: 10px 8px;
+        font-size: 13px;
+    }
+    
+    .product-name {
+        font-size: 14px;
+    }
+    
+    .product-strength, .product-manufacturer {
+        font-size: 12px;
+    }
+    
+    .status-badge {
+        font-size: 11px;
+        padding: 3px 6px;
+    }
+    
+    .quantity-control {
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .quantity-input {
+        width: 50px;
+    }
+}
+
+/* Extra small devices */
+@media (max-width: 400px) {
+    .product-table {
+        min-width: 450px;
+    }
+    
+    .product-table th,
+    .product-table td {
+        padding: 8px 6px;
+        font-size: 12px;
+    }
+    
+    .supplier-header {
+        padding: 12px;
+    }
+    
+    .info-card, .contact-card, .cart-section {
+        padding: 12px;
+    }
+}
 </style>
 {% block new_style %}{% endblock new_style %}
 {% endblock style %}
 
 {% block content %}
+<nav aria-label="breadcrumb" class="breadcrumb-nav">
+            <ol class="breadcrumb" style="margin-top: 10px; margin-left: 10px; display: flex; list-style: none; padding: 0; margin-bottom: 1.5rem; font-size: 0.9rem;">
+                <li style="margin-right: 0.5rem;"><a href="/" style="color: var(--secondary); text-decoration: none;">Home</a></li>
+                <li style="margin-right: 0.5rem;">/</li>
+                <li style="margin-right: 0.5rem;"><a href="/pharmaceutical-wholesalers" style="color: var(--secondary); text-decoration: none;">pharmaceutical Suppliers</a></li>
+                <li style="margin-right: 0.5rem;">/</li>
+                <li style="color: var(--gray);">About {{supplier.name}}</li>
+            </ol>
+        </nav>
 
 <div id="status-message" class="status-message">
     <i class="fas fa-check-circle"></i>
@@ -778,13 +881,6 @@
 </div>
 
 <div id="main-content" class="container" style="display: none;">
-    <div class="page-header">
-        <a href="{% url 'landing:suppliers-list' %}" class="back-link">
-            <i class="fas fa-arrow-left"></i>
-            Back to Medical Device Wholesalers
-        </a>
-        
-    </div>
 
     <div class="supplier-header">
         <div id="supplier-avatar" class="supplier-avatar">
@@ -807,15 +903,127 @@
         </div>
     </div>
 
+    <div class="connections-container">
+        <i class="fas fa-users"></i>
+        <span>{{ supplier.user.following.count }}</span>
+        <span style="color: #64748b; font-weight: 400;">Connections</span>
+    </div>
+
+    <div class="industries-container">
+        <h4>
+            <i class="fas fa-industry"></i>
+            Industries
+        </h4>
+        <div class="tags-container">
+            {% for industry in supplier.supplierprofile.industries.all %}
+            <span class="tag">
+                {{ industry.name }}
+            </span>
+            {% empty %}
+            <span class="tag empty">
+                No industries listed
+            </span>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="equipment-container">
+        <h4>
+            <i class="fas fa-tools"></i>
+            Specialized Equipment
+        </h4>
+        <div class="tags-container">
+            {% for equipment in supplier.supplierprofile.specialized_equipment.all %}
+            <span class="tag equipment">
+                {{ equipment.name }}
+            </span>
+            {% empty %}
+            <span class="tag empty">
+                No equipment listed
+            </span>
+            {% endfor %}
+        </div>
+    </div>
+
     <div class="main-grid">
         <div class="main-panel">
+            <!-- Mobile Sidebar - Contact and Order History before table -->
+            <div class="mobile-sidebar">
+                <div class="contact-card">
+                <h2 class="section-title">
+                    <i class="fas fa-address-book"></i>
+                    Contact Information
+                </h2>
+                <div id="contact-methods">
+                    <div class="contact-method">
+                        <div class="contact-icon"><i class="fas fa-spinner fa-spin"></i></div>
+                        <div class="contact-info">
+                            <div class="contact-label">Loading</div>
+                            <div class="contact-value">Contact information loading...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+                <div class="cart-section">
+                    <h2 class="section-title">
+                        <i class="fas fa-shopping-cart"></i>
+                        Order Summary
+                    </h2>
+
+                    <div id="customer-info-form" class="info-card" style="display: none;">
+                        <h2 class="section-title">
+                            <i class="fas fa-user"></i>
+                            Customer Information
+                        </h2>
+                        <form id="order-form" novalidate>
+                            <div class="form-group">
+                                <label class="form-label" for="customer-name">Full Name <span class="required">*</span></label>
+                                <input type="text" id="customer-name" class="form-control" placeholder="John Doe" required>
+                                <div class="invalid-feedback" id="customer-name-error">Please provide your full name.</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="customer-email">Email Address</label>
+                                <input type="email" id="customer-email" class="form-control" placeholder="john.doe@example.com">
+                                <div class="invalid-feedback" id="customer-email-error">Please provide a valid email address.</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="customer-phone">Phone Number <span class="required">*</span></label>
+                                <input type="tel" id="customer-phone" class="form-control" placeholder="+251..." required>
+                                <div class="invalid-feedback" id="customer-phone-error">Please provide a valid phone number.</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="pharmacy-name">Medical Device Wholesaler <span class="required">*</span></label>
+                                <input type="text" id="pharmacy-name" class="form-control" placeholder="My Medical Device Store" required>
+                                <div class="invalid-feedback" id="pharmacy-name-error">Please provide your business name.</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="delivery-address">Delivery Address <span class="required">*</span></label>
+                                <textarea id="delivery-address" class="form-control" rows="3" placeholder="123 Main St, City, State, ZIP" required></textarea>
+                                <div class="invalid-feedback" id="delivery-address-error">Please provide a delivery address.</div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="cart-items" id="cart-items">
+                        <p class="empty-cart-message">Your order is empty. Add products to begin.</p>
+                    </div>
+
+                    <div class="cart-total">
+                        <span>Total:</span>
+                        <span id="cart-total">$0.00</span>
+                    </div>
+
+                    <button class="checkout-btn" disabled>Submit Order Request</button>
+                </div>
+            </div>
+
             <div class="info-card">
                 <h2 class="section-title">
                     <i class="fas fa-info-circle"></i>
                     loading ...
                 </h2>
                 <p id="supplier-description" class="supplier-description">Loading supplier information...</p>
-
                 <div class="details-grid">
                     <div class="detail-item">
                         <div class="detail-label">Business Name</div>
@@ -829,27 +1037,20 @@
                         <div class="detail-label">Bulk Discount</div>
                         <div id="bulk-discount" class="detail-value">Loading...</div>
                     </div>
-
-                    {% comment %} <div class="detail-item">
-                        <div class="detail-label">Member Since</div>
-                        <div class="member-value">{{member_since}}</div>
-                    </div> {% endcomment %}
                 </div>
             </div>
 
             <div class="search-bar product-search-bar">
                 <div class="search-container">
                     <i class="fas fa-search search-icon"></i>
-                    <input type="text" id="product-search" class="form-control" placeholder="Search for medical devices..." disabled>
+                    <input type="text" id="product-search" class="form-control" placeholder="Search for Pharmaceutical products..." disabled>
                 </div>
             </div>
 
-
-                        <div class="info-card">
+            <div class="info-card">
                 <h2 class="section-title">
                     <i class="fas fa-cogs"></i>
                     Pharmaceutical Inventory
-
                 </h2>
                 <strong>Simply click the '+' button to order. All orders are fulfilled on a first-come, first-served basis, ensuring a faster response than direct contact.</strong>
                 <br><br>
@@ -857,9 +1058,8 @@
                     <h2 class="section-title">
                         <i class="fas fa-cogs"></i>
                         Pharmaceutical Inventory
-
                     </h2>
-                    <div style="overflow-x: auto;">
+                    <div class="table-container">
                         <table class="product-table">
                             <thead>
                                 <tr>
@@ -881,7 +1081,8 @@
             </div>
         </div>
 
-        <div class="sidebar-panel">
+        <!-- Desktop Sidebar - Hidden on mobile -->
+        <div class="sidebar-panel desktop-sidebar">
             <div class="contact-card">
                 <h2 class="section-title">
                     <i class="fas fa-address-book"></i>
@@ -928,7 +1129,7 @@
                         <div class="form-group">
                             <label class="form-label" for="pharmacy-name">Medical Device Wholesaler <span class="required">*</span></label>
                             <input type="text" id="pharmacy-name" class="form-control" placeholder="My Medical Device Store" required>
-                            <div class="invalid-feedback" id="pharmacy-name-error">Please provide your medical device business name.</div>
+                            <div class="invalid-feedback" id="pharmacy-name-error">Please provide your business name.</div>
                         </div>
                         <div class="form-group">
                             <label class="form-label" for="delivery-address">Delivery Address <span class="required">*</span></label>
@@ -1190,17 +1391,19 @@
                 else avatar.innerHTML = `<i class="fas fa-building fa-2x"></i>`;
 
                 // Contact info
-                const contactContainer = document.getElementById('contact-methods');
-                contactContainer.innerHTML = '';
-                ['phone', 'email', 'whatsapp_link', 'telegram_link'].forEach(key => {
-                    if (data.supplier[key]) {
-                        const isLink = key.includes('link') || key === 'email';
-                        const label = key === 'phone' ? 'Phone' : key === 'email' ? 'Email' : key.includes('whatsapp') ? 'Whatsapp' : 'Telegram';
-                        const icon = key === 'phone' ? 'fas fa-phone-alt' : key === 'email' ? 'fas fa-envelope' : key.includes('whatsapp') ? 'fab fa-whatsapp' : 'fab fa-telegram';
-                        contactContainer.innerHTML += createContactMethod(label, data.supplier[key], icon, isLink);
-                    }
+                const contactContainers = document.querySelectorAll('#contact-methods');
+                contactContainers.forEach(contactContainer => {
+                    contactContainer.innerHTML = '';
+                    ['phone', 'email', 'whatsapp_link', 'telegram_link'].forEach(key => {
+                        if (data.supplier[key]) {
+                            const isLink = key.includes('link') || key === 'email';
+                            const label = key === 'phone' ? 'Phone' : key === 'email' ? 'Email' : key.includes('whatsapp') ? 'Whatsapp' : 'Telegram';
+                            const icon = key === 'phone' ? 'fas fa-phone-alt' : key === 'email' ? 'fas fa-envelope' : key.includes('whatsapp') ? 'fab fa-whatsapp' : 'fab fa-telegram';
+                            contactContainer.innerHTML += createContactMethod(label, data.supplier[key], icon, isLink);
+                        }
+                    });
+                    if (!contactContainer.children.length) contactContainer.innerHTML = '<p>No contact info available.</p>';
                 });
-                if (!contactContainer.children.length) contactContainer.innerHTML = '<p>No contact info available.</p>';
 
                 // Render products
                 renderProducts(allProducts);

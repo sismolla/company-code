@@ -218,7 +218,6 @@ class ContactUs(models.Model):
     subject = models.CharField(choices=SUBJECT_CHOICES, null=False,blank=False,max_length=300)
     message = models.TextField(null=False,blank=False,max_length=2000)
 
-
 class Platform(models.TextChoices):
     FACEBOOK_PAGE = "facebook_page", "Facebook Page"
     INSTAGRAM = "instagram", "Instagram"

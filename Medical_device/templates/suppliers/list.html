@@ -3,6 +3,20 @@
 {% load static %}
 {% block meta %}
 <meta name="description" content="Browse a list of verified Ethiopian medical devices wholesalers on Pharma ገበያ. Connect directly with trusted suppliers for bulk medical devices orders." />
+<meta property="og:title" content="MediSource | Professional Medical Device Sellers Directory" />
+<meta property="og:description" content="Find certified medical device manufacturers and distributors in Ethiopia with ease and confidence, ensuring quality and compliance." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="{{ request.build_absolute_uri }}" />
+{% if request.is_secure %}
+<meta property="og:image" content="https://{% firstof request.get_host 'example.com' %}{% static 'background.jpg' %}" />
+{% else %}
+<meta property="og:image" content="http://{% firstof request.get_host 'example.com' %}{% static 'background.jpg' %}" />
+{% endif %}
+<meta property="og:site_name" content="MediSource" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="MediSource | Professional Medical Device Sellers Directory" />
+<meta name="twitter:description" content="Find certified medical device manufacturers and distributors in Ethiopia with ease and confidence, ensuring quality and compliance." />
+<link rel="canonical" href="{{ request.build_absolute_uri }}" />
 {% endblock meta %}
 
 {% block title %}MediSource | Professional Medical Device Sellers Directory{% endblock title %}
@@ -27,14 +41,31 @@
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": "Medi-Connect",
-      "url": "https://www.medi-connect.com/",
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": "https://www.medi-connect.com/suppliers?search={search_term_string}",
-        "query-input": "required name=search_term_string"
-      }
+      "@type": "ItemList",
+      "name": "Medical Suppliers Directory",
+      "description": "Directory of verified medical suppliers in Ethiopia",
+      "url": "{{ request.build_absolute_uri }}",
+      "numberOfItems": {{ suppliers.count }},
+      "itemListElement": [
+        {% for supplier in suppliers %}
+        {
+          "@type": "ListItem",
+          "position": {{ forloop.counter }},
+          "item": {
+            "@type": "Organization",
+            "name": "{{ supplier.name|escapejs }}",
+            "url": "{% if request.is_secure %}https://{% else %}http://{% endif %}{% firstof request.get_host 'example.com' %}{% url 'medical_device:supplier-products' supplier.id %}",
+            {% if supplier.supplierprofile.user.city %}
+            "location": {
+              "@type": "Place",
+              "name": "{{ supplier.supplierprofile.user.city.name|escapejs }}"
+            },
+            {% endif %}
+            "description": "{{ supplier.user_supplier.description|truncatewords:30|escapejs }}"
+          }
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+      ]
     }
     </script>
     <style>
@@ -417,12 +448,17 @@
 {%endblock style%}
 
 {% block content %}
+    <!-- Skip link for accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
     <!-- Breadcrumb for SEO -->
-    <div class="container mx-auto px-4">
-        <div class="breadcrumb">
-            <a href="/">Home</a> > <a href="{% url 'medical_device:device-supplier-list' %}">Medical Suppliers</a> > <span>Directory</span>
-        </div>
-    </div>
+    <nav aria-label="Breadcrumb" class="breadcrumb-nav">
+        <ol class="breadcrumb" style="margin-left: 10px; margin-top: 10px; display: flex; list-style: none; padding: 0; margin-bottom: 1.5rem; font-size: 0.9rem;">
+            <li style="margin-right: 0.5rem;"><a href="/" style="color: var(--secondary); text-decoration: none;">Home</a></li>
+            <li style="margin-right: 0.5rem;">/</li>
+            <li style="color: var(--gray);">Medical Suppliers</li>
+        </ol>
+    </nav>
     
     <!-- Hero Section -->
     <header class="hero text-white py-24 md:py-32 flex items-center justify-center text-center" style="background: linear-gradient(rgba(248, 248, 249, 0), rgba(231, 234, 242, 0)), url('{% static 'background.jpg' %}') center/cover no-repeat;">
@@ -435,7 +471,7 @@
               Start Your Search <i class="fas fa-arrow-circle-right ml-2" aria-hidden="true"></i>
           </a>
       </div>
-  </header>
+    </header>
 
     <!-- Main Content -->
     <main id="main-content" class="container mx-auto px-4 py-16">
@@ -611,33 +647,32 @@
                 <!-- Supplier Cards Container -->
                 <div id="supplier-cards" class="supplier-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-8" aria-live="polite">
                     {% for supplier in suppliers %}
-                    <article class="supplier-card supplier-item bg-white p-7 rounded-2xl shadow-lg flex flex-col h-full">
+                    <article class="supplier-card supplier-item bg-white p-7 rounded-2xl shadow-lg flex flex-col h-full" itemscope itemtype="https://schema.org/Organization">
                         <div class="flex items-start mb-5">
                             <img src="{% if supplier.logo %}{{ supplier.logo.url }}{% else %}https://placehold.co/60x60/e0e7ff/1e40af?text={{ supplier.name|first }}{% endif %}" 
                             alt="{{ supplier.name }} Logo" 
                             class="w-14 h-14 rounded-full object-cover mr-4 border-2 border-blue-500 flex-shrink-0" 
-                            loading="lazy">
+                            loading="lazy"
+                            itemprop="logo">
 
                             <div>
-                                <h3 class="text-xl font-bold text-gray-900 leading-tight flex items-center">
+                                <h3 class="text-xl font-bold text-gray-900 leading-tight flex items-center" itemprop="name">
                                     {{ supplier.name }}
                                     {% if supplier.verified %}
                                     <i class="fas fa-check-circle text-blue-600 ml-2" title="Verified Supplier" aria-hidden="true"></i>
                                     {% endif %}
                                 </h3>
-                                <p class="text-sm text-gray-500 mt-1">
+                                <p class="text-sm text-gray-500 mt-1" itemprop="location" itemscope itemtype="https://schema.org/Place">
                                 <i class="fas fa-map-marker-alt text-blue-500 mr-2" aria-hidden="true"></i>
                                 {% if supplier.supplierprofile.user.city %}
-                                    {{ supplier.supplierprofile.user.city.name }}
+                                    <span itemprop="name">{{ supplier.supplierprofile.user.city.name }}</span>
                                 {% else %}
                                     Location not specified
                                 {% endif %}
                                 </p>
-
-
                             </div>
                         </div>
-                        <p class="text-gray-700 text-sm mb-5 flex-grow">
+                        <p class="text-gray-700 text-sm mb-5 flex-grow" itemprop="description">
                             {% if supplier.user_supplier.description %}
                                 {{ supplier.user_supplier.description|truncatewords:30 }}
                             {% else %}
@@ -645,30 +680,34 @@
                             {% endif %}
                         </p>
 
+                        <div class="flex flex-wrap gap-2 mb-5">
+                            <p style="width: 100%; margin-bottom: 8px; font-weight: 600; color: #374151; font-size: 14px;">
+                                Specialized Equipments
+                            </p>
+                            {% if supplier.supplierprofile.specialized_equipment.all.count %}
+                                {% for equipment in supplier.supplierprofile.specialized_equipment.all %}
+                                    <span class="bg-blue-50 text-blue-700 text-xs font-medium px-3 py-1.5 rounded-full">
+                                        {{ equipment.name }}
+                                    </span>
+                                {% endfor %}
+                            {% else %}
+                                <span class="bg-gray-100 text-gray-500 text-xs font-medium px-3 py-1.5 rounded-full">N/A</span>
+                            {% endif %}
+                        </div>
 
-                    <div class="flex flex-wrap gap-2 mb-5">
-                        <p style="width: 100%; margin-bottom: 8px; font-weight: 600; color: #374151; font-size: 14px;">Specialized Equipments</p>
-                        {% if supplier.supplierprofile.specialized_equipment.all %}
-                            {% for equipment in supplier.supplierprofile.specialized_equipment.all %}
-                            <span class="bg-blue-50 text-blue-700 text-xs font-medium px-3 py-1.5 rounded-full">{{ equipment.name }}</span>
-                            {% endfor %}
-                        {% else %}
-                            <span class="bg-gray-100 text-gray-500 text-xs font-medium px-3 py-1.5 rounded-full">N/A</span>
-                        {% endif %}
-                    </div>
-
-                    <div class="flex flex-wrap gap-2 mb-5">
-                        <p style="width: 100%; margin-bottom: 8px; font-weight: 600; color: #374151; font-size: 14px;">Working Industries</p>
-                        {% if supplier.supplierprofile.industries.all %}
-                            {% for industry in supplier.supplierprofile.industries.all %}
-                            <span class="bg-blue-50 text-blue-700 text-xs font-medium px-3 py-1.5 rounded-full">{{ industry.name }}</span>
-                            {% endfor %}
-                        {% else %}
-                            <span class="bg-gray-100 text-gray-500 text-xs font-medium px-3 py-1.5 rounded-full">N/A</span>
-                        {% endif %}
-                    </div>
+                        <div class="flex flex-wrap gap-2 mb-5">
+                            <p style="width: 100%; margin-bottom: 8px; font-weight: 600; color: #374151; font-size: 14px;">Working Industries</p>
+                            {% if supplier.supplierprofile.industries.all %}
+                                {% for industry in supplier.supplierprofile.industries.all %}
+                                <span class="bg-blue-50 text-blue-700 text-xs font-medium px-3 py-1.5 rounded-full">{{ industry.name }}</span>
+                                {% endfor %}
+                            {% else %}
+                                <span class="bg-gray-100 text-gray-500 text-xs font-medium px-3 py-1.5 rounded-full">N/A</span>
+                            {% endif %}
+                        </div>
+                        
                         <div class="mt-auto">
-                            <a href="{% url 'medical_device:supplier-products' supplier.id%}" class="inline-block bg-blue-600 text-white font-semibold py-2.5 px-7 rounded-full hover:bg-blue-700 transition duration-300 text-sm">
+                            <a href="{% url 'medical_device:supplier-products' supplier.id%}" class="inline-block bg-blue-600 text-white font-semibold py-2.5 px-7 rounded-full hover:bg-blue-700 transition duration-300 text-sm" itemprop="url">
                                 View Profile <i class="fas fa-arrow-right ml-2" aria-hidden="true"></i>
                             </a>
                         </div>
@@ -684,17 +723,17 @@
                 
                 <!-- Pagination -->
                 {% if is_paginated %}
-                <div class="pagination mt-12">
+                <nav aria-label="Supplier pagination" class="pagination mt-12">
                     <ul class="flex items-center space-x-1">
                         {% if page_obj.has_previous %}
                         <li class="page-item">
-                            <a href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ page_obj.previous_page_number }}" class="page-link">
+                            <a href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ page_obj.previous_page_number }}" class="page-link" aria-label="Previous page">
                                 <i class="fas fa-chevron-left" aria-hidden="true"></i>
                             </a>
                         </li>
                         {% else %}
                         <li class="page-item">
-                            <span class="page-link disabled">
+                            <span class="page-link disabled" aria-label="No previous page">
                                 <i class="fas fa-chevron-left" aria-hidden="true"></i>
                             </span>
                         </li>
@@ -703,30 +742,30 @@
                         {% for num in page_obj.paginator.page_range %}
                             {% if page_obj.number == num %}
                             <li class="page-item">
-                                <span class="page-link active">{{ num }}</span>
+                                <span class="page-link active" aria-label="Current page, page {{ num }}" aria-current="page">{{ num }}</span>
                             </li>
                             {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
                             <li class="page-item">
-                                <a href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ num }}" class="page-link">{{ num }}</a>
+                                <a href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ num }}" class="page-link" aria-label="Go to page {{ num }}">{{ num }}</a>
                             </li>
                             {% endif %}
                         {% endfor %}
                         
                         {% if page_obj.has_next %}
                         <li class="page-item">
-                            <a href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ page_obj.next_page_number }}" class="page-link">
+                            <a href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ page_obj.next_page_number }}" class="page-link" aria-label="Next page">
                                 <i class="fas fa-chevron-right" aria-hidden="true"></i>
                             </a>
                         </li>
                         {% else %}
                         <li class="page-item">
-                            <span class="page-link disabled">
+                            <span class="page-link disabled" aria-label="No next page">
                                 <i class="fas fa-chevron-right" aria-hidden="true"></i>
                             </span>
                         </li>
                         {% endif %}
                     </ul>
-                </div>
+                </nav>
                 {% endif %}
             </div>
         </div>

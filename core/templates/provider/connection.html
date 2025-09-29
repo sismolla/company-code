@@ -1,0 +1,830 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Products - Medical Product Management System{% endblock %}
+{% block meta_description %}Manage your medical Device products, inventory, and pricing efficiently with our comprehensive product management system.{% endblock %}
+
+the correct this styling for the page and correct it for more responsiveness and 
+
+{% block style %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        :root {
+            --primary: #0a66c2;
+            --primary-dark: #004182;
+            --primary-light: #e2f0fe;
+            --secondary: #666666;
+            --light-gray: #f3f2ef;
+            --dark-gray: #5e5e5e;
+            --white: #ffffff;
+            --border: #e0e0e0;
+            --success: #057642;
+            --warning: #e0a100;
+            --danger: #d11124;
+            --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            --radius: 8px;
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            background-color: var(--light-gray);
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Main Content Layout */
+        .main-content {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 20px;
+            padding: 30px 0;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background-color: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 20px;
+            height: fit-content;
+            position: sticky;
+            top: 80px;
+        }
+
+        .sidebar-section {
+            margin-bottom: 25px;
+        }
+
+        .sidebar-section h3 {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: var(--dark-gray);
+            font-weight: 600;
+        }
+
+        .filter-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .filter-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            padding: 8px 5px;
+            border-radius: var(--radius);
+            transition: var(--transition);
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .filter-option:hover {
+            background-color: var(--primary-light);
+        }
+
+        .filter-option.active {
+            background-color: var(--primary-light);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .filter-option i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .filter-count {
+            margin-left: auto;
+            background-color: var(--primary);
+            color: var(--white);
+            border-radius: 12px;
+            padding: 2px 8px;
+            font-size: 12px;
+        }
+
+        /* Dashboard */
+        .dashboard {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Tab Navigation */
+        .tab-navigation {
+            display: flex;
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .tab-button {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 15px 20px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 600;
+            color: var(--secondary);
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab-button:hover {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .tab-button.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .tab-count {
+            background: var(--primary-light);
+            color: var(--primary);
+            border-radius: 12px;
+            padding: 2px 8px;
+            font-size: 12px;
+        }
+
+        .tab-button.active .tab-count {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Dashboard Header */
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 20px;
+        }
+
+        .dashboard-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-dark);
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+            background-color: var(--primary-light);
+            border-radius: var(--radius);
+            min-width: 120px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--secondary);
+        }
+
+        /* Connection Cards */
+        .connections-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .connection-card {
+            background-color: var(--white);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .connection-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .connection-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .connection-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            overflow: hidden;
+            background-color: var(--primary-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .connection-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .connection-info {
+            flex: 1;
+        }
+
+        .connection-name {
+            font-weight: 700;
+            margin: 0 0 5px 0;
+            color: var(--primary-dark);
+            font-size: 18px;
+        }
+
+        .connection-title {
+            color: var(--secondary);
+            margin: 0 0 8px 0;
+            font-size: 14px;
+        }
+
+        .connection-details {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--dark-gray);
+        }
+
+        .detail-item i {
+            color: var(--primary);
+            width: 14px;
+        }
+
+        .connection-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary-light);
+        }
+
+        .btn-connected {
+            background-color: var(--primary-light);
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-connected:hover {
+            background-color: #ffebee;
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background-color: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            grid-column: 1 / -1;
+        }
+
+        .empty-state i {
+            font-size: 60px;
+            color: var(--border);
+            margin-bottom: 20px;
+        }
+
+        .empty-state h3 {
+            font-size: 22px;
+            color: var(--dark-gray);
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            color: var(--secondary);
+            max-width: 500px;
+            margin: 0 auto 20px;
+            line-height: 1.6;
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--white);
+            padding: 15px 20px;
+            border-radius: var(--radius);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            border-left: 4px solid var(--success);
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            border-left-color: var(--danger);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                position: static;
+            }
+            
+            .connections-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+            
+            .stats {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .stat-item {
+                min-width: 100px;
+            }
+            
+            .connections-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .tab-navigation {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 10px;
+            }
+            
+            .connection-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+{% endblock style %}
+
+{% block content %}
+
+<div class="container">
+    <div class="main-content">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-section">
+                <h3>Connection Types</h3>
+                <div class="filter-options">
+                    <a href="?tab=followers" class="filter-option {% if active_tab == 'followers' %}active{% endif %}" data-tab="followers">
+                        <i class="fas fa-users"></i>
+                        <span>My Followers</span>
+                        <span class="filter-count">{{ followers_profiles.count }}</span>
+                    </a>
+                    <a href="?tab=following" class="filter-option {% if active_tab == 'following' %}active{% endif %}" data-tab="following">
+                        <i class="fas fa-user-check"></i>
+                        <span>People I Follow</span>
+                        <span class="filter-count">{{ following_profiles.count }}</span>
+                    </a>
+                </div>
+            </div>
+            
+            {% if cities %}
+            <div class="sidebar-section">
+                <h3>Filter by City</h3>
+                <div class="filter-options">
+                    <div class="filter-option city-option active" data-city="all">
+                        <i class="fas fa-globe"></i>
+                        <span>All Cities</span>
+                    </div>
+                    {% for city in cities %}
+                    <div class="filter-option city-option" data-city="{{ city.id }}">
+                        <i class="fas fa-city"></i>
+                        <span>{{ city.name }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </aside>
+
+        <!-- Main Dashboard -->
+        <main class="dashboard">
+            <!-- Tab Navigation -->
+            <div class="tab-navigation">
+                <button class="tab-button {% if active_tab == 'followers' %}active{% endif %}" data-tab="followers">
+                    <i class="fas fa-users"></i>
+                    My Followers
+                    <span class="tab-count">{{ followers_profiles.count }}</span>
+                </button>
+                <button class="tab-button {% if active_tab == 'following' %}active{% endif %}" data-tab="following">
+                    <i class="fas fa-user-check"></i>
+                    People I Follow
+                    <span class="tab-count">{{ following_profiles.count }}</span>
+                </button>
+            </div>
+
+            <!-- Dashboard Header -->
+
+
+            <!-- Followers Tab Content -->
+            <div class="tab-content {% if active_tab == 'followers' %}active{% endif %}" id="followers-tab">
+                <div class="connections-grid">
+                    {% for profile in followers_profiles %}
+                    <div class="connection-card" data-city="{{ profile.city.id|default:0 }}">
+                        <div class="connection-header">
+                            <div class="connection-avatar">
+                                {% if profile.logo %}
+                                    <img src="{{ profile.logo.url }}" alt="{{ profile.name }}">
+                                {% else %}
+                                    {{ profile.name|first }}
+                                {% endif %}
+                            </div>
+                            <div class="connection-info">
+                                <h3 class="connection-name">{{ profile.name }}</h3>
+                                <p class="connection-title">Professional Supplier</p>
+                                <div class="connection-details">
+                                    {% if profile.city %}
+                                    <div class="detail-item">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        <span>{{ profile.city.name }}</span>
+                                    </div>
+                                    {% endif %}
+                                    {% if profile.phone %}
+                                    <div class="detail-item">
+                                        <i class="fas fa-phone"></i>
+                                        <span>{{ profile.phone }}</span>
+                                    </div>
+                                    {% endif %}
+                                    <div class="detail-item">
+                                        <i class="fas fa-clock"></i>
+                                        <span>Response: {{ profile.get_response_time_display }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="connection-actions">
+                            {% if profile.phone %}
+                            <a href="tel:{{ profile.phone }}" class="btn btn-primary">
+                                <i class="fas fa-phone"></i> Call
+                            </a>
+                            {% endif %}
+                            
+                            {% if profile.user.id in following_ids %}
+                                <button class="btn btn-connected connect-btn" data-user-id="{{ profile.user.id }}">
+                                    <i class="fas fa-user-check"></i> Connected
+                                </button>
+                            {% else %}
+                                <button class="btn btn-outline connect-btn" data-user-id="{{ profile.user.id }}">
+                                    <i class="fas fa-user-plus"></i> Connect
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="empty-state">
+                        <i class="fas fa-users"></i>
+                        <h3>No Followers Yet</h3>
+                        <p>You don't have any followers yet. Start connecting with suppliers to build your network.</p>
+                        <a href="/pharmaceutical-wholesalers/" class="btn btn-primary" style="margin-top: 15px; display: inline-flex;">
+                            <i class="fas fa-search"></i> Find Suppliers
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Following Tab Content -->
+            <div class="tab-content {% if active_tab == 'following' %}active{% endif %}" id="following-tab">
+                <div class="connections-grid">
+                    {% for profile in following_profiles %}
+                    <div class="connection-card" data-city="{{ profile.city.id|default:0 }}">
+                        <div class="connection-header">
+                            <a href="/supplier-detail/{{ profile.user_supplier.id }}/">
+                            <div class="connection-avatar">
+                                {% if profile.logo %}
+                                    <img src="{{ profile.logo.url }}" alt="{{ profile.name }}">
+                                {% else %}
+                                    {{ profile.name|first }}
+                                {% endif %}
+                            </div>
+                            
+                            </a>
+                            <div class="connection-info">
+                                <h3 class="connection-name">{{ profile.name }}</h3>
+                                <p class="connection-title">Professional Supplier</p>
+                                <div class="connection-details">
+                                    {% if profile.city %}
+                                    <div class="detail-item">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        <span>{{ profile.city.name }}</span>
+                                    </div>
+                                    {% endif %}
+                                    {% if profile.phone %}
+                                    <div class="detail-item">
+                                        <i class="fas fa-phone"></i>
+                                        <span>{{ profile.phone }}</span>
+                                    </div>
+                                    {% endif %}
+                                    <div class="detail-item">
+                                        <i class="fas fa-clock"></i>
+                                        <span>Response: {{ profile.get_response_time_display }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="connection-actions">
+                            {% if profile.phone %}
+                            <a href="tel:{{ profile.phone }}" class="btn btn-primary">
+                                <i class="fas fa-phone"></i> Call
+                            </a>
+                            {% endif %}
+                            
+                            <button class="btn btn-connected connect-btn" data-user-id="{{ profile.user.id }}">
+                                <i class="fas fa-user-check"></i> Connected
+                            </button>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="empty-state">
+                        <i class="fas fa-user-check"></i>
+                        <h3>Not Following Anyone</h3>
+                        <p>You're not following anyone yet. Start connecting with suppliers to build your network.</p>
+                        <a href="/pharmaceutical-wholesalers/" class="btn btn-primary" style="margin-top: 15px; display: inline-flex;">
+                            <i class="fas fa-search"></i> Find Suppliers
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Notification Element -->
+<div class="notification" id="notification">
+    <i class="fas fa-check-circle"></i>
+    <span id="notification-message">Operation completed successfully</span>
+</div>
+
+{% endblock content %}
+
+{% block script %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const csrftoken = "{{ csrf_token }}";
+    const notification = document.getElementById('notification');
+    const notificationMessage = document.getElementById('notification-message');
+
+    // Show notification function
+    function showNotification(message, isError = false) {
+        notificationMessage.textContent = message;
+        notification.classList.toggle('error', isError);
+        notification.classList.add('show');
+        
+        setTimeout(() => {
+            notification.classList.remove('show');
+        }, 3000);
+    }
+
+    // Tab switching functionality
+    document.querySelectorAll('.tab-button').forEach(button => {
+        button.addEventListener('click', function() {
+            const tab = this.dataset.tab;
+            
+            // Update URL without page reload
+            const url = new URL(window.location);
+            url.searchParams.set('tab', tab);
+            window.history.pushState({}, '', url);
+            
+            // Reload page to load correct data
+            window.location.href = url.toString();
+        });
+    });
+
+    // City filtering functionality
+    document.querySelectorAll('.city-option').forEach(option => {
+        option.addEventListener('click', function() {
+            const cityId = this.dataset.city;
+            
+            // Update active state
+            document.querySelectorAll('.city-option').forEach(opt => {
+                opt.classList.remove('active');
+            });
+            this.classList.add('active');
+            
+            // Filter cards
+            document.querySelectorAll('.connection-card').forEach(card => {
+                if (cityId === 'all' || card.dataset.city === cityId) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    });
+
+    // Connect button functionality
+    document.querySelectorAll(".connect-btn").forEach(button => {
+        let isProcessing = false;
+
+        // Hover effect for connected buttons
+        button.addEventListener("mouseenter", function() {
+            if (this.classList.contains("btn-connected")) {
+                const originalHTML = this.innerHTML;
+                this.dataset.originalHTML = originalHTML;
+                this.innerHTML = '<i class="fas fa-user-times"></i> Remove';
+                this.style.background = 'var(--danger)';
+                this.style.borderColor = 'var(--danger)';
+                this.style.color = 'white';
+            }
+        });
+
+        button.addEventListener("mouseleave", function() {
+            if (this.classList.contains("btn-connected") && this.dataset.originalHTML) {
+                this.innerHTML = this.dataset.originalHTML;
+                this.style.background = '';
+                this.style.borderColor = '';
+                this.style.color = '';
+            }
+        });
+
+        // Click handling
+        button.addEventListener("click", async function() {
+            if (isProcessing) return;
+            isProcessing = true;
+
+            const userId = this.dataset.userId;
+            const isConnected = this.classList.contains("btn-connected");
+
+            try {
+                let response;
+                if (!isConnected) {
+                    // Follow user
+                    response = await fetch("{% url 'setting:follow-user' %}", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRFToken": csrftoken
+                        },
+                        body: JSON.stringify({ following: userId })
+                    });
+                } else {
+                    // Unfollow user
+                    const unfollowUrl = `{% url 'setting:unfollow-user' 0 %}`.replace("0", userId);
+                    response = await fetch(unfollowUrl, {
+                        method: "DELETE",
+                        headers: { "X-CSRFToken": csrftoken }
+                    });
+                }
+
+                if (response.status === 401 || response.status === 403) {
+                    window.location.href = "/";
+                    return;
+                }
+
+                if (!response.ok) throw new Error("Network error");
+
+                // Update all buttons for this user
+                document.querySelectorAll(`.connect-btn[data-user-id="${userId}"]`).forEach(btn => {
+                    if (!isConnected) {
+                        btn.classList.remove("btn-outline");
+                        btn.classList.add("btn-connected");
+                        btn.innerHTML = '<i class="fas fa-user-check"></i> Connected';
+                    } else {
+                        btn.classList.remove("btn-connected");
+                        btn.classList.add("btn-outline");
+                        btn.innerHTML = '<i class="fas fa-user-plus"></i> Connect';
+                    }
+                });
+
+                showNotification(isConnected ? 'Connection removed successfully' : 'Connected successfully!');
+
+            } catch (err) {
+                console.error(err);
+                showNotification('Request failed. Please try again.', true);
+            } finally {
+                isProcessing = false;
+            }
+        });
+    });
+
+    // Set active tab based on URL parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const activeTab = urlParams.get('tab') || 'followers';
+    
+    // Update sidebar active state
+    document.querySelectorAll('.filter-option').forEach(option => {
+        option.classList.toggle('active', option.dataset.tab === activeTab);
+    });
+});
+</script>
+{% endblock script %}

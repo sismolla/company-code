@@ -229,9 +229,15 @@
                 </div>
                 <div class="user-dropdown-container">
                     <div class="user-avatar" id="avatarBtn">
-                        {%if logo %}
-                            <img src="{{ logo.url }}" alt="Wholesaler Logo" style="height: 40px; width: 40px; border-radius: 50%;">
-                        {%else%}
+                        {% if request.user.is_authenticated %}
+                            {% if request.user.supplier_profile.logo %}
+                                <img src="{{ request.user.supplier_profile.logo.url }}" 
+                                    alt="Wholesaler Logo" 
+                                    style="height: 40px; width: 40px; border-radius: 50%;">
+                            {% else %}
+                                <i class="fas fa-user"></i>
+                            {% endif %}
+                        {% else %}
                             <i class="fas fa-user"></i>
                         {% endif %}
                     </div>
@@ -242,6 +248,10 @@
                         </li>
                         <hr style="margin: 0.5rem 0; border: none; border-bottom: 1px solid #eee;">
                         <li><a href="{%url 'landing:dashboard'%}" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
+                        <li><a href="/connections"><i class="fas fa-network-wired"></i> My Network</a></li>
+                        <li><a href="/quotes-page/"><i class="fas fa-file-alt"></i> Request Product</a></li> 
+                        <li><a href="/manage-quotes/"><i class="fas fa-file-alt"></i> Manage Request</a></li>
+
                         <li><a href="{%url 'landing:user-products'%}"><i class="fas fa-shopping-cart"></i> My Products</a></li>
                         <li><a href="{%url 'landing:order-view'%}"><i class="fas fa-clipboard-list"></i> Manage Orders</a></li>
                         <li><a href="{%url 'landing:message-view'%}"><i class="fas fa-comments"></i> Messages</a></li>
